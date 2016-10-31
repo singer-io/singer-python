@@ -6,7 +6,8 @@ from io import StringIO
 _headers_written = False
 
 def _writeline(s):
-    print(s, flush=True)
+    print(s)
+    sys.stdout.flush()
 
 def _write_headers():
     global _headers_written
