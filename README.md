@@ -6,19 +6,11 @@ Writes the stitchstream format from Python
 Use
 ---
 
-This library depends on python3 and a to-be-released version of
-`transit-python`. The first step is to setup the python environment
-and manually install the correct version of that library:
+This library depends on python3. We recommend using a `virtualenv`
+like this:
 
 ```bash
 › mkvirtualenv -p python3 stitch
-```
-
-```bash
-› workon stitch
-› git clone https://github.com/cognitect/transit-python
-› cd transit-python
-› python setup.py install
 ```
 
 Next, install this library:
@@ -37,7 +29,9 @@ library:
 import stitchstream as ss
 
 records = [{'id': i, 'value': 'abc'} for i in range(0,10)]
-ss.write_records('my_table', ['id'], records)
+ss.write_records('my_table',
+                 {'properties':{'id': {'type': 'string', 'key': True}}},
+                 [{'id': 'b'}, {'id':'d'}])
 ss.write_bookmark({'my_table': i})
 ```
 
