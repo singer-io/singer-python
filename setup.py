@@ -8,5 +8,4 @@ setup(name="stitchstream-python",
       description="Write to the stitchstream format from Python",
       author="Stitch",
       url="https://github.com/stitchdata/stitchstream-python",
-      packages=find_packages(),
-      install_requires=["transit-python"])
+      packages=find_packages())
