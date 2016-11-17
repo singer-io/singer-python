@@ -29,8 +29,9 @@ library:
 import stitchstream as ss
 
 records = [{'id': i, 'value': 'abc'} for i in range(0,10)]
+ss.write_schema('my_table',
+                {'properties':{'id': {'type': 'string', 'key': True}}})
 ss.write_records('my_table',
-                 {'properties':{'id': {'type': 'string', 'key': True}}},
                  [{'id': 'b'}, {'id':'d'}])
 ss.write_bookmark({'my_table': i})
 ```
