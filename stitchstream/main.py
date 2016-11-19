@@ -16,13 +16,18 @@ def _write_headers():
         _writeline('--')
         _headers_written = True
 
-def write_records(stream_name, schema, records):
+def write_records(stream_name, records):
     _write_headers()
     for record in records:
         _writeline(json.dumps({'type': 'RECORD',
                                'stream': stream_name,
-                               'schema': schema,
                                'record': record}))
+
+def write_schema(stream_name, schema):
+    _write_headers()
+    _writeline(json.dumps({'type': 'SCHEMA',
+                           'stream': stream_name,
+                           'schema': schema}))
 
 def write_bookmark(value):
     _write_headers()
@@ -31,6 +36,7 @@ def write_bookmark(value):
 
 
 if __name__ == "__main__":
+    write_schema('test',
+                 {'properties':{'id': {'type': 'string', 'key': True}}})
     write_records('test',
-                  {'properties':{'id': {'type': 'string', 'key': True}}},
                   [{'id': 'b'}, {'id':'d'}])
