@@ -29,9 +29,9 @@ def write_schema(stream_name, schema):
                            'stream': stream_name,
                            'schema': schema}))
 
-def write_bookmark(value):
+def write_state(value):
     _write_headers()
-    _writeline(json.dumps({'type': 'BOOKMARK',
+    _writeline(json.dumps({'type': 'STATE',
                            'value': value}))
 
 
