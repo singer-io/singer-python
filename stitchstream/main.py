@@ -1,6 +1,8 @@
 import sys
 import json
 from io import StringIO
+import os
+import logging
 
 def _writeline(s):
     sys.stdout.write(s + '\n')
@@ -22,6 +24,13 @@ def write_state(value):
                            'value': value}))
 
 
+def get_logger():
+    this_dir, this_filename = os.path.split(__file__)
+    path = os.path.join(this_dir, 'logging.conf')
+    logging.config.fileConfig(path)
+    return logging.getLogger('root')
+
+    
 if __name__ == "__main__":
     write_schema('test',
                  {'properties':{'id': {'type': 'string', 'key': True}}})
