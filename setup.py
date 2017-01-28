@@ -5,7 +5,7 @@ import subprocess
 
 
 setup(name="stitchstream-python",
-      version="0.4.1",
+      version="0.4.2",
       description="Write the stitchstream format from Python",
       author="Stitch",
       classifiers=['Programming Language :: Python :: 3 :: Only'],
