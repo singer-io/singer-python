@@ -3,6 +3,7 @@ import json
 from io import StringIO
 import os
 import logging
+import logging.config
 
 def _writeline(s):
     sys.stdout.write(s + '\n')
