@@ -1,6 +1,5 @@
 import sys
 import json
-from io import StringIO
 import os
 import logging
 import logging.config
