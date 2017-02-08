@@ -21,9 +21,15 @@ def write_records(stream_name, records):
         write_record(stream_name, record)
 
 
-def write_schema(stream_name, schema):
+def write_schema(stream_name, schema, key_properties):
+    """Write the schema message to stdout."""
+    if isinstance(key_properties, (str, bytes)):
+        key_properties = [key_properties]
+    if not isinstance(key_properties, list):
+        raise Exception("key_properties must be a string or list of strings")
     _writeline(json.dumps({'type': 'SCHEMA',
                            'stream': stream_name,
+                           'key_properties' : key_properties,
                            'schema': schema}))
 
 
@@ -43,8 +49,8 @@ if __name__ == "__main__":
     write_schema('test',
                  {'properties': {
                      'id': {
-                         'type': 'string',
-                         'key': True}}})
+                         'type': 'string'}}},
+                 'id')
     write_records('test',
                   [{'id': 'b'},
                    {'id': 'd'}])
