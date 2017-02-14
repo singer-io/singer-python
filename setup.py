@@ -12,7 +12,7 @@ setup(name="singer-python",
       url="http://singer.io",
       packages=find_packages(),
       package_data = {
-          'stitchstream': [
+          'singer': [
               'logging.conf'
               ]
           }
