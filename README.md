@@ -10,13 +10,13 @@ This library depends on python3. We recommend using a `virtualenv`
 like this:
 
 ```bash
-› mkvirtualenv -p python3 stitch
+› mkvirtualenv -p python3 singer
 ```
 
 Next, install this library:
 
 ```bash
-› workon stitch
+› workon singer
 › git clone http://github.com/singer-io/singer-python
 › cd singer-python
 › python setup.py install
