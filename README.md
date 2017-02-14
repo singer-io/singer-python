@@ -40,6 +40,6 @@ ss.write_state({'my_table': i})
 License
 -------
 
-Copyright © 2016 Stitch
+Copyright © 2017 Stitch
 
 Distributed under the Apache License Version 2.0
