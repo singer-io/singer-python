@@ -28,8 +28,6 @@ def write_records(stream_name, records):
     >>> chris = {"id": 1, "email": "chris@stitchdata.com"}
     >>> mike = {"id": 2, "email": "mike@stitchdata.com"}
     >>> write_records("users", [chris, mike])
-    {"stream": "users", "record": {"id": 1, "email": "mike@stitchdata.com"}, "type": "RECORD"}
-    {"stream": "users", "record": {"id": 2, "email": "chris@stitchdata.com"}, "type": "RECORD"}
     """
     for record in records:
         write_record(stream_name, record)
@@ -37,12 +35,11 @@ def write_records(stream_name, records):
 
 def write_schema(stream_name, schema, key_properties):
     """Write a schema message.
-    
+
     >>> stream = 'test'
-    >>> schema = {'properties': {'id': {'type': 'integer'}, 'email': {'type': 'string'}}}
+    >>> schema = {'properties': {'id': {'type': 'integer'}, 'email': {'type': 'string'}}}  # nopep8
     >>> key_properties = ['id']
     >>> write_schema(stream, schema, key_properties)
-    {"key_properties": ["id"], "schema": {"properties": {"email": {"type": "string"}, "id": {"type": "integer"}}}, "type": "SCHEMA", "stream": "test"}
     """
     if isinstance(key_properties, (str, bytes)):
         key_properties = [key_properties]
@@ -50,7 +47,7 @@ def write_schema(stream_name, schema, key_properties):
         raise Exception("key_properties must be a string or list of strings")
     _writeline(json.dumps({'type': 'SCHEMA',
                            'stream': stream_name,
-                           'key_properties' : key_properties,
+                           'key_properties': key_properties,
                            'schema': schema}))
 
 
