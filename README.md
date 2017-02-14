@@ -1,7 +1,7 @@
 stitchstream-python
 ===================
 
-Writes the stitchstream format from Python
+Writes the Singer format from Python
 
 Use
 ---
@@ -17,7 +17,7 @@ Next, install this library:
 
 ```bash
 › workon stitch
-› git clone http://github.com/stitchstreams/stitchstream-python
+› git clone http://github.com/singer-io/singer-python
 › cd stitchstream-python
 › python setup.py install
 ```
@@ -26,7 +26,7 @@ Now, from python code within the same `virtualenv`, you can use the
 library:
 
 ```python
-import stitchstream as ss
+import singerio as ss
 
 records = [{'id': i, 'value': 'abc'} for i in range(0,10)]
 ss.write_schema('my_table',
