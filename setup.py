@@ -4,15 +4,15 @@ from setuptools import setup, find_packages
 import subprocess
 
 
-setup(name="stitchstream-python",
-      version="0.6.0",
-      description="Write the stitchstream format from Python",
+setup(name="singer-python",
+      version="0.1.0",
+      description="Singer.io utility library",
       author="Stitch",
       classifiers=['Programming Language :: Python :: 3 :: Only'],
-      url="https://github.com/stitchdata/stitchstream-python",
+      url="http://singer.io",
       packages=find_packages(),
       package_data = {
-          'stitchstream': [
+          'singer': [
               'logging.conf'
               ]
           }
