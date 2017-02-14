@@ -1,4 +1,4 @@
-stitchstream-python
+singer-python
 ===================
 
 Writes the Singer format from Python
@@ -18,7 +18,7 @@ Next, install this library:
 ```bash
 › workon stitch
 › git clone http://github.com/singer-io/singer-python
-› cd stitchstream-python
+› cd singer-python
 › python setup.py install
 ```
 
