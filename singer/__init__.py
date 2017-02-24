@@ -4,11 +4,61 @@ import os
 import logging
 import logging.config
 
-from collections import namedtuple
+
+class Message(object):
+    def __init__(self, **kwargs):
+        for k in self.attr_list:
+            if k not in kwargs:
+                raise ValueError("missing {}".format(k))
+            setattr(self, k, kwargs[k])
+
+    def asdict(self):
+        res = {k: getattr(self, k) for k in self.attr_list}
+        res['type'] = self._type
+        return res
+
+    def __eq__(self, other):
+        return self.asdict() == other.asdict()
+
+    def __repr__(self):
+        attrstr = ", ".join(
+            "{}={}".format(k, getattr(self, k)) for k in self.attr_list)
+        return "{}({})".format(self.__class__.__name__, attrstr)
+
+    def tojson(self):
+        return json.dumps(self.asdict())
 
 
-def _writeline(s):
-    sys.stdout.write(s + '\n')
+class RecordMessage(Message):
+    _type = 'RECORD'
+    attr_list = ['stream', 'record']
+
+
+class SchemaMessage(Message):
+    _type = 'SCHEMA'
+    attr_list = ['stream', 'schema', 'key_properties']
+
+
+class StateMessage(Message):
+    _type = 'STATE'
+    attr_list = ['value']
+
+
+def to_json(message):
+    m = vars(message)
+    if isinstance(message, RecordMessage):
+        m['type'] = 'RECORD'
+    elif isinstance(message, SchemaMessage):
+        m['type'] = 'SCHEMA'
+    elif isinstance(message, StateMessage):
+        m['type'] = 'STATE'
+    else:
+        raise Exception('Unrecognized message {}'.format(message))
+    return json.dumps(m)
+
+
+def _write_message(message):
+    sys.stdout.write(to_json(message) + '\n')
     sys.stdout.flush()
 
 
@@ -17,9 +67,7 @@ def write_record(stream_name, record):
 
     >>> write_record("users", {"id": 2, "email": "mike@stitchdata.com"})
     """
-    _writeline(json.dumps({'type': 'RECORD',
-                           'stream': stream_name,
-                           'record': record}))
+    _write_message(RecordMessage(stream=stream_name, record=record))
 
 
 def write_records(stream_name, records):
@@ -45,10 +93,11 @@ def write_schema(stream_name, schema, key_properties):
         key_properties = [key_properties]
     if not isinstance(key_properties, list):
         raise Exception("key_properties must be a string or list of strings")
-    _writeline(json.dumps({'type': 'SCHEMA',
-                           'stream': stream_name,
-                           'key_properties': key_properties,
-                           'schema': schema}))
+    _write_message(
+        SchemaMessage(
+            stream=stream_name,
+            schema=schema,
+            key_properties=key_properties))
 
 
 def write_state(value):
@@ -56,8 +105,32 @@ def write_state(value):
 
     >>> write_state({'last_updated_at': '2017-02-14T09:21:00'})
     """
-    _writeline(json.dumps({'type': 'STATE',
-                           'value': value}))
+    _write_message(StateMessage(value))
+
+
+def _required_key(msg, k):
+    if k not in msg:
+        raise Exception("Message is missing required key '{}': {}".format(
+            k, msg))
+    return msg[k]
+
+
+def parse_message(s):
+    """Parse a message string into a Message object."""
+    o = json.loads(s)
+    t = _required_key(o, 'type')
+
+    if t == 'RECORD':
+        return RecordMessage(stream=_required_key(o, 'stream'),
+                             record=_required_key(o, 'record'))
+
+    elif t == 'SCHEMA':
+        return SchemaMessage(stream=_required_key(o, 'stream'),
+                             schema=_required_key(o, 'schema'),
+                             key_properties=_required_key(o, 'key_properties'))
+
+    elif t == 'STATE':
+        return StateMessage(value=_required_key(o, 'value'))
 
 
 def get_logger():
