@@ -44,21 +44,8 @@ class StateMessage(Message):
     attr_list = ['value']
 
 
-def to_json(message):
-    m = vars(message)
-    if isinstance(message, RecordMessage):
-        m['type'] = 'RECORD'
-    elif isinstance(message, SchemaMessage):
-        m['type'] = 'SCHEMA'
-    elif isinstance(message, StateMessage):
-        m['type'] = 'STATE'
-    else:
-        raise Exception('Unrecognized message {}'.format(message))
-    return json.dumps(m)
-
-
 def _write_message(message):
-    sys.stdout.write(to_json(message) + '\n')
+    sys.stdout.write(message.tojson() + '\n')
     sys.stdout.flush()
 
 
