@@ -7,8 +7,12 @@ import logging.config
 from collections import namedtuple
 
 RecordMessage = namedtuple('RecordMessage', ['stream', 'record'])
-SchemaMessage = namedtuple('SchemaMessage', ['stream', 'schema', 'key_properties'])
+
+SchemaMessage = namedtuple('SchemaMessage',
+                           ['stream', 'schema', 'key_properties'])
+
 StateMessage = namedtuple('StateMessage', ['value'])
+
 
 def to_json(message):
     m = message.__dict__.copy()
@@ -72,7 +76,8 @@ def write_state(value):
 
 def _required_key(msg, k):
     if k not in msg:
-        raise Exception("Message is missing required key '{}': {}".format(k, msg))
+        raise Exception("Message is missing required key '{}': {}".format(
+            k, msg))
     return msg[k]
 
 
@@ -89,7 +94,7 @@ def parse_message(s):
         return SchemaMessage(_required_key(o, 'stream'),
                              _required_key(o, 'schema'),
                              _required_key(o, 'key_properties'))
-    
+
     elif t == 'STATE':
         return StateMessage(_required_key(o, 'value'))
 
