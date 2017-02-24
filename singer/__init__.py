@@ -21,12 +21,13 @@ class Message(object):
         return self.asdict() == other.asdict()
 
     def __repr__(self):
-        attrstr = ", ".join("{}={}".format(k, getattr(self, k)) for k in self.attr_list)
+        attrstr = ", ".join(
+            "{}={}".format(k, getattr(self, k)) for k in self.attr_list)
         return "{}({})".format(self.__class__.__name__, attrstr)
-    
+
     def tojson(self):
         return json.dumps(self.asdict())
-    
+
 
 class RecordMessage(Message):
     _type = 'RECORD'
@@ -41,7 +42,7 @@ class SchemaMessage(Message):
 class StateMessage(Message):
     _type = 'STATE'
     attr_list = ['value']
-    
+
 
 def to_json(message):
     m = vars(message)
@@ -92,7 +93,11 @@ def write_schema(stream_name, schema, key_properties):
         key_properties = [key_properties]
     if not isinstance(key_properties, list):
         raise Exception("key_properties must be a string or list of strings")
-    _write_message(SchemaMessage(stream=stream_name, schema=schema, key_properties=key_properties))
+    _write_message(
+        SchemaMessage(
+            stream=stream_name,
+            schema=schema,
+            key_properties=key_properties))
 
 
 def write_state(value):
