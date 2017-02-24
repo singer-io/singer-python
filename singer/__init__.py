@@ -9,7 +9,7 @@ import attr
 
 class Message(object):
     def tojson(self):
-        return json.dumps(self.asdict())
+        return json.dumps(attr.asdict(self))
 
 
 @attr.s
@@ -33,21 +33,8 @@ class StateMessage(Message):
     type = attr.ib(default="STATE")
 
 
-def to_json(message):
-    m = vars(message)
-    if isinstance(message, RecordMessage):
-        m['type'] = 'RECORD'
-    elif isinstance(message, SchemaMessage):
-        m['type'] = 'SCHEMA'
-    elif isinstance(message, StateMessage):
-        m['type'] = 'STATE'
-    else:
-        raise Exception('Unrecognized message {}'.format(message))
-    return json.dumps(m)
-
-
 def _write_message(message):
-    sys.stdout.write(to_json(message) + '\n')
+    sys.stdout.write(message.tojson() + '\n')
     sys.stdout.flush()
 
 
@@ -110,16 +97,16 @@ def parse_message(s):
     t = _required_key(o, 'type')
 
     if t == 'RECORD':
-        return RecordMessage(stream=_required_key(o, 'stream'),
-                             record=_required_key(o, 'record'))
+        return RecordMessage(_required_key(o, 'stream'),
+                             _required_key(o, 'record'))
 
     elif t == 'SCHEMA':
-        return SchemaMessage(stream=_required_key(o, 'stream'),
-                             schema=_required_key(o, 'schema'),
-                             key_properties=_required_key(o, 'key_properties'))
+        return SchemaMessage(_required_key(o, 'stream'),
+                             _required_key(o, 'schema'),
+                             _required_key(o, 'key_properties'))
 
     elif t == 'STATE':
-        return StateMessage(value=_required_key(o, 'value'))
+        return StateMessage(_required_key(o, 'value'))
 
 
 def get_logger():

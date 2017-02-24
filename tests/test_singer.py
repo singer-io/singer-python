@@ -68,11 +68,11 @@ class TestSinger(unittest.TestCase):
         state_message = singer.StateMessage(value={'seq': 1})
 
         self.assertEqual(record_message,
-                         singer.parse_message(singer.to_json(record_message)))
+                         singer.parse_message(record_message.tojson()))
         self.assertEqual(schema_message,
-                         singer.parse_message(singer.to_json(schema_message)))
+                         singer.parse_message(schema_message.tojson()))
         self.assertEqual(state_message,
-                         singer.parse_message(singer.to_json(state_message)))
+                         singer.parse_message(state_message.tojson()))
 
 
 if __name__ == '__main__':
