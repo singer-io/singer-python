@@ -4,10 +4,8 @@ import os
 import logging
 import logging.config
 
-from collections import namedtuple
 
-
-def _writeline(s):
+def _writeline(message):
     sys.stdout.write(s + '\n')
     sys.stdout.flush()
 
@@ -17,9 +15,7 @@ def write_record(stream_name, record):
 
     >>> write_record("users", {"id": 2, "email": "mike@stitchdata.com"})
     """
-    _writeline(json.dumps({'type': 'RECORD',
-                           'stream': stream_name,
-                           'record': record}))
+    RecordMessage(stream_name, record).write(sys.stdout)
 
 
 def write_records(stream_name, records):
@@ -41,14 +37,7 @@ def write_schema(stream_name, schema, key_properties):
     >>> key_properties = ['id']
     >>> write_schema(stream, schema, key_properties)
     """
-    if isinstance(key_properties, (str, bytes)):
-        key_properties = [key_properties]
-    if not isinstance(key_properties, list):
-        raise Exception("key_properties must be a string or list of strings")
-    _writeline(json.dumps({'type': 'SCHEMA',
-                           'stream': stream_name,
-                           'key_properties': key_properties,
-                           'schema': schema}))
+    SchemaMessage(stream_name, schema, key_properties).write(sys.stdout)
 
 
 def write_state(value):
@@ -56,8 +45,87 @@ def write_state(value):
 
     >>> write_state({'last_updated_at': '2017-02-14T09:21:00'})
     """
-    _writeline(json.dumps({'type': 'STATE',
-                           'value': value}))
+    StateMessage(value).write(sys.stdout)
+
+
+def _required_key(msg, k):
+    if k not in msg:
+        raise Exception("Message is missing required key '{}': {}".format(k, msg))
+    return msg['k']
+
+
+def parse_message(s):
+    """Parse a message string into a Message object."""
+    try:
+        o = json.loads(s)
+    except json.decoder.JSONDecodeError:
+        logger.error("Unable to parse:\n{}".format(s))
+        raise
+
+    t = _required_key(o, 'type')
+
+    if t == 'RECORD':
+        return RecordMessage(_required_key(o, 'stream'),
+                             _required_key(o, 'record'))
+
+    elif t == 'SCHEMA':
+        return SchemaMessage(_required_key(o, 'stream'),
+                             _required_key(o, 'schema'),
+                             _required_key(o, 'key_properties'))
+    
+    elif t == 'STATE':
+        return StateMessage(_required_key(o, 'value'))
+
+
+class Message(object):
+    '''Base class for messages.'''
+    def write(self, stream):
+        sys.stdout.write(self.to_json())
+        sys.stdout.flush()
+
+
+class RecordMessage(Message):
+    '''Represents a RECORD message.'''
+    def __init__(self, stream, record):
+        self.stream = stream
+        self.record = record
+
+    def to_json(self):
+        return json.dumps({'type': 'RECORD',
+                           'stream': self.stream,
+                           'record': self.record})
+                           
+
+class SchemaMessage(Message):
+    '''Represents a SCHEMA message.'''    
+    def __init__(self, stream, schema, key_properties):
+        if isinstance(key_properties, (str, bytes)):
+            key_properties = [key_properties]
+        if not isinstance(key_properties, list):
+            raise Exception("key_properties must be a string or list of strings")
+        
+        self.stream = stream
+        self.schema = schema
+        self.key_properties = key_properties
+
+
+class StateMessage(Message):
+    '''Represents a STATE message.'''
+    def __init__(self, value):
+        self.value = value
+
+
+class Validator(object):
+    def __init__(self, schema, key_properties):
+        self.schema = schema
+        self.key_properties = key_properties
+        self.validator = Draft4Validator(schema, format_checker=FormatChecker())
+                                         
+    def validate(self, record):
+        for k in key_properties:
+            if k not in record:
+                raise Exception('Missing key property {}'.format(k))
+        self.validator.validate(record)
 
 
 def get_logger():
