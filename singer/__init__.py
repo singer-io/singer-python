@@ -15,7 +15,7 @@ StateMessage = namedtuple('StateMessage', ['value'])
 
 
 def to_json(message):
-    m = message.__dict__.copy()
+    m = vars(message)
     if isinstance(message, RecordMessage):
         m['type'] = 'RECORD'
     elif isinstance(message, SchemaMessage):
