@@ -4,44 +4,33 @@ import os
 import logging
 import logging.config
 
+import attr
+
 
 class Message(object):
-    def __init__(self, **kwargs):
-        for k in self.attr_list:
-            if k not in kwargs:
-                raise ValueError("missing {}".format(k))
-            setattr(self, k, kwargs[k])
-
-    def asdict(self):
-        res = {k: getattr(self, k) for k in self.attr_list}
-        res['type'] = self._type
-        return res
-
-    def __eq__(self, other):
-        return self.asdict() == other.asdict()
-
-    def __repr__(self):
-        attrstr = ", ".join(
-            "{}={}".format(k, getattr(self, k)) for k in self.attr_list)
-        return "{}({})".format(self.__class__.__name__, attrstr)
-
     def tojson(self):
         return json.dumps(self.asdict())
 
 
+@attr.s
 class RecordMessage(Message):
-    _type = 'RECORD'
-    attr_list = ['stream', 'record']
+    stream = attr.ib()
+    record = attr.ib()
+    type = attr.ib(default="RECORD")
 
 
+@attr.s
 class SchemaMessage(Message):
-    _type = 'SCHEMA'
-    attr_list = ['stream', 'schema', 'key_properties']
+    stream = attr.ib()
+    schema = attr.ib()
+    key_properties = attr.ib()
+    type = attr.ib(default="SCHEMA")
 
 
+@attr.s
 class StateMessage(Message):
-    _type = 'STATE'
-    attr_list = ['value']
+    value = attr.ib()
+    type = attr.ib(default="STATE")
 
 
 def to_json(message):
