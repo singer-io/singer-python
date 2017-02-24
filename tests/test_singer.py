@@ -46,7 +46,7 @@ class TestSinger(unittest.TestCase):
     def test_parse_message_state_good(self):
         message = singer.parse_message(
             '{"type": "STATE", "value": {"seq": 1}}')
-        self.assertEqual(message, singer.StateMessage({'seq': 1}))
+        self.assertEqual(message, singer.StateMessage(value={'seq': 1}))
 
     def test_parse_message_state_missing_value(self):
         with self.assertRaises(Exception):
@@ -65,7 +65,7 @@ class TestSinger(unittest.TestCase):
                     'properties': {
                         'name': {'type': 'string'}}})
 
-        state_message = singer.StateMessage({'seq': 1})
+        state_message = singer.StateMessage(value={'seq': 1})
 
         self.assertEquals(record_message,
                           singer.parse_message(singer.to_json(record_message)))
