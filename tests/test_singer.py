@@ -77,7 +77,7 @@ class TestSinger(unittest.TestCase):
     ## These three tests just confirm that writing doesn't throw
 
     def test_write_record(self):
-        singer.write_record("users", {"name", "mike"})
+        singer.write_record("users", {"name": "mike"})
 
     def test_write_schema(self):
         schema={'type': 'object',
