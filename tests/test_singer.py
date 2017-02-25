@@ -74,6 +74,19 @@ class TestSinger(unittest.TestCase):
         self.assertEqual(state_message,
                          singer.parse_message(state_message.tojson()))
 
+    ## These three tests just confirm that writing doesn't throw
+
+    def test_write_record(self):
+        singer.write_record("users", {"name": "mike"})
+
+    def test_write_schema(self):
+        schema={'type': 'object',
+                'properties': {
+                    'name': {'type': 'string'}}}
+        singer.write_schema("users", schema, ["name"])
+
+    def test_write_state(self):
+        singer.write_state({"foo": 1})
 
 if __name__ == '__main__':
     unittest.main()
