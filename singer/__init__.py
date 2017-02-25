@@ -105,7 +105,7 @@ def write_state(value):
 
     >>> write_state({'last_updated_at': '2017-02-14T09:21:00'})
     """
-    _write_message(StateMessage(value))
+    _write_message(StateMessage(value=value))
 
 
 def _required_key(msg, k):
