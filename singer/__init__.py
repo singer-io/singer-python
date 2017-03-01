@@ -4,44 +4,33 @@ import os
 import logging
 import logging.config
 
+import attr
+
 
 class Message(object):
-    def __init__(self, **kwargs):
-        for k in self.attr_list:
-            if k not in kwargs:
-                raise ValueError("missing {}".format(k))
-            setattr(self, k, kwargs[k])
-
-    def asdict(self):
-        res = {k: getattr(self, k) for k in self.attr_list}
-        res['type'] = self._type
-        return res
-
-    def __eq__(self, other):
-        return self.asdict() == other.asdict()
-
-    def __repr__(self):
-        attrstr = ", ".join(
-            "{}={}".format(k, getattr(self, k)) for k in self.attr_list)
-        return "{}({})".format(self.__class__.__name__, attrstr)
-
     def tojson(self):
-        return json.dumps(self.asdict())
+        return json.dumps(attr.asdict(self))
 
 
+@attr.s
 class RecordMessage(Message):
-    _type = 'RECORD'
-    attr_list = ['stream', 'record']
+    stream = attr.ib()
+    record = attr.ib()
+    type = attr.ib(default="RECORD")
 
 
+@attr.s
 class SchemaMessage(Message):
-    _type = 'SCHEMA'
-    attr_list = ['stream', 'schema', 'key_properties']
+    stream = attr.ib()
+    schema = attr.ib()
+    key_properties = attr.ib()
+    type = attr.ib(default="SCHEMA")
 
 
+@attr.s
 class StateMessage(Message):
-    _type = 'STATE'
-    attr_list = ['value']
+    value = attr.ib()
+    type = attr.ib(default="STATE")
 
 
 def _write_message(message):
@@ -108,16 +97,16 @@ def parse_message(s):
     t = _required_key(o, 'type')
 
     if t == 'RECORD':
-        return RecordMessage(stream=_required_key(o, 'stream'),
-                             record=_required_key(o, 'record'))
+        return RecordMessage(_required_key(o, 'stream'),
+                             _required_key(o, 'record'))
 
     elif t == 'SCHEMA':
-        return SchemaMessage(stream=_required_key(o, 'stream'),
-                             schema=_required_key(o, 'schema'),
-                             key_properties=_required_key(o, 'key_properties'))
+        return SchemaMessage(_required_key(o, 'stream'),
+                             _required_key(o, 'schema'),
+                             _required_key(o, 'key_properties'))
 
     elif t == 'STATE':
-        return StateMessage(value=_required_key(o, 'value'))
+        return StateMessage(_required_key(o, 'value'))
 
 
 def get_logger():

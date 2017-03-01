@@ -10,6 +10,9 @@ setup(name="singer-python",
       author="Stitch",
       classifiers=['Programming Language :: Python :: 3 :: Only'],
       url="http://singer.io",
+      install_requires=[
+          "attrs==16.3.0",
+      ],
       packages=find_packages(),
       package_data = {
           'singer': [
