@@ -5,7 +5,7 @@ import subprocess
 
 
 setup(name="singer-python",
-      version="0.2.1",
+      version="0.2.2",
       description="Singer.io utility library",
       author="Stitch",
       classifiers=['Programming Language :: Python :: 3 :: Only'],

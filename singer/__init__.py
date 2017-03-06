@@ -4,6 +4,8 @@ import os
 import logging
 import logging.config
 
+from singer import utils
+
 
 class Message(object):
     def __init__(self, **kwargs):
