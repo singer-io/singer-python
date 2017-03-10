@@ -1,5 +1,11 @@
 machine:
   python:
     version: 3.4.4
-    
-  
+
+dependencies:
+  pre:
+    - pip install pylint
+
+test:
+  post:
+    - pylint tap_outbrain -d missing-docstring,logging-format-interpolation,too-many-locals,too-many-arguments,locally-disabled
