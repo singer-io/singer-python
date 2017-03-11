@@ -16,7 +16,4 @@ setup(name="singer-python",
               'logging.conf'
               ]
           },
-      tests_require=[
-        'pylint==1.6.5'
-      ]
 )

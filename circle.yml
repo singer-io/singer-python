@@ -2,6 +2,10 @@ machine:
   python:
     version: 3.4.4
 
+dependencies:
+  pre:
+    - pip install pylint
+
 test:
   post:
     - pylint singer -d missing-docstring
