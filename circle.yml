@@ -8,4 +8,4 @@ dependencies:
 
 test:
   post:
-    - pylint tap_outbrain -d missing-docstring
+    - pylint singer -d missing-docstring
