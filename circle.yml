@@ -8,4 +8,4 @@ dependencies:
 
 test:
   post:
-    - pylint tap_outbrain -d missing-docstring,logging-format-interpolation,too-many-locals,too-many-arguments,locally-disabled
+    - pylint tap_outbrain -d missing-docstring
