@@ -15,5 +15,5 @@ setup(name="singer-python",
           'singer': [
               'logging.conf'
               ]
-          }
+          },
 )

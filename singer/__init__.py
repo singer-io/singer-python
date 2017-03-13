@@ -8,6 +8,8 @@ from singer import utils
 
 
 class Message(object):
+    attr_list = []
+    _type = None
     def __init__(self, **kwargs):
         for k in self.attr_list:
             if k not in kwargs:
@@ -104,27 +106,27 @@ def _required_key(msg, k):
     return msg[k]
 
 
-def parse_message(s):
+def parse_message(msg):
     """Parse a message string into a Message object."""
-    o = json.loads(s)
-    t = _required_key(o, 'type')
+    obj = json.loads(msg)
+    msg_type = _required_key(obj, 'type')
 
-    if t == 'RECORD':
-        return RecordMessage(stream=_required_key(o, 'stream'),
-                             record=_required_key(o, 'record'))
+    if msg_type == 'RECORD':
+        return RecordMessage(stream=_required_key(obj, 'stream'),
+                             record=_required_key(obj, 'record'))
 
-    elif t == 'SCHEMA':
-        return SchemaMessage(stream=_required_key(o, 'stream'),
-                             schema=_required_key(o, 'schema'),
-                             key_properties=_required_key(o, 'key_properties'))
+    elif msg_type == 'SCHEMA':
+        return SchemaMessage(stream=_required_key(obj, 'stream'),
+                             schema=_required_key(obj, 'schema'),
+                             key_properties=_required_key(obj, 'key_properties'))
 
-    elif t == 'STATE':
-        return StateMessage(value=_required_key(o, 'value'))
+    elif msg_type == 'STATE':
+        return StateMessage(value=_required_key(obj, 'value'))
 
 
 def get_logger():
     """Return a Logger instance appropriate for using in a Tap or a Target."""
-    this_dir, this_filename = os.path.split(__file__)
+    this_dir, _ = os.path.split(__file__)
     path = os.path.join(this_dir, 'logging.conf')
     logging.config.fileConfig(path)
     return logging.getLogger('root')
