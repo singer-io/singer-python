@@ -6,6 +6,7 @@ import logging.config
 
 from singer import utils
 
+
 class Message(object):
     attr_list = []
     _type = None
