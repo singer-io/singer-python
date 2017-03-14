@@ -5,7 +5,7 @@ import logging
 import logging.config
 
 from singer import utils
-
+from singer import requests
 
 class Message(object):
     attr_list = []
