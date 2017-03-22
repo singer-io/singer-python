@@ -74,6 +74,7 @@ def parse_args(required_config_keys):
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', help='Config file', required=True)
     parser.add_argument('-s', '--state', help='State file')
+    parser.add_argument('-p', '--properties', help='Property selections')
     args = parser.parse_args()
 
     config = load_json(args.config)
@@ -84,7 +85,12 @@ def parse_args(required_config_keys):
     else:
         state = {}
 
-    return config, state
+    if args.properties:
+        properties = load_json(args.properties)
+    else:
+        properties = {}
+        
+    return config, state, properties
 
 
 def check_config(config, required_keys):
