@@ -28,12 +28,11 @@ library:
 ```python
 import singer
 
-records = [{'id': i, 'value': 'abc'} for i in range(0,10)]
 singer.write_schema('my_table',
                 {'properties':{'id': {'type': 'string', 'key': True}}})
 singer.write_records('my_table',
                  [{'id': 'b'}, {'id':'d'}])
-singer.write_state({'my_table': i})
+singer.write_state({'my_table': 'd'})
 ```
 
 
