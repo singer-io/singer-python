@@ -110,6 +110,8 @@ def parse_args(required_config_keys):
         args.config = load_json(args.config)
     if args.state:
         args.state = load_json(args.state)
+    else:
+        args.state = {}
     if args.properties:
         args.properties = load_json(args.properties)
 
