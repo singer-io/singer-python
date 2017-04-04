@@ -71,26 +71,53 @@ def update_state(state, entity, dtime):
 
 
 def parse_args(required_config_keys):
+    '''Parse standard command-line args.
+
+    Parses the command-line arguments mentioned in the SPEC and the
+    BEST_PRACTICES documents:
+
+    -c,--config     Config file
+    -s,--state      State file
+    -d,--discover   Run in discover mode
+    -p,--properties Properties file
+
+    Returns the parsed args object from argparse. For each argument that
+    point to JSON files (config, state, properties), we will automatically
+    load and parse the JSON file.
+    '''
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config', help='Config file', required=True)
-    parser.add_argument('-s', '--state', help='State file')
-    parser.add_argument('-p', '--properties', help='Property selections')
+
+    parser.add_argument(
+        '-c', '--config',
+        help='Config file',
+        required=True)
+
+    parser.add_argument(
+        '-s', '--state',
+        help='State file')
+
+    parser.add_argument(
+        '-p', '--properties',
+        help='Property selections')
+
+    parser.add_argument(
+        '-d', '--discover',
+        action='store_true',
+        help='Do schema discovery')
+
     args = parser.parse_args()
-
-    config = load_json(args.config)
-    check_config(config, required_config_keys)
-
+    if args.config:
+        args.config = load_json(args.config)
     if args.state:
-        state = load_json(args.state)
+        args.state = load_json(args.state)
     else:
-        state = {}
-
+        args.state = {}
     if args.properties:
-        properties = load_json(args.properties)
-    else:
-        properties = {}
-        
-    return config, state, properties
+        args.properties = load_json(args.properties)
+
+    check_config(args.config, required_config_keys)
+
+    return args
 
 
 def check_config(config, required_keys):
