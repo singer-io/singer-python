@@ -45,8 +45,5 @@ class Release(distutils.cmd.Command):
         git_check_branch()
         git_check_status()
         git_push()
-
-        # @# there must also be no files in the git index. We will make a commit after
-        # @# the apply and we only want to commit production.tfstate
-        # [ -z "$$(git status --porcelain)" ]
+        subprocess.call(['python', 'setup.py', 'sdist', 'upload'])
 
