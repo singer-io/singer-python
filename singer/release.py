@@ -30,6 +30,8 @@ def git_check_status():
     if len(status_lines) > 0:
         fail('You have uncommitted changes')
 
+def git_push():
+    git('push')
 
 class Release(distutils.cmd.Command):
     user_options = []
@@ -42,8 +44,7 @@ class Release(distutils.cmd.Command):
     def run(self):
         git_check_branch()
         git_check_status()
-        
-        print('Branch is ' + branch)
+        git_push()
 
         # @# there must also be no files in the git index. We will make a commit after
         # @# the apply and we only want to commit production.tfstate
