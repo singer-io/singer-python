@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 import subprocess
-
+import singer.release
 
 setup(name="singer-python",
       version="1.0.0",
@@ -16,4 +16,5 @@ setup(name="singer-python",
               'logging.conf'
               ]
           },
+      cmdclass={'release': singer.release.Release}
 )
