@@ -8,4 +8,4 @@ dependencies:
 
 test:
   post:
-    - pylint singer -d missing-docstring
+    - pylint singer -d missing-docstring,broad-except,bare-except,too-many-return-statements,too-many-branches
