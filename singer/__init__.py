@@ -48,7 +48,7 @@ class StateMessage(Message):
     attr_list = ['value']
 
 
-def _write_message(message):
+def write_message(message):
     sys.stdout.write(message.tojson() + '\n')
     sys.stdout.flush()
 
@@ -58,7 +58,7 @@ def write_record(stream_name, record):
 
     >>> write_record("users", {"id": 2, "email": "mike@stitchdata.com"})
     """
-    _write_message(RecordMessage(stream=stream_name, record=record))
+    write_message(RecordMessage(stream=stream_name, record=record))
 
 
 def write_records(stream_name, records):
@@ -84,7 +84,7 @@ def write_schema(stream_name, schema, key_properties):
         key_properties = [key_properties]
     if not isinstance(key_properties, list):
         raise Exception("key_properties must be a string or list of strings")
-    _write_message(
+    write_message(
         SchemaMessage(
             stream=stream_name,
             schema=schema,
@@ -96,7 +96,7 @@ def write_state(value):
 
     >>> write_state({'last_updated_at': '2017-02-14T09:21:00'})
     """
-    _write_message(StateMessage(value=value))
+    write_message(StateMessage(value=value))
 
 
 def _required_key(msg, k):
