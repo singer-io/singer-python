@@ -3,7 +3,6 @@ import collections
 import datetime
 import functools
 import json
-import os
 import time
 
 DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
