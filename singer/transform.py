@@ -78,6 +78,20 @@ def _transform(data, typ, schema, integer_datetime_fmt):
         raise Exception("Invalid type: {}".format(typ))
 
 def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING):
+    """
+    Applies schema (and integer_datetime_fmt, if supplied) to data, transforming
+    each field in data to the type specified in schema. If no type matches a
+    data field, this throws an Exception.
+
+    This applies types in order with the exception of 'null', which is always
+    applied last.
+
+    The valid types are: integer, number, boolean, array, object, null, string,
+    and string with date-time format.
+
+    If an integer_datetime_fmt is supplied, integer values in fields with date-
+    time formats are appropriately parsed as unix seconds or unix milliseconds.
+    """
     types = schema["type"]
     if not isinstance(types, list):
         types = [types]
