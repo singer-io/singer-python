@@ -3,7 +3,6 @@ import collections
 import datetime
 import functools
 import json
-import os
 import time
 
 DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
@@ -43,17 +42,9 @@ def chunk(array, num):
         yield array[i:i + num]
 
 
-def get_abs_path(path):
-    return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
-
-
 def load_json(path):
     with open(path) as fil:
         return json.load(fil)
-
-
-def load_schema(entity):
-    return load_json(get_abs_path("schemas/{}.json".format(entity)))
 
 
 def update_state(state, entity, dtime):
