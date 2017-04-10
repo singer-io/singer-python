@@ -35,9 +35,9 @@ def _transform_datetime(value, integer_datetime_fmt):
         except:
             return string_to_datetime(value)
 
-NO_INTEGER_DATETIME_PARSING = 0
-UNIX_SECONDS_INTEGER_DATETIME_PARSING = 1
-UNIX_MILLISECONDS_INTEGER_DATETIME_PARSING = 2
+NO_INTEGER_DATETIME_PARSING = "no-integer-datetime-parsing"
+UNIX_SECONDS_INTEGER_DATETIME_PARSING = "unix-seconds-integer-datetime-parsing"
+UNIX_MILLISECONDS_INTEGER_DATETIME_PARSING = "unix-milliseconds-integer-datetime-parsing"
 
 def _transform(data, typ, schema, integer_datetime_fmt):
     if typ == "null":
