@@ -56,7 +56,7 @@ def _transform(data, typ, schema, integer_datetime_fmt):
         return _transform_array(data, schema["items"], integer_datetime_fmt)
 
     elif typ == "string":
-        if data or data == '':
+        if data != None:
             return str(data)
         else:
             raise ValueError("Not string")

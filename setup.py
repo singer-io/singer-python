@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 import subprocess
 
 setup(name="singer-python",
-      version="1.4.1",
+      version="1.4.2",
       description="Singer.io utility library",
       author="Stitch",
       classifiers=['Programming Language :: Python :: 3 :: Only'],
