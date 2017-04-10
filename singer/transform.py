@@ -3,11 +3,11 @@ import pendulum
 from singer import utils
 
 
-def _transform_object(data, prop_schema):
-    return {k: transform(v, prop_schema[k]) for k, v in data.items() if k in prop_schema}
+def _transform_object(data, prop_schema, integer_datetime_fmt):
+    return {k: transform(v, prop_schema[k], integer_datetime_fmt) for k, v in data.items() if k in prop_schema}
 
-def _transform_array(data, item_schema):
-    return [transform(row, item_schema) for row in data]
+def _transform_array(data, item_schema, integer_datetime_fmt):
+    return [transform(row, item_schema, integer_datetime_fmt) for row in data]
 
 def unix_milliseconds_to_datetime(value):
     return utils.strftime(datetime.datetime.utcfromtimestamp(int(value) * 0.001))
@@ -50,10 +50,10 @@ def _transform(data, typ, schema, integer_datetime_fmt):
         return _transform_datetime(data, integer_datetime_fmt)
 
     elif typ == "object":
-        return _transform_object(data, schema["properties"])
+        return _transform_object(data, schema["properties"], integer_datetime_fmt)
 
     elif typ == "array":
-        return _transform_array(data, schema["items"])
+        return _transform_array(data, schema["items"], integer_datetime_fmt)
 
     elif typ == "string":
         if data or data == '':
