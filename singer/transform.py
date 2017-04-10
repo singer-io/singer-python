@@ -1,13 +1,16 @@
 import datetime
 import pendulum
+from copy import deepcopy
 from singer import utils
 
 
-def _transform_object(data, prop_schema, integer_datetime_fmt):
-    return {k: transform(v, prop_schema[k], integer_datetime_fmt) for k, v in data.items() if k in prop_schema}
+def _transform_object(data, prop_schema, integer_datetime_fmt, error_path):
+    _error_path = deepcopy(error_path)
+    return {k: transform(v, prop_schema[k], integer_datetime_fmt, _error_path + [k]) for k, v in data.items() if k in prop_schema}
 
-def _transform_array(data, item_schema, integer_datetime_fmt):
-    return [transform(row, item_schema, integer_datetime_fmt) for row in data]
+def _transform_array(data, item_schema, integer_datetime_fmt, error_path):
+    _error_path = deepcopy(error_path)
+    return [transform(row, item_schema, integer_datetime_fmt, _error_path + [i]) for i, row in enumerate(data)]
 
 def unix_milliseconds_to_datetime(value):
     return utils.strftime(datetime.datetime.utcfromtimestamp(int(value) * 0.001))
@@ -39,7 +42,7 @@ NO_INTEGER_DATETIME_PARSING = "no-integer-datetime-parsing"
 UNIX_SECONDS_INTEGER_DATETIME_PARSING = "unix-seconds-integer-datetime-parsing"
 UNIX_MILLISECONDS_INTEGER_DATETIME_PARSING = "unix-milliseconds-integer-datetime-parsing"
 
-def _transform(data, typ, schema, integer_datetime_fmt):
+def _transform(data, typ, schema, integer_datetime_fmt, error_path):
     if typ == "null":
         if data is None or data == "":
             return None
@@ -50,10 +53,10 @@ def _transform(data, typ, schema, integer_datetime_fmt):
         return _transform_datetime(data, integer_datetime_fmt)
 
     elif typ == "object":
-        return _transform_object(data, schema["properties"], integer_datetime_fmt)
+        return _transform_object(data, schema["properties"], integer_datetime_fmt, error_path)
 
     elif typ == "array":
-        return _transform_array(data, schema["items"], integer_datetime_fmt)
+        return _transform_array(data, schema["items"], integer_datetime_fmt, error_path)
 
     elif typ == "string":
         if data != None:
@@ -77,7 +80,7 @@ def _transform(data, typ, schema, integer_datetime_fmt):
     else:
         raise Exception("Invalid type: {}".format(typ))
 
-def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING):
+def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING, error_path=[]):
     """
     Applies schema (and integer_datetime_fmt, if supplied) to data, transforming
     each field in data to the type specified in schema. If no type matches a
@@ -92,6 +95,7 @@ def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING):
     If an integer_datetime_fmt is supplied, integer values in fields with date-
     time formats are appropriately parsed as unix seconds or unix milliseconds.
     """
+    print("error_path is {}".format(error_path))
     types = schema["type"]
     if not isinstance(types, list):
         types = [types]
@@ -100,10 +104,16 @@ def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING):
         types.remove("null")
         types.append("null")
 
-    for typ in types:
+    type_length = len(types)
+    for i, typ in enumerate(types):
         try:
-            return _transform(data, typ, schema, integer_datetime_fmt)
+            return _transform(data, typ, schema, integer_datetime_fmt, error_path)
         except:
-            pass
+            if i == (type_length - 1):
+                raise Exception("CHECK: Invalid data at leaf error path {}: {} does not match {}".format(error_path, data, schema))
+            else:
+                pass
+                
+            
 
-    raise Exception("Invalid data: {} does not match {}".format(data, schema))
+    raise Exception("Invalid data at error path {}: {} does not match {}".format(error_path, data, schema))
