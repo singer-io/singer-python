@@ -1,6 +1,5 @@
 import datetime
 import pendulum
-from copy import deepcopy
 from singer import utils
 
 
