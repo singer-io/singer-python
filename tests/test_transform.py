@@ -76,7 +76,7 @@ class TestTransform(unittest.TestCase):
         # NB> error_paths may be returned in any order, so we sort here to be deterministic
         self.assertEqual(sorted(error_paths), sorted([['key1', 'key2', 'key3', 'key4'], ['key1', 'key2', 'key3', 'key5']]))
 
-    def test_nested_error_path_array(self):
+    def test_error_path_array(self):
         schema =  {"type": "object",
                    "properties": {"integers": {"type": "array",
                                                "items": {"type": "integer"}}}}
@@ -85,3 +85,26 @@ class TestTransform(unittest.TestCase):
         self.assertEqual(False, success)
         # NB> error_paths may be returned in any order, so we sort here to be deterministic
         self.assertEqual(sorted(error_paths), sorted([["integers", 2], ["integers", 4]]))
+
+    def test_nested_error_path_array(self):
+        schema =  {"type": "object",
+                   "properties": {"lists_of_integers": {"type": "array",
+                                                        "items": {"type": "array",
+                                                                  "items": {"type": "integer"}}}}}
+        data = {"lists_of_integers": [[1, "not an integer"], [2, 3], ["also not an integer", 4]]}
+        success, _, _, error_paths = transform_recur(data, schema, NO_INTEGER_DATETIME_PARSING, [], [])
+        self.assertEqual(False, success)
+        # NB> error_paths may be returned in any order, so we sort here to be deterministic
+        self.assertEqual(sorted(error_paths), sorted([["lists_of_integers", 0, 1], ["lists_of_integers", 2, 0]]))
+
+    def test_error_path_datetime(self):
+        schema = {"type": "object",
+                  "properties": {"good_datetime": {"type": "string", "format": "date-time"},
+                                 "bad_datetime1": {"type": "string", "format": "date-time"},
+                                 "bad_datetime2": {"type": "string", "format": "date-time"}}}
+        data = {"good_datetime": "2017-04-11T16:07:00Z",
+                "bad_datetime1": "not a datetime",
+                "bad_datetime2": 1}
+        success, _, _, error_paths = transform_recur(data, schema, NO_INTEGER_DATETIME_PARSING, [], [])
+        self.assertEqual(False, success)
+        self.assertEqual(sorted(error_paths), sorted([['bad_datetime1'], ['bad_datetime2']]))
