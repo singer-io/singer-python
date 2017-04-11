@@ -14,7 +14,13 @@ def _transform_object(data, prop_schema, integer_datetime_fmt, path, error_paths
     return all(successes), result, path, error_paths
 
 def _transform_array(data, item_schema, integer_datetime_fmt, path, error_paths):
-    return True, [transform_recur(row, item_schema, integer_datetime_fmt, path + [i], error_paths)[1] for i, row in enumerate(data)], path, error_paths
+    result = []
+    successes = []
+    for i, row in enumerate(data):
+        success, data, _, error_paths = transform_recur(row, item_schema, integer_datetime_fmt, path + [i], error_paths)
+        successes.append(success)
+        result.append(data)
+    return all(successes), result, path, error_paths
 
 def unix_milliseconds_to_datetime(value):
     return utils.strftime(datetime.datetime.utcfromtimestamp(int(value) * 0.001))

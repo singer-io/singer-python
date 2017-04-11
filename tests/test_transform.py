@@ -75,3 +75,13 @@ class TestTransform(unittest.TestCase):
         self.assertEqual(None, data)
         # NB> error_paths may be returned in any order, so we sort here to be deterministic
         self.assertEqual(sorted(error_paths), sorted([['key1', 'key2', 'key3', 'key4'], ['key1', 'key2', 'key3', 'key5']]))
+
+    def test_nested_error_path_array(self):
+        schema =  {"type": "object",
+                   "properties": {"integers": {"type": "array",
+                                               "items": {"type": "integer"}}}}
+        data = {"integers": [1, 2, "not an integer", 4, "also not an integer"]}
+        success, _, _, error_paths = transform_recur(data, schema, NO_INTEGER_DATETIME_PARSING, [], [])
+        self.assertEqual(False, success)
+        # NB> error_paths may be returned in any order, so we sort here to be deterministic
+        self.assertEqual(sorted(error_paths), sorted([["integers", 2], ["integers", 4]]))
