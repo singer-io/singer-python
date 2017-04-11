@@ -50,14 +50,28 @@ class TestTransform(unittest.TestCase):
                                  "baz": {"type": "integer"}}}
         data = {"foo": "bar", "baz": 1}
         # TODO: error_paths looks a little too nested
-        self.assertEqual((False, None, [], [[['foo']]]), transform_recur(data, schema, NO_INTEGER_DATETIME_PARSING, [], []))
+        self.assertEqual((False, None, [], [['foo']]), transform_recur(data, schema, NO_INTEGER_DATETIME_PARSING, [], []))
 
-    def test_error_path(self):
+    def test_nested_error_path_throws(self):
         schema = {"type": "object",
                   "properties": {"key1": {"type": "object",
                                           "properties": {"key2": {"type": "object",
                                                                   "properties": {"key3": {"type": "object",
                                                                                           "properties": {"key4": {"type": "integer"}}}}}}}}}
         data = {"key1": {"key2": {"key3": {"key4": "not an integer"}}}}
-        self.assertEqual((False, None, [], [[['key1', 'key2', 'key3', 'key4']]]),
+        self.assertEqual((False, None, [], [['key1', 'key2', 'key3', 'key4']]),
                          transform_recur(data, schema, NO_INTEGER_DATETIME_PARSING, [], []))
+
+    def test_nested_error_path_no_throw(self):
+        schema = {"type": "object",
+                  "properties": {"key1": {"type": "object",
+                                          "properties": {"key2": {"type": "object",
+                                                                  "properties": {"key3": {"type": "object",
+                                                                                          "properties": {"key4": {"type": "string"},
+                                                                                                         "key5": {"type": "string"}}}}}}}}}
+        data = {"key1": {"key2": {"key3": {"key4": None, "key5": None}}}}
+        success, data, _, error_paths = transform_recur(data, schema, NO_INTEGER_DATETIME_PARSING, [], [])
+        self.assertEqual(False, success)
+        self.assertEqual(None, data)
+        # NB> error_paths may be returned in any order, so we sort here to be deterministic
+        self.assertEqual(sorted(error_paths), sorted([['key1', 'key2', 'key3', 'key4'], ['key1', 'key2', 'key3', 'key5']]))

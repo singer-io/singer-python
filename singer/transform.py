@@ -3,12 +3,6 @@ import pendulum
 from copy import deepcopy
 from singer import utils
 
-def helper(data, schema, integer_datetime_fmt, path, error_paths):
-    success, data, path, error_paths = transform_recur(data, schema, integer_datetime_fmt, path, error_paths)
-    if success:
-        return success, data, path, error_paths
-    else:
-        return success, None,
 
 def _transform_object(data, prop_schema, integer_datetime_fmt, path, error_paths):
     result = {}
@@ -18,7 +12,6 @@ def _transform_object(data, prop_schema, integer_datetime_fmt, path, error_paths
         successes.append(success)
         result[k] = data
     return all(successes), result, path, error_paths
-    #return True, {k: transform_recur(v, prop_schema[k], integer_datetime_fmt, path + [k], error_paths)[1] for k, v in data.items() if k in prop_schema}, path, error_paths
 
 def _transform_array(data, item_schema, integer_datetime_fmt, path, error_paths):
     return True, [transform_recur(row, item_schema, integer_datetime_fmt, path + [i], error_paths)[1] for i, row in enumerate(data)], path, error_paths
@@ -60,7 +53,7 @@ def _transform(data, typ, schema, integer_datetime_fmt, path, error_paths):
             return True, None, path, error_paths
             #return None
         else:
-            return False, None, path, error_paths
+            return False, None, path, error_paths + [path]
             #raise ValueError("Not null")
 
     elif schema.get("format") == "date-time":
@@ -76,7 +69,7 @@ def _transform(data, typ, schema, integer_datetime_fmt, path, error_paths):
         if data != None:
             return True, str(data), path, error_paths
         else:
-            return False, None, path, error_paths
+            return False, None, path, error_paths + [path]
             #raise ValueError("Not string")
 
     elif typ == "integer":
@@ -93,7 +86,7 @@ def _transform(data, typ, schema, integer_datetime_fmt, path, error_paths):
         return True, bool(data), path, error_paths
 
     else:
-        return False, None, path, error_paths
+        return False, None, path, error_paths + [path]
     # TODO: don't swallow this
         #raise Exception("Invalid type: {}".format(typ))
 
@@ -147,7 +140,7 @@ def transform_recur(data, schema, integer_datetime_fmt, path, error_paths):
                 # TODO: this swallows the exception. Forward it along instead?
                 print("error_path is {}".format(error_paths))
                 print("Exception1 caught: {}".format(e))
-                return False, None, path, error_paths + [[path]]
+                return False, None, path, error_paths + [path]
                 #raise Exception("CHECK: Invalid data at leaf error path {}: {} does not match {}".format(error_path, data, schema))
             else:
                 print("Exception2 caught: {}".format(e))
