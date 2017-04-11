@@ -104,9 +104,9 @@ def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING):
     If an integer_datetime_fmt is supplied, integer values in fields with date-
     time formats are appropriately parsed as unix seconds or unix milliseconds.
     """
-    success, data, _, error_paths = transform_recur(data, schema, integer_datetime_fmt, [], [])
+    success, transformed_data, _, error_paths = transform_recur(data, schema, integer_datetime_fmt, [], [])
     if success:
-        return data
+        return transformed_data
     else:
         raise Exception("Errors at paths {} in data {} for schema {}".format(error_paths, data, schema))
 
