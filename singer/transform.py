@@ -2,14 +2,14 @@ import datetime
 import pendulum
 from singer import utils
 
-
+# pylint: disable=line-too-long
 def _transform_object(data, prop_schema, integer_datetime_fmt, path, error_paths):
     result = {}
     successes = []
-    for k, v in data.items():
-        success, subdata, _, error_paths = transform_recur(v, prop_schema[k], integer_datetime_fmt, path + [k], error_paths)
+    for key, value in data.items():
+        success, subdata, _, error_paths = transform_recur(value, prop_schema[key], integer_datetime_fmt, path + [key], error_paths)
         successes.append(success)
-        result[k] = subdata
+        result[key] = subdata
     return all(successes), result, path, error_paths
 
 def _transform_array(data, item_schema, integer_datetime_fmt, path, error_paths):
@@ -30,7 +30,7 @@ def unix_seconds_to_datetime(value):
 def string_to_datetime(value):
     return utils.strftime(pendulum.parse(value))
 
-def _transform_datetime(value, integer_datetime_fmt, path, error_paths):
+def _transform_datetime(value, integer_datetime_fmt):
     if integer_datetime_fmt not in [NO_INTEGER_DATETIME_PARSING,
                                     UNIX_SECONDS_INTEGER_DATETIME_PARSING,
                                     UNIX_MILLISECONDS_INTEGER_DATETIME_PARSING]:
@@ -59,7 +59,7 @@ def _transform(data, typ, schema, integer_datetime_fmt, path, error_paths):
             return False, None, path, error_paths + [path]
 
     elif schema.get("format") == "date-time":
-        return True, _transform_datetime(data, integer_datetime_fmt, path, error_paths), path, error_paths
+        return True, _transform_datetime(data, integer_datetime_fmt), path, error_paths
 
     elif typ == "object":
         return _transform_object(data, schema["properties"], integer_datetime_fmt, path, error_paths)
@@ -104,7 +104,7 @@ def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING):
     If an integer_datetime_fmt is supplied, integer values in fields with date-
     time formats are appropriately parsed as unix seconds or unix milliseconds.
     """
-    success, data, path, error_paths = transform_recur(data, schema, integer_datetime_fmt, [], [])
+    success, data, _, error_paths = transform_recur(data, schema, integer_datetime_fmt, [], [])
     if success:
         return data
     else:
@@ -138,7 +138,7 @@ def transform_recur(data, schema, integer_datetime_fmt, path, error_paths):
                     return False, None, path, error_paths
                 else:
                     pass
-        except Exception as e:
+        except:
             if i == (type_length - 1):
                 return False, None, path, error_paths + [path]
             else:
