@@ -3,9 +3,22 @@ import pendulum
 from copy import deepcopy
 from singer import utils
 
+def helper(data, schema, integer_datetime_fmt, path, error_paths):
+    success, data, path, error_paths = transform_recur(data, schema, integer_datetime_fmt, path, error_paths)
+    if success:
+        return success, data, path, error_paths
+    else:
+        return success, None,
 
 def _transform_object(data, prop_schema, integer_datetime_fmt, path, error_paths):
-    return True, {k: transform_recur(v, prop_schema[k], integer_datetime_fmt, path + [k], error_paths)[1] for k, v in data.items() if k in prop_schema}, path, error_paths
+    result = {}
+    successes = []
+    for k, v in data.items():
+        success, data, _, error_paths = transform_recur(v, prop_schema[k], integer_datetime_fmt, path + [k], error_paths)
+        successes.append(success)
+        result[k] = data
+    return all(successes), result, path, error_paths
+    #return True, {k: transform_recur(v, prop_schema[k], integer_datetime_fmt, path + [k], error_paths)[1] for k, v in data.items() if k in prop_schema}, path, error_paths
 
 def _transform_array(data, item_schema, integer_datetime_fmt, path, error_paths):
     return True, [transform_recur(row, item_schema, integer_datetime_fmt, path + [i], error_paths)[1] for i, row in enumerate(data)], path, error_paths
@@ -124,7 +137,11 @@ def transform_recur(data, schema, integer_datetime_fmt, path, error_paths):
             if success:
                 return success, data, path, error_paths
             else:
-                pass
+                if i == (type_length - 1):
+                    print("Failure {} {}".format(path, error_paths))
+                    return False, None, path, error_paths
+                else:
+                    pass
         except Exception as e:
             if i == (type_length - 1):
                 # TODO: this swallows the exception. Forward it along instead?

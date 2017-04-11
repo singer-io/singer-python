@@ -20,14 +20,14 @@ class TestTransform(unittest.TestCase):
         data = {'addrs': [{'amount': '123'}, {'amount': '456'}]}
         expected = {'addrs': [{'amount': 123}, {'amount': 456}]}
         self.assertEqual(expected, transform(data, schema))
-        
+
     def test_null_transform(self):
         self.assertEqual('', transform('', {'type': ['null', 'string']}))
         self.assertEqual('', transform('', {'type': [ 'string', 'null']}))
         self.assertEqual(None, transform(None, {'type': [ 'string', 'null']}))
         self.assertEqual(None, transform('', {'type': ['null']}))
         self.assertEqual(None, transform(None, {'type': ['null']}))
-        
+
     def test_datetime_transform(self):
         schema = {"type": "string", "format": "date-time"}
         string_datetime = "2017-01-01T00:00:00Z"
@@ -43,3 +43,21 @@ class TestTransform(unittest.TestCase):
             transform('cat', schema, UNIX_SECONDS_INTEGER_DATETIME_PARSING)
         with self.assertRaises(Exception):
             transform(0, schema, NO_INTEGER_DATETIME_PARSING)
+
+    def test_error_path(self):
+        schema = {"type": "object",
+                  "properties": {"foo": {"type": "integer"},
+                                 "baz": {"type": "integer"}}}
+        data = {"foo": "bar", "baz": 1}
+        # TODO: error_paths looks a little too nested
+        self.assertEqual((False, None, [], [[['foo']]]), transform_recur(data, schema, NO_INTEGER_DATETIME_PARSING, [], []))
+
+    def test_error_path(self):
+        schema = {"type": "object",
+                  "properties": {"key1": {"type": "object",
+                                          "properties": {"key2": {"type": "object",
+                                                                  "properties": {"key3": {"type": "object",
+                                                                                          "properties": {"key4": {"type": "integer"}}}}}}}}}
+        data = {"key1": {"key2": {"key3": {"key4": "not an integer"}}}}
+        self.assertEqual((False, None, [], [[['key1', 'key2', 'key3', 'key4']]]),
+                         transform_recur(data, schema, NO_INTEGER_DATETIME_PARSING, [], []))
