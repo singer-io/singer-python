@@ -107,3 +107,12 @@ class TestTransform(unittest.TestCase):
         success, _, _, error_paths = transform_recur(data, schema, NO_INTEGER_DATETIME_PARSING, [], [])
         self.assertEqual(False, success)
         self.assertEqual(sorted(error_paths), sorted([['bad_datetime1'], ['bad_datetime2']]))
+
+    def test_unexpected_object_properties(self):
+        schema = {"type": "object",
+                  "properties": {"good_property": {"type": "string"}}}
+        data = {"good_property": "expected data",
+                "bad_property": "unexpected data"}
+        success, transformed_data, _, _ = transform_recur(data, schema, NO_INTEGER_DATETIME_PARSING, [], [])
+        self.assertEqual(True, success)
+        self.assertEqual({"good_property": "expected data"}, transformed_data)

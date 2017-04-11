@@ -7,9 +7,10 @@ def _transform_object(data, prop_schema, integer_datetime_fmt, path, error_paths
     result = {}
     successes = []
     for key, value in data.items():
-        success, subdata, _, error_paths = transform_recur(value, prop_schema[key], integer_datetime_fmt, path + [key], error_paths)
-        successes.append(success)
-        result[key] = subdata
+        if key in prop_schema:
+            success, subdata, _, error_paths = transform_recur(value, prop_schema[key], integer_datetime_fmt, path + [key], error_paths)
+            successes.append(success)
+            result[key] = subdata
     return all(successes), result, path, error_paths
 
 def _transform_array(data, item_schema, integer_datetime_fmt, path, error_paths):
