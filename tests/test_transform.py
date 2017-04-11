@@ -49,7 +49,6 @@ class TestTransform(unittest.TestCase):
                   "properties": {"foo": {"type": "integer"},
                                  "baz": {"type": "integer"}}}
         data = {"foo": "bar", "baz": 1}
-        # TODO: error_paths looks a little too nested
         self.assertEqual((False, None, [], [['foo']]), transform_recur(data, schema, NO_INTEGER_DATETIME_PARSING, [], []))
 
     def test_nested_error_path_throws(self):
