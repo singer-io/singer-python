@@ -2,12 +2,25 @@ import datetime
 import pendulum
 from singer import utils
 
+# pylint: disable=line-too-long
+def _transform_object(data, prop_schema, integer_datetime_fmt, path, error_paths):
+    result = {}
+    successes = []
+    for key, value in data.items():
+        if key in prop_schema:
+            success, subdata, _, error_paths = transform_recur(value, prop_schema[key], integer_datetime_fmt, path + [key], error_paths)
+            successes.append(success)
+            result[key] = subdata
+    return all(successes), result, path, error_paths
 
-def _transform_object(data, prop_schema, integer_datetime_fmt):
-    return {k: transform(v, prop_schema[k], integer_datetime_fmt) for k, v in data.items() if k in prop_schema}
-
-def _transform_array(data, item_schema, integer_datetime_fmt):
-    return [transform(row, item_schema, integer_datetime_fmt) for row in data]
+def _transform_array(data, item_schema, integer_datetime_fmt, path, error_paths):
+    result = []
+    successes = []
+    for i, row in enumerate(data):
+        success, subdata, _, error_paths = transform_recur(row, item_schema, integer_datetime_fmt, path + [i], error_paths)
+        successes.append(success)
+        result.append(subdata)
+    return all(successes), result, path, error_paths
 
 def unix_milliseconds_to_datetime(value):
     return utils.strftime(datetime.datetime.utcfromtimestamp(int(value) * 0.001))
@@ -16,7 +29,7 @@ def unix_seconds_to_datetime(value):
     return utils.strftime(datetime.datetime.utcfromtimestamp(int(value)))
 
 def string_to_datetime(value):
-    return  utils.strftime(pendulum.parse(value))
+    return utils.strftime(pendulum.parse(value))
 
 def _transform_datetime(value, integer_datetime_fmt):
     if integer_datetime_fmt not in [NO_INTEGER_DATETIME_PARSING,
@@ -39,43 +52,43 @@ NO_INTEGER_DATETIME_PARSING = "no-integer-datetime-parsing"
 UNIX_SECONDS_INTEGER_DATETIME_PARSING = "unix-seconds-integer-datetime-parsing"
 UNIX_MILLISECONDS_INTEGER_DATETIME_PARSING = "unix-milliseconds-integer-datetime-parsing"
 
-def _transform(data, typ, schema, integer_datetime_fmt):
+def _transform(data, typ, schema, integer_datetime_fmt, path, error_paths):
     if typ == "null":
         if data is None or data == "":
-            return None
+            return True, None, path, error_paths
         else:
-            raise ValueError("Not null")
+            return False, None, path, error_paths + [path]
 
     elif schema.get("format") == "date-time":
-        return _transform_datetime(data, integer_datetime_fmt)
+        return True, _transform_datetime(data, integer_datetime_fmt), path, error_paths
 
     elif typ == "object":
-        return _transform_object(data, schema["properties"], integer_datetime_fmt)
+        return _transform_object(data, schema["properties"], integer_datetime_fmt, path, error_paths)
 
     elif typ == "array":
-        return _transform_array(data, schema["items"], integer_datetime_fmt)
+        return _transform_array(data, schema["items"], integer_datetime_fmt, path, error_paths)
 
     elif typ == "string":
         if data != None:
-            return str(data)
+            return True, str(data), path, error_paths
         else:
-            raise ValueError("Not string")
+            return False, None, path, error_paths + [path]
 
     elif typ == "integer":
         if isinstance(data, str):
             data = data.replace(',', '')
-        return int(data)
+        return True, int(data), path, error_paths
 
     elif typ == "number":
         if isinstance(data, str):
             data = data.replace(',', '')
-        return float(data)
+        return True, float(data), path, error_paths
 
     elif typ == "boolean":
-        return bool(data)
+        return True, bool(data), path, error_paths
 
     else:
-        raise Exception("Invalid type: {}".format(typ))
+        return False, None, path, error_paths + [path]
 
 def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING):
     """
@@ -92,6 +105,21 @@ def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING):
     If an integer_datetime_fmt is supplied, integer values in fields with date-
     time formats are appropriately parsed as unix seconds or unix milliseconds.
     """
+    success, transformed_data, _, error_paths = transform_recur(data, schema, integer_datetime_fmt, [], [])
+    if success:
+        return transformed_data
+    else:
+        raise Exception("Errors at paths {} in data {} for schema {}".format(error_paths, data, schema))
+
+def transform_recur(data, schema, integer_datetime_fmt, path, error_paths):
+    """
+    This function (and several of its helper functions) returns a tuple:
+    (success, data, path, error_paths)
+    success is a boolean flag indicating whether data was successfully transformed with schema
+    data is the transformed data
+    path is the current path in the tree traversal of the data and schema
+    error_paths is a list of paths where the data could not be transformed according to the schema
+    """
     types = schema["type"]
     if not isinstance(types, list):
         types = [types]
@@ -100,10 +128,19 @@ def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING):
         types.remove("null")
         types.append("null")
 
-    for typ in types:
+    type_length = len(types)
+    for i, typ in enumerate(types):
         try:
-            return _transform(data, typ, schema, integer_datetime_fmt)
+            success, data, path, error_paths = _transform(data, typ, schema, integer_datetime_fmt, path, error_paths)
+            if success:
+                return success, data, path, error_paths
+            else:
+                if i == (type_length - 1):
+                    return False, None, path, error_paths
+                else:
+                    pass
         except:
-            pass
-
-    raise Exception("Invalid data: {} does not match {}".format(data, schema))
+            if i == (type_length - 1):
+                return False, None, path, error_paths + [path]
+            else:
+                pass
