@@ -39,7 +39,7 @@ count:
 
 This will log a message like:
 
-    {"duration": 1.23, 
+    {"duration": 1.23,
      "succeeded": true,
      "record_count": 234}
 
