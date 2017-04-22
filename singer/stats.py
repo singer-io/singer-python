@@ -7,7 +7,8 @@ import logging
 
 LOGGER = logging.getLogger(__name__)
 
-class Field: # pylint: disable=too-few-public-methods
+
+class Field:  # pylint: disable=too-few-public-methods
     '''Field names for stats messages'''
 
     # Metrics
@@ -21,6 +22,7 @@ class Field: # pylint: disable=too-few-public-methods
     succeeded = 'succeeded'
     http_status = 'http_status'
 
+LOGGER = logging.getLogger(__name__)
 
 FIELDS = [
     Field.fetch_count,
@@ -44,10 +46,10 @@ def log_stats(stats):
     in singer.stats.Fields.
 
     '''
-    logging.getLogger('root').info('STATS: %s', json.dumps(_cleanup_stats(stats)))
+    LOGGER.info('STATS: %s', json.dumps(_cleanup_stats(stats)))
 
 
-class Stats(object): # pylint: disable=too-few-public-methods
+class Stats(object):  # pylint: disable=too-few-public-methods
     '''Captures timing stats and logs them.'''
 
     def __init__(self, source=None):
@@ -62,7 +64,6 @@ class Stats(object): # pylint: disable=too-few-public-methods
         self.start_time = time.time()
         return self
 
-
     def __exit__(self, exc_type, exc_value, traceback):
         duration = time.time() - self.start_time
         succeeded = exc_type is None
@@ -76,7 +77,6 @@ class Stats(object): # pylint: disable=too-few-public-methods
             'http_status': self.http_status
         }
         log_stats(self.result)
-
 
     def increment_record_count(self):
         '''None-safe method to increment record_count.'''
