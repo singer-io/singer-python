@@ -56,7 +56,7 @@ class Stats(object): # pylint: disable=too-few-public-methods
         self.byte_count = None
         self.http_status = None
         self.start_time = None
-
+        self.result = None
 
     def __enter__(self):
         self.start_time = time.time()
@@ -66,7 +66,7 @@ class Stats(object): # pylint: disable=too-few-public-methods
     def __exit__(self, exc_type, exc_value, traceback):
         duration = time.time() - self.start_time
         succeeded = exc_type is None
-        stats = {
+        self.result = {
             'fetch_count': 1,
             'record_count': self.record_count,
             'byte_count': self.byte_count,
@@ -75,7 +75,7 @@ class Stats(object): # pylint: disable=too-few-public-methods
             'succeeded': succeeded,
             'http_status': self.http_status
         }
-        log_stats(stats)
+        log_stats(self.result)
 
 
     def increment_record_count(self):
