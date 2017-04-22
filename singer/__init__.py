@@ -7,7 +7,6 @@ import logging.config
 from singer import utils
 from singer import transform
 
-
 class Message(object):
     attr_list = []
     _type = None
@@ -127,45 +126,12 @@ def parse_message(msg):
 
 def get_logger():
     """Return a Logger instance appropriate for using in a Tap or a Target."""
-    
     this_dir, _ = os.path.split(__file__)
     path = os.path.join(this_dir, 'logging.conf')
     logging.config.fileConfig(path)
     return logging.getLogger('root')
 
 
-def parse_stats(dogstats, line):
-    match = re.match(r'STATS: {\.*}')
-    json_str = match.groups(1)
-    reported = json.loads(json_str)
-
-    tags = []
-    tag_keys = [
-        STATS_FETCH_SUCCEEDED,
-        STATS_FETCH_SOURCE,
-        STATS_FETCH_HTTP_STATUS]
-
-    for key in tag_keys:
-        if key in reported:
-            tags.append(tags[key] + ': ' + reported[key])
-
-    
-class Timer(object):
-
-    def __init__(self):
-        self.start_time = None
-
-    def __enter__(self):
-        self.start_time = time.time()
-
-    def __exit__(self):
-        self.start_time = None
-
-    def elapsed(self):
-        return time.time() - self.start_time
-
-
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
-
