@@ -31,3 +31,22 @@ class TestStats(unittest.TestCase):
         self.assertEqual('foo', stats.result['source'])
         self.assertFalse(stats.result['succeeded'])
         self.assertEqual(2, stats.result['record_count'])
+
+    def test_parse_stats_success(self):
+        line = 'INFO STATS: {"record_count": 100, "duration": 1, "http_status_code": 200, "source": "addresses", "succeeded": true}'
+        expected = {
+            'record_count': 100,
+            'duration': 1,
+            'http_status_code': 200,
+            'source': 'addresses',
+            'succeeded': True
+        }
+        self.assertEqual(expected, singer.stats.parse_stats(line))
+
+    def test_parse_stats_fail_not_json(self):
+        line = 'INFO STATS: something not json'
+        self.assertIsNone(singer.stats.parse_stats(line))
+
+    def test_parse_stats_fail_no_match(self):
+        line = 'some other line'
+        self.assertIsNone(singer.stats.parse_stats(line))
