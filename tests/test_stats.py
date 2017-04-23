@@ -14,7 +14,6 @@ class TestStats(unittest.TestCase):
             stats.increment_record_count()
             stats.increment_record_count()
         self.assertEqual('foo', stats.result['source'])
-        self.assertEqual(1, stats.result['fetch_count'])
         self.assertTrue(stats.result['succeeded'])
         self.assertEqual(2, stats.result['record_count'])
 
@@ -30,6 +29,5 @@ class TestStats(unittest.TestCase):
             pass
 
         self.assertEqual('foo', stats.result['source'])
-        self.assertEqual(1, stats.result['fetch_count'])
         self.assertFalse(stats.result['succeeded'])
         self.assertEqual(2, stats.result['record_count'])
