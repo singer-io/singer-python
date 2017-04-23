@@ -67,10 +67,10 @@ source.
 '''
 
 import json
+import json.decoder
 import re
 import time
 import logging
-import json
 
 
 class Field:  # pylint: disable=too-few-public-methods
@@ -150,11 +150,11 @@ class Stats(object):  # pylint: disable=too-few-public-methods
 def parse_stats(line):
     '''Parse stats from a log line and return them as a dict.'''
     match = re.match(r'^INFO STATS: (.*)$', line)
+    result = None
     if match:
         json_str = match.group(1)
         try:
-            return json.loads(json_str)
-        except json.decoder.JSONDecodeError:
-            pass
-    else:
-        return None
+            result = json.loads(json_str)
+        except Exception as exc:  # pylint: disable=broad-except
+            logging.getLogger(__name__).warning('Error parsing stats: %s', exc)
+    return result
