@@ -64,6 +64,7 @@ rather than a full URL, so that an application consuming the logs can
 easily group together stats related to requests to the same logical
 source.
 
+
 '''
 
 import json
@@ -91,60 +92,95 @@ FIELDS = [
     Field.record_count,
     Field.byte_count,
     Field.duration,
+
     Field.source,
     Field.succeeded,
     Field.http_status_code
 ]
 
+def log_stats(logger, stats):
+    logger.info('STATS: %s', json.dumps(stats))
 
-def _cleanup_stats(stats):
-    return {k: v for k, v in stats.items() if v is not None}
+def prune_and_log_stats(logger, stats):
+    log_stats(logger, {k: v for k, v in stats.items() if v is not None})
+
+class Counter(object):  # pylint: disable=too-few-public-methods
+
+    def __init__(self, source=None, log_interval=60):
+        self.logger = logging.getLogger(__name__)
+        self.source = source
+        self.record_count = None
+        self.byte_count = None
+        self.last_log_time = None
+        self.log_interval = log_interval
+
+    def __enter__(self):
+        self.last_log_time = time.time()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        stats = {'succeeded': exc_type is None}
+        stats.update(self._pop_stats())
+        prune_and_log_stats(self.logger, stats)
+
+    def _pop_stats(self):
+        result = {
+            'source': self.source,
+            'record_count': self.record_count,
+            'byte_count': self.byte_count
+        }
+        self.record_count = None
+        self.byte_count = None
+        self.last_log_time = time.time()
+        return result
+
+    def add(self, record_count=None, byte_count=None):
+        '''Increments record_count and byte_count by the specified amounts.
+
+        Only increments each field if the provided value is not None.
+
+        '''
+        if record_count:
+            if not self.record_count:
+                self.record_count = 0
+            self.record_count += record_count
+        if byte_count:
+            if not self.byte_count:
+                self.byte_count = 0
+            self.byte_count += 0
+
+        if self._ready_to_log():
+            prune_and_log_stats(self.logger, self._pop_stats())
+
+    def _ready_to_log(self):
+        return time.time() - self.last_log_time > self.log_interval
 
 
-def log_stats(stats):
-    '''Log a stats message at INFO level.
-
-    stats should be a dict with the field set restricted to the fields
-    in singer.stats.Fields.
-
-    '''
-    logging.getLogger(__name__).info('STATS: %s', json.dumps(_cleanup_stats(stats)))
-
-
-class Stats(object):  # pylint: disable=too-few-public-methods
+class Timer(object):  # pylint: disable=too-few-public-methods
     '''Captures timing stats and logs them.'''
 
-    def __init__(self, source=None):
+    def __init__(self, source=None, log_interval=60):
+        self.logger = logging.getLogger(__name__)
         self.source = source
         self.record_count = None
         self.byte_count = None
         self.http_status_code = None
         self.start_time = None
-        self.result = None
 
     def __enter__(self):
         self.start_time = time.time()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        duration = time.time() - self.start_time
-        succeeded = exc_type is None
-        self.result = {
-            'record_count': self.record_count,
-            'byte_count': self.byte_count,
-            'duration': duration,
+        stats = {
+            'duration': time.time() - self.start_time,
+            'succeeded': exc_type is None,
+            'http_status_code': self.http_status_code,
             'source': self.source,
-            'succeeded': succeeded,
-            'http_status_code': self.http_status_code
+            'record_count': self.record_count,
+            'byte_count': self.byte_count
         }
-        log_stats(self.result)
-
-    def increment_record_count(self):
-        '''None-safe method to increment record_count.'''
-
-        if not self.record_count:
-            self.record_count = 0
-        self.record_count += 1
+        prune_and_log_stats(self.logger, stats)
 
 
 def parse_stats(line):
