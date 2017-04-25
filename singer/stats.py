@@ -9,16 +9,17 @@ tools (AWS CloudWatch, Datadog).
     byte_count        Number of bytes fetched in this operation
     duration          Duration of the operation in seconds
     source            Source of the data, as a string
-    succeeded         True if the operation succeeded, False otherwise
+    status            Either 'running', 'succeeded', or 'failed'
     http_status_code  The HTTP status code of the response
 
 All fields are considered optional. A Tap should only include fields that
 are relevant to the operation and that it can reliably compute.
 
-If you use the singer.stats.Stats() context manager, you'll automatically
-get succeeded and duration. Succeeded is False if an Exception was raised,
-True otherwise. Duration is the time in seconds that the thread spent
-inside the context manager.
+If you use the singer.stats.Timer() context manager, you'll automatically
+get status and duration. Status is 'running' while we're in the context
+manager, 'succeeded' after we exit the context manager if no exception was
+raised, and 'failed' if an exception was raised. Duration is the time in
+seconds that the thread spent inside the context manager.
 
     >>> with singer.stats.Stats() as stats:
     >>>    # Do some stuff
@@ -26,27 +27,12 @@ inside the context manager.
 This will log a message like:
 
     {"duration": 1.23,
-     "succeeded": true}
+     "status": "succeeded"}
 
-A Tap that pulls records from a database could additionally include record
-count:
+You can also include a record count and the HTTP status code (when
+applicable) simply by setting properties on the stats object.
 
-    >>> with singer.stats.Stats() as stats:
-    >>>     cursor = conn.execute('SELECT * FROM orders')
-    >>>     stats.record_count = cursor.rowcount
-    >>>     for order in cursor:
-    >>>         singer.write_record('orders', order)
-
-This will log a message like:
-
-    {"duration": 1.23,
-     "succeeded": true,
-     "record_count": 234}
-
-A Tap that makes HTTP requests could additionally include a logical name
-for the endpoint and the http_status_code:
-
-    >>> with singer.stats.Stats(source='orders') as stats:
+    >>> with singer.stats.Timer(source='orders') as stats:
     >>>     resp = requests.get('http://myapi.com/orders')
     >>>     stats.http_status_code = resp.status_code
     >>>     resp.raise_for_status()
@@ -54,10 +40,26 @@ for the endpoint and the http_status_code:
 
 This will log a message like:
 
-    {"duration": 1.23,
+    {"source": "orders",
+     "duration": 1.23,
      "succeeded": true,
      "record_count": 234,
      "http_status_code": 200}
+
+If your Tap gets records continuously rather than in discrete batches, you
+can use a singer.stats.Counter to periodically emit stats messages.
+
+    >>> with singer.stats.Counter(source='orders', interval=30) as stats:
+    >>>     for order in some_client.orders():
+    >>>         stats.add(record_count=1)
+
+This would print a message about every 30 seconds indicating the current
+status and how many records have been fetched since the last message was
+logged.
+
+    {"source": "orders", "record_count": 1234, "status": "running"}
+    {"source": "orders", "record_count": 1111, "status": "running"}
+    {"source": "orders", "record_count": 1212, "status": "succeeded"}
 
 It is recommended to use a short name for the source (such as "orders")
 rather than a full URL, so that an application consuming the logs can
