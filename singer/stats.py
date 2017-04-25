@@ -86,7 +86,7 @@ class Field:  # pylint: disable=too-few-public-methods
     status = 'status'
     http_status_code = 'http_status_code'
 
-class Status:
+class Status:  # pylint: disable=too-few-public-methods
     succeeded = 'succeeded'
     running = 'running'
     failed = 'failed'
@@ -164,7 +164,7 @@ class Counter(object):  # pylint: disable=too-few-public-methods
 class Timer(object):  # pylint: disable=too-few-public-methods
     '''Captures timing stats and logs them.'''
 
-    def __init__(self, source=None, log_interval=60):
+    def __init__(self, source=None):
         self.logger = logging.getLogger(__name__)
         self.source = source
         self.record_count = None
