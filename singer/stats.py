@@ -1,6 +1,6 @@
 '''Utilities for logging and parsing stats.
 
-A Tap should use this library to log a structured message about each fetch
+A Tap should use this library to log a structured message about each read
 operation it makes. The message is a flat map, with a small key set,
 designed to be easy to convert to a metric for some popular monitoring
 tools (AWS CloudWatch, Datadog).
@@ -64,7 +64,6 @@ rather than a full URL, so that an application consuming the logs can
 easily group together stats related to requests to the same logical
 source.
 
-
 '''
 
 import json
@@ -84,9 +83,13 @@ class Field:  # pylint: disable=too-few-public-methods
 
     # Tags
     source = 'source'
-    succeeded = 'succeeded'
+    status = 'status'
     http_status_code = 'http_status_code'
 
+class Status:
+    succeeded = 'succeeded'
+    running = 'running'
+    failed = 'failed'
 
 FIELDS = [
     Field.record_count,
@@ -94,7 +97,7 @@ FIELDS = [
     Field.duration,
 
     Field.source,
-    Field.succeeded,
+    Field.status,
     Field.http_status_code
 ]
 
@@ -113,19 +116,21 @@ class Counter(object):  # pylint: disable=too-few-public-methods
         self.byte_count = None
         self.last_log_time = None
         self.log_interval = log_interval
+        self.status = None
 
     def __enter__(self):
         self.last_log_time = time.time()
+        self.status = Status.running
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        stats = {'succeeded': exc_type is None}
-        stats.update(self._pop_stats())
-        prune_and_log_stats(self.logger, stats)
+        self.status = Status.succeeded if exc_type is None else Status.failed
+        prune_and_log_stats(self.logger, self._pop_stats())
 
     def _pop_stats(self):
         result = {
             'source': self.source,
+            'status': self.status,
             'record_count': self.record_count,
             'byte_count': self.byte_count
         }
@@ -174,7 +179,7 @@ class Timer(object):  # pylint: disable=too-few-public-methods
     def __exit__(self, exc_type, exc_value, traceback):
         stats = {
             'duration': time.time() - self.start_time,
-            'succeeded': exc_type is None,
+            'status': Status.succeeded if exc_type is None else Status.failed,
             'http_status_code': self.http_status_code,
             'source': self.source,
             'record_count': self.record_count,

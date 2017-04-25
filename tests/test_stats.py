@@ -20,7 +20,7 @@ class TestStats(unittest.TestCase):
             stats.add(record_count=1)
             stats.add(record_count=2)
         self.assertEqual(
-            [{'source': 'foo', 'record_count': 3, 'succeeded': True}],
+            [{'source': 'foo', 'record_count': 3, 'status': 'succeeded'}],
             logged_stats(log_stats))
 
     @patch('singer.stats.log_stats')        
@@ -32,8 +32,8 @@ class TestStats(unittest.TestCase):
             stats._ready_to_log = lambda: False
             stats.add(record_count=5)
         self.assertEqual(
-            [{'source': 'foo', 'record_count': 3},
-             {'source': 'foo', 'record_count': 5, 'succeeded': True}],
+            [{'source': 'foo', 'record_count': 3, 'status': 'running'},
+             {'source': 'foo', 'record_count': 5, 'status': 'succeeded'}],
             logged_stats(log_stats))
 
     @patch('singer.stats.log_stats')        
@@ -47,7 +47,7 @@ class TestStats(unittest.TestCase):
             pass
 
         self.assertEqual(
-            [{'source': 'foo', 'record_count': 2, 'succeeded': False}],
+            [{'source': 'foo', 'record_count': 2, 'status': 'failed'}],
             logged_stats(log_stats))
 
 
@@ -58,7 +58,7 @@ class TestTimer(unittest.TestCase):
             stats.record_count = 3
         got = logged_stats(log_stats)
         self.assertEqual('foo', got[0]['source'])
-        self.assertTrue(got[0]['succeeded'])
+        self.assertEqual('succeeded', got[0]['status'])
         self.assertEqual(3, got[0]['record_count'])
         self.assertTrue(isinstance(got[0]['duration'], float))
 
@@ -73,7 +73,7 @@ class TestTimer(unittest.TestCase):
 
         got = logged_stats(log_stats)
         self.assertEqual('foo', got[0]['source'])
-        self.assertFalse(got[0]['succeeded'])
+        self.assertEqual('failed', got[0]['status'])
         self.assertEqual(2, got[0]['record_count'])
         self.assertTrue(isinstance(got[0]['duration'], float))
 
