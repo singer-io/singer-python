@@ -44,6 +44,12 @@ class TestTransform(unittest.TestCase):
         with self.assertRaises(Exception):
             transform(0, schema, NO_INTEGER_DATETIME_PARSING)
 
+    def test_anyof_datetime(self):
+        schema = {'anyOf': [{'type': 'null'}, {'format': 'date-time', 'type': 'string'}]}
+        string_datetime = '2016-03-10T18:47:20Z'
+        self.assertEqual(string_datetime, transform(string_datetime, schema))
+        self.assertEqual(None, transform(None, schema))
+
     def test_error_path(self):
         schema = {"type": "object",
                   "properties": {"foo": {"type": "integer"},
