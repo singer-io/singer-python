@@ -117,7 +117,7 @@ def _transform_anyof(data, schema, integer_datetime_fmt, path, error_paths):
     for i, subschema in enumerate(subschemas):
         success, transformed_data, path, error_paths = transform_recur(data, subschema, integer_datetime_fmt, path, error_paths)
         if success:
-            return success, data, path, error_paths
+            return success, transformed_data, path, error_paths
         else:
             if i == (subschemas_length - 1):
                 return False, None, path, error_paths + [path]
