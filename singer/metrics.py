@@ -1,4 +1,4 @@
-'''Utilities for logging and parsing stats.
+'''Utilities for logging and parsing metrics.
 
 A Tap should use this library to log a structured message about each read
 operation it makes. The message is a flat map, with a small key set,
@@ -15,13 +15,13 @@ tools (AWS CloudWatch, Datadog).
 All fields are considered optional. A Tap should only include fields that
 are relevant to the operation and that it can reliably compute.
 
-If you use the singer.stats.Timer() context manager, you'll automatically
+If you use the singer.metrics.Timer() context manager, you'll automatically
 get status and duration. Status is 'running' while we're in the context
 manager, 'succeeded' after we exit the context manager if no exception was
 raised, and 'failed' if an exception was raised. Duration is the time in
 seconds that the thread spent inside the context manager.
 
-    >>> with singer.stats.Stats() as stats:
+    >>> with singer.metrics.Timer() as timer:
     >>>    # Do some stuff
 
 This will log a message like:
@@ -30,13 +30,13 @@ This will log a message like:
      "status": "succeeded"}
 
 You can also include a record count and the HTTP status code (when
-applicable) simply by setting properties on the stats object.
+applicable) simply by setting properties on the metrics object.
 
-    >>> with singer.stats.Timer(source='orders') as stats:
+    >>> with singer.metrics.Timer(source='orders') as timer:
     >>>     resp = requests.get('http://myapi.com/orders')
-    >>>     stats.http_status_code = resp.status_code
+    >>>     timer.http_status_code = resp.status_code
     >>>     resp.raise_for_status()
-    >>>     stats.record_count = len(resp.json()['orders'])
+    >>>     timer.record_count = len(resp.json()['orders'])
 
 This will log a message like:
 
@@ -47,11 +47,11 @@ This will log a message like:
      "http_status_code": 200}
 
 If your Tap gets records continuously rather than in discrete batches, you
-can use a singer.stats.Counter to periodically emit stats messages.
+can use a singer.metrics.Counter to periodically emit metrics messages.
 
-    >>> with singer.stats.Counter(source='orders', interval=30) as stats:
+    >>> with singer.metrics.Counter(source='orders', interval=30) as counter:
     >>>     for order in some_client.orders():
-    >>>         stats.add(record_count=1)
+    >>>         counter.add(record_count=1)
 
 This would print a message about every 30 seconds indicating the current
 status and how many records have been fetched since the last message was
@@ -63,7 +63,7 @@ logged.
 
 It is recommended to use a short name for the source (such as "orders")
 rather than a full URL, so that an application consuming the logs can
-easily group together stats related to requests to the same logical
+easily group together metrics related to requests to the same logical
 source.
 
 '''
@@ -76,7 +76,7 @@ import logging
 
 
 class Field:  # pylint: disable=too-few-public-methods
-    '''Field names for stats messages'''
+    '''Field names for metrics messages'''
 
     # Metrics
     record_count = 'record_count'
@@ -103,11 +103,11 @@ FIELDS = [
     Field.http_status_code
 ]
 
-def log_stats(logger, stats):
-    logger.info('STATS: %s', json.dumps(stats))
+def log_metrics(logger, metrics):
+    logger.info('METRICS: %s', json.dumps(metrics))
 
-def prune_and_log_stats(logger, stats):
-    log_stats(logger, {k: v for k, v in stats.items() if v is not None})
+def prune_and_log_metrics(logger, metrics):
+    log_metrics(logger, {k: v for k, v in metrics.items() if v is not None})
 
 class Counter(object):  # pylint: disable=too-few-public-methods
 
@@ -127,9 +127,9 @@ class Counter(object):  # pylint: disable=too-few-public-methods
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.status = Status.succeeded if exc_type is None else Status.failed
-        prune_and_log_stats(self.logger, self._pop_stats())
+        prune_and_log_metrics(self.logger, self._pop_metrics())
 
-    def _pop_stats(self):
+    def _pop_metrics(self):
         result = {
             'source': self.source,
             'status': self.status,
@@ -157,14 +157,14 @@ class Counter(object):  # pylint: disable=too-few-public-methods
             self.byte_count += 0
 
         if self._ready_to_log():
-            prune_and_log_stats(self.logger, self._pop_stats())
+            prune_and_log_metrics(self.logger, self._pop_metrics())
 
     def _ready_to_log(self):
         return time.time() - self.last_log_time > self.log_interval
 
 
 class Timer(object):  # pylint: disable=too-few-public-methods
-    '''Captures timing stats and logs them.'''
+    '''Captures timing metrics and logs them.'''
 
     def __init__(self, source=None):
         self.logger = logging.getLogger(__name__)
@@ -179,7 +179,7 @@ class Timer(object):  # pylint: disable=too-few-public-methods
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        stats = {
+        metrics = {
             'duration': time.time() - self.start_time,
             'status': Status.succeeded if exc_type is None else Status.failed,
             'http_status_code': self.http_status_code,
@@ -187,17 +187,17 @@ class Timer(object):  # pylint: disable=too-few-public-methods
             'record_count': self.record_count,
             'byte_count': self.byte_count
         }
-        prune_and_log_stats(self.logger, stats)
+        prune_and_log_metrics(self.logger, metrics)
 
 
-def parse_stats(line):
-    '''Parse stats from a log line and return them as a dict.'''
-    match = re.match(r'^INFO STATS: (.*)$', line)
+def parse_metrics(line):
+    '''Parse metrics from a log line and return them as a dict.'''
+    match = re.match(r'^INFO METRICS: (.*)$', line)
     result = None
     if match:
         json_str = match.group(1)
         try:
             result = json.loads(json_str)
         except Exception as exc:  # pylint: disable=broad-except
-            logging.getLogger(__name__).warning('Error parsing stats: %s', exc)
+            logging.getLogger(__name__).warning('Error parsing metrics: %s', exc)
     return result
