@@ -17,13 +17,14 @@ class Status:  # pylint: disable=too-few-public-methods
     succeeded = 'succeeded'
     failed = 'failed'
 
+
 class Metric:  # pylint: disable=too-few-public-methods
     '''Constants for metric names'''
 
     record_count = 'record_count'
     job_duration = 'job_duration'
     http_request_duration = 'http_request_duration'
-    http_request_count = 'http_request_count'
+
 
 class Tag:  # pylint: disable=too-few-public-methods
     '''Constants for commonly used tags'''
@@ -111,13 +112,11 @@ class Counter(object):  # pylint: disable=too-few-public-methods
 
 
 class Timer(object):  # pylint: disable=too-few-public-methods
-    '''Produces metrics about the duration and number of operations.
+    '''Produces metrics about the duration of operations.
 
     You use a Timer as a context manager wrapping around some operation.
-    When the context exits, the Timer emits two metrics:
-
-      1. A "timer" metric that includes the duration
-      2. A "counter" metric with value=1 (to count number of operations)
+    When the context exits, the Timer emits a metric that indicates how
+    long (in seconds) the operation took.
 
     It will automatically include a "status" tag that is "failed" if the
     context exits with an Exception or "success" if it exits cleanly. You
@@ -128,7 +127,7 @@ class Timer(object):  # pylint: disable=too-few-public-methods
     >>>                           endpoint="users"):
     >>>    # Do some stuff
 
-    This produces two metrics:
+    This produces a metric like this:
 
     {
       "type": "timer",
@@ -139,20 +138,10 @@ class Timer(object):  # pylint: disable=too-few-public-methods
         "status": "success"
       }
     },
-    {
-      "type": "counter",
-      "metric": "request_count",
-      "value": 4567,
-      "tags": {
-        "endpoint": "users",
-        "status": "success"
-      }
-    }
 
     '''
-    def __init__(self, duration_metric, counter_metric, endpoint):
-        self.duration_metric = duration_metric
-        self.counter_metric = counter_metric
+    def __init__(self, metric, endpoint):
+        self.metric = metric
         self.endpoint = endpoint
         self.http_status_code = None
         self.status = None
@@ -182,10 +171,7 @@ class Timer(object):  # pylint: disable=too-few-public-methods
             else:
                 tags[Tag.status] = Status.failed
 
-        if self.duration_metric:
-            log_metric(self.logger, 'timer', self.duration_metric, self.elapsed(), tags)
-        if self.counter_metric:
-            log_metric(self.logger, 'counter', self.counter_metric, 1, tags)
+        log_metric(self.logger, 'timer', self.metric, self.elapsed(), tags)
 
 
 def record_counter(endpoint=None, log_interval=DEFAULT_LOG_INTERVAL):
@@ -205,9 +191,7 @@ def http_request_timer(endpoint):
     >>> with singer.metrics.http_request_timer("users") as timer:
     >>>     # Make a request
     '''
-    return Timer(Metric.http_request_duration,
-                 Metric.http_request_count,
-                 endpoint)
+    return Timer(Metric.http_request_duration, endpoint)
 
 
 def parse_metrics(line):

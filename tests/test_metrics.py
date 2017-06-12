@@ -46,8 +46,7 @@ class TestHttpRequestTimer(unittest.TestCase):
             pass
         got = logged_metric(log_metric)
         self.assertEqual(
-            [('timer', 'http_request_duration', 0, {'endpoint': 'users', 'status': 'succeeded'}),
-             ('counter', 'http_request_count', 1, {'endpoint': 'users', 'status': 'succeeded'})],
+            [('timer', 'http_request_duration', 0, {'endpoint': 'users', 'status': 'succeeded'})],
             got)
 
     @patch('singer.metrics.log_metric')
@@ -56,8 +55,7 @@ class TestHttpRequestTimer(unittest.TestCase):
             timer.elapsed = lambda: 0
             timer.http_status_code = 200
         self.assertEqual(
-            [('timer', 'http_request_duration', 0, {'endpoint': 'users', 'status': 'succeeded', 'http_status_code': 200}),
-             ('counter', 'http_request_count', 1, {'endpoint': 'users', 'status': 'succeeded', 'http_status_code': 200})],
+            [('timer', 'http_request_duration', 0, {'endpoint': 'users', 'status': 'succeeded', 'http_status_code': 200})],
             logged_metric(log_metric))
 
     @patch('singer.metrics.log_metric')
@@ -70,6 +68,5 @@ class TestHttpRequestTimer(unittest.TestCase):
         except ValueError:
             pass
         self.assertEqual(
-            [('timer', 'http_request_duration', 0, {'endpoint': 'users', 'status': 'failed', 'http_status_code': 400}),
-             ('counter', 'http_request_count', 1, {'endpoint': 'users', 'status': 'failed', 'http_status_code': 400})],
+            [('timer', 'http_request_duration', 0, {'endpoint': 'users', 'status': 'failed', 'http_status_code': 400})],
             logged_metric(log_metric))        
