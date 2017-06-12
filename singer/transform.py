@@ -111,6 +111,19 @@ def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING):
     else:
         raise Exception("Errors at paths {} in data {} for schema {}".format(error_paths, data, schema))
 
+def _transform_anyof(data, schema, integer_datetime_fmt, path, error_paths):
+    subschemas = schema["anyOf"]
+    subschemas_length = len(subschemas)
+    for i, subschema in enumerate(subschemas):
+        success, transformed_data, path, error_paths = transform_recur(data, subschema, integer_datetime_fmt, path, error_paths)
+        if success:
+            return success, transformed_data, path, error_paths
+        else:
+            if i == (subschemas_length - 1):
+                return False, None, path, error_paths + [path]
+            else:
+                pass
+
 def transform_recur(data, schema, integer_datetime_fmt, path, error_paths):
     """
     This function (and several of its helper functions) returns a tuple:
@@ -120,6 +133,12 @@ def transform_recur(data, schema, integer_datetime_fmt, path, error_paths):
     path is the current path in the tree traversal of the data and schema
     error_paths is a list of paths where the data could not be transformed according to the schema
     """
+
+    # NB: This adds support for the `anyOf` keyword, but we do NOT support
+    # the follow json schema keywords: `allOf`, `oneOf`, `not`
+    if schema.get("anyOf"):
+        return _transform_anyof(data, schema, integer_datetime_fmt, path, error_paths)
+
     types = schema["type"]
     if not isinstance(types, list):
         types = [types]
