@@ -40,10 +40,10 @@ applicable) simply by setting properties on the metrics object.
 
 This will log a message like:
 
-    {"source": "orders",
-     "duration": 1.23,
-     "succeeded": true,
+    {"duration": 1.23,
      "record_count": 234,
+     "source": "orders",
+     "status": "succeeded",
      "http_status_code": 200}
 
 If your Tap gets records continuously rather than in discrete batches, you
@@ -57,9 +57,30 @@ This would print a message about every 30 seconds indicating the current
 status and how many records have been fetched since the last message was
 logged.
 
-    {"source": "orders", "record_count": 1234, "status": "running"}
-    {"source": "orders", "record_count": 1111, "status": "running"}
-    {"source": "orders", "record_count": 1212, "status": "succeeded"}
+    {
+        "metrics": {
+            "record_count": 1234
+        },
+        "tags": {
+            "status": "running"
+        }
+    }
+    {
+        "metrics": {
+            "record_count": 1111
+        },
+        "tags": {
+            "status": "running"
+        }
+    }
+    {
+        "metrics": {
+            "record_count": 1212
+        },
+        "tags": {
+            "status": "succeeded"
+        }
+    }
 
 It is recommended to use a short name for the source (such as "orders")
 rather than a full URL, so that an application consuming the logs can
@@ -75,103 +96,105 @@ import time
 import logging
 
 
-class Field:  # pylint: disable=too-few-public-methods
-    '''Field names for metrics messages'''
-
-    # Metrics
-    record_count = 'record_count'
-    byte_count = 'byte_count'
-    duration = 'duration'
-
-    # Tags
-    source = 'source'
-    status = 'status'
-    http_status_code = 'http_status_code'
-
 class Status:  # pylint: disable=too-few-public-methods
+    '''Constants for status codes'''
     succeeded = 'succeeded'
     running = 'running'
     failed = 'failed'
 
-FIELDS = [
-    Field.record_count,
-    Field.byte_count,
-    Field.duration,
+class Metric:  # pylint: disable=too-few-public-methods
+    '''Constants for metric names'''
+    record_count = 'record_count'
+    byte_count = 'byte_count'
+    duration = 'duration'
+    http_request_duration = 'http_request_duration'
+    http_request_count = 'http_request_count'
 
-    Field.source,
-    Field.status,
-    Field.http_status_code
-]
+class Tag:  # pylint: disable=too-few-public-methods
+    '''Constants for commonly used tags'''
+    endpoint = 'endpoint'
+    http_status_code = 'http_status_code'
+    status = 'status'
 
-def log_metrics(logger, metrics):
-    logger.info('METRICS: %s', json.dumps(metrics))
 
-def prune_and_log_metrics(logger, metrics):
-    log_metrics(logger, {k: v for k, v in metrics.items() if v is not None})
+def log_metric(logger, metric_type, metric, value, tags):
+    result = {
+        'type': metric_type,
+        'metric': metric,
+        'value': value,
+        'tags': tags
+    }
+    logger.info('METRIC: %s', json.dumps(result))
 
-class Counter(object):  # pylint: disable=too-few-public-methods
 
-    def __init__(self, source=None, log_interval=60):
-        self.logger = logging.getLogger(__name__)
-        self.source = source
-        self.record_count = None
-        self.byte_count = None
-        self.last_log_time = None
+DEFAULT_LOG_INTERVAL = 60
+
+
+class ItemCounter(object):  # pylint: disable=too-few-public-methods
+
+    def __init__(self, metric, endpoint=None, log_interval=DEFAULT_LOG_INTERVAL):
+        self.metric = metric
+        self.endpoint = endpoint
         self.log_interval = log_interval
-        self.status = None
+
+        self.value = 0
+        self.logger = logging.getLogger(__name__)
+        self.last_log_time = None
 
     def __enter__(self):
         self.last_log_time = time.time()
-        self.status = Status.running
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.status = Status.succeeded if exc_type is None else Status.failed
-        prune_and_log_metrics(self.logger, self._pop_metrics())
-
-    def _pop_metrics(self):
-        result = {
-            'source': self.source,
-            'status': self.status,
-            'record_count': self.record_count,
-            'byte_count': self.byte_count
-        }
-        self.record_count = None
-        self.byte_count = None
-        self.last_log_time = time.time()
-        return result
-
-    def add(self, record_count=None, byte_count=None):
-        '''Increments record_count and byte_count by the specified amounts.
-
-        Only increments each field if the provided value is not None.
-
-        '''
-        if record_count:
-            if not self.record_count:
-                self.record_count = 0
-            self.record_count += record_count
-        if byte_count:
-            if not self.byte_count:
-                self.byte_count = 0
-            self.byte_count += 0
-
+    def increment(self, amount=1):
+        '''Increments value by the specified amount.'''
+        self.value += amount
         if self._ready_to_log():
-            prune_and_log_metrics(self.logger, self._pop_metrics())
+            self._pop_metric()
+
+    def _pop_metric(self):
+        value = self.value
+        self.value = 0
+        self.last_log_time = time.time()
+        log_metric(self.logger, 'counter', self.metric, value, {Tag.endpoint: self.endpoint})
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._pop_metric()
 
     def _ready_to_log(self):
         return time.time() - self.last_log_time > self.log_interval
 
 
+class OperationCounter(object):  # pylint: disable=too-few-public-methods
+
+    def __init__(self, metric, endpoint=None):
+        self.metric = metric
+        self.endpoint = endpoint
+        self.http_status_code = None
+        self.logger = logging.getLogger(__name__)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        tags = {}
+        if self.endpoint:
+            tags[Tag.endpoint] = self.endpoint
+        if exc_type is None:
+            tags[Tag.status] = Status.succeeded
+        else:
+            tags[Tag.status] = Status.failed
+        if self.http_status_code:
+            tags[Tag.http_status_code] = self.http_status_code
+        log_metric(self.logger, 'counter', self.metric, 1, tags)
+
+
 class Timer(object):  # pylint: disable=too-few-public-methods
     '''Captures timing metrics and logs them.'''
 
-    def __init__(self, source=None):
+    def __init__(self, metric, endpoint):
+        self.metric = metric
+        self.endpoint = endpoint
         self.logger = logging.getLogger(__name__)
-        self.source = source
-        self.record_count = None
-        self.byte_count = None
-        self.http_status_code = None
         self.start_time = None
 
     def __enter__(self):
@@ -179,25 +202,37 @@ class Timer(object):  # pylint: disable=too-few-public-methods
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        metrics = {
-            'duration': time.time() - self.start_time,
-            'status': Status.succeeded if exc_type is None else Status.failed,
-            'http_status_code': self.http_status_code,
-            'source': self.source,
-            'record_count': self.record_count,
-            'byte_count': self.byte_count
-        }
-        prune_and_log_metrics(self.logger, metrics)
+        duration = time.time() - self.start_time,
+        tags = {}
+        if self.endpoint:
+            tags[Tag.endpoint] = self.endpoint
+        log_metric(self.logger, 'timer', self.metric, duration, tags)
+
+
+def record_counter(endpoint=None, log_interval=DEFAULT_LOG_INTERVAL):
+    '''Returns an ItemCounter for counting records retrieved from the source'''
+    return ItemCounter(Metric.record_count, endpoint, log_interval=log_interval)
+
+
+def http_request_timer(endpoint):
+    '''Use for timing HTTP requests to an endpoint'''
+    return Timer(Metric.http_request_duration, endpoint)
+
+
+def http_request_counter(endpoint):
+    '''Use for counting HTTP requests to an endpoint'''
+    return OperationCounter(Metric.http_request_count, endpoint)
 
 
 def parse_metrics(line):
     '''Parse metrics from a log line and return them as a dict.'''
-    match = re.match(r'^INFO METRICS: (.*)$', line)
+    match = re.match(r'^INFO METRIC: (.*)$', line)
     result = None
     if match:
         json_str = match.group(1)
         try:
             result = json.loads(json_str)
         except Exception as exc:  # pylint: disable=broad-except
-            logging.getLogger(__name__).warning('Error parsing metrics: %s', exc)
+            logging.getLogger(__name__).warning('Error parsing metric: %s', exc)
     return result
+

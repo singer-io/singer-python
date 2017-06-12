@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-import singer.stats
+import singer.metrics as metrics
 import time
 import copy
 
@@ -8,92 +8,72 @@ class DummyException(Exception):
     pass
 
 
-def logged_stats(mock):
-    return [args[1] for args, _ in mock.call_args_list]
+def logged_metric(mock):
+    return [args[1:] for args, _ in mock.call_args_list]
 
 
-class TestStats(unittest.TestCase):
+class TestRecordCounter(unittest.TestCase):
 
-    @patch('singer.stats.log_stats')
-    def test_success_exit_only(self, log_stats):
-        with singer.stats.Counter(source='foo') as stats:
-            stats.add(record_count=1)
-            stats.add(record_count=2)
+    @patch('singer.metrics.log_metric')
+    def test_log_on_exit(self, log_metric):
+        with metrics.record_counter('users') as counter:
+            counter.increment()
+            counter.increment()
         self.assertEqual(
-            [{'source': 'foo', 'record_count': 3, 'status': 'succeeded'}],
-            logged_stats(log_stats))
+            [('counter', 'record_count', 2, {'endpoint': 'users'})],
+            logged_metric(log_metric))
 
-    @patch('singer.stats.log_stats')        
-    def test_incremental(self, log_stats):
-        with singer.stats.Counter(source='foo') as stats:
-            stats.add(record_count=1)
-            stats._ready_to_log = lambda: True
-            stats.add(record_count=2)
-            stats._ready_to_log = lambda: False
-            stats.add(record_count=5)
+    @patch('singer.metrics.log_metric')
+    def test_incremental(self, log_metric):
+        with metrics.record_counter(endpoint='users') as counter:
+            counter.increment(1)
+            counter._ready_to_log = lambda: True
+            counter.increment(2)
+            counter._ready_to_log = lambda: False
+            counter.increment(5)
         self.assertEqual(
-            [{'source': 'foo', 'record_count': 3, 'status': 'running'},
-             {'source': 'foo', 'record_count': 5, 'status': 'succeeded'}],
-            logged_stats(log_stats))
+            [('counter', 'record_count', 3, {'endpoint': 'users'}),
+             ('counter', 'record_count', 5, {'endpoint': 'users'})],             
+            logged_metric(log_metric))
 
-    @patch('singer.stats.log_stats')        
-    def test_failure(self, log_stats):
-        try:
-            with singer.stats.Counter(source='foo') as stats:
-                stats.add(record_count=2)
-                raise DummyException()
-                stats.add(record_count=1)
-        except DummyException:
+class TestHttpRequestCounter(unittest.TestCase):
+
+    @patch('singer.metrics.log_metric')
+    def test_success(self, log_metric):
+        with metrics.http_request_counter('users') as counter:
             pass
-
         self.assertEqual(
-            [{'source': 'foo', 'record_count': 2, 'status': 'failed'}],
-            logged_stats(log_stats))
+            [('counter', 'http_request_count', 1, {'endpoint': 'users', 'status': 'succeeded'})],
+            logged_metric(log_metric))
 
+    @patch('singer.metrics.log_metric')
+    def test_success_with_http_status_code(self, log_metric):
+        with metrics.http_request_counter('users') as counter:
+            counter.http_status_code = 200
+        self.assertEqual(
+            [('counter', 'http_request_count', 1, {'endpoint': 'users', 'status': 'succeeded', 'http_status_code': 200})],
+            logged_metric(log_metric))
 
+    @patch('singer.metrics.log_metric')
+    def test_failure(self, log_metric):
+        try:
+            with metrics.http_request_counter('users') as counter:
+                raise ValueError('foo is not bar')
+        except ValueError:
+            pass
+        self.assertEqual(
+            [('counter', 'http_request_count', 1, {'endpoint': 'users', 'status': 'failed'})],
+            logged_metric(log_metric))        
+
+        
 class TestTimer(unittest.TestCase):
-    @patch('singer.stats.log_stats')
-    def test_success(self, log_stats):
-        with singer.stats.Timer(source='foo') as stats:
-            stats.record_count = 3
-        got = logged_stats(log_stats)
-        self.assertEqual('foo', got[0]['source'])
-        self.assertEqual('succeeded', got[0]['status'])
-        self.assertEqual(3, got[0]['record_count'])
-        self.assertTrue(isinstance(got[0]['duration'], float))
-
-    @patch('singer.stats.log_stats')        
-    def test_failure(self, log_stats):
-        try:
-            with singer.stats.Timer(source='foo') as stats:
-                stats.record_count = 2
-                raise DummyException()
-        except DummyException:
+    @patch('singer.metrics.log_metric')
+    def test_success(self, log_metric):
+        with metrics.http_request_timer('users'):
             pass
+        got = logged_metric(log_metric)
+        (_type, metric, value, tags) = logged_metric(log_metric)[0]
+        self.assertEqual('timer', _type)
+        self.assertEqual('http_request_duration', metric)
+        self.assertEqual({'endpoint': 'users'}, tags)
 
-        got = logged_stats(log_stats)
-        self.assertEqual('foo', got[0]['source'])
-        self.assertEqual('failed', got[0]['status'])
-        self.assertEqual(2, got[0]['record_count'])
-        self.assertTrue(isinstance(got[0]['duration'], float))
-
-class TestParseStats(unittest.TestCase):
-    
-    def test_parse_stats_success(self):
-        line = 'INFO STATS: {"record_count": 100, "duration": 1, "http_status_code": 200, "source": "addresses", "succeeded": true}'
-        expected = {
-            'record_count': 100,
-            'duration': 1,
-            'http_status_code': 200,
-            'source': 'addresses',
-            'succeeded': True
-        }
-        self.assertEqual(expected, singer.stats.parse_stats(line))
-
-    def test_parse_stats_fail_not_json(self):
-        line = 'INFO STATS: something not json'
-        self.assertIsNone(singer.stats.parse_stats(line))
-
-    def test_parse_stats_fail_no_match(self):
-        line = 'some other line'
-        self.assertIsNone(singer.stats.parse_stats(line))
