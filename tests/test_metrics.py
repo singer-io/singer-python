@@ -33,7 +33,7 @@ class TestRecordCounter(unittest.TestCase):
             counter.increment(5)
         self.assertEqual(
             [metrics.Point('counter', 'record_count', 3, {'endpoint': 'users'}),
-             metrics.Point('counter', 'record_count', 5, {'endpoint': 'users'})],             
+             metrics.Point('counter', 'record_count', 5, {'endpoint': 'users'})],
             logged_points(log))
 
 class TestHttpRequestTimer(unittest.TestCase):
@@ -69,4 +69,27 @@ class TestHttpRequestTimer(unittest.TestCase):
             pass
         self.assertEqual(
             [metrics.Point('timer', 'http_request_duration', 0, {'endpoint': 'users', 'status': 'failed', 'http_status_code': 400})],
-            logged_points(log))        
+            logged_points(log))
+
+
+class TestParse(unittest.TestCase):
+
+    def test_parse_with_everything(self):
+        point = metrics.parse('INFO METRIC: {"type": "counter", "metric": "record_count", "value": 10, "tags": {"endpoint": "users"}}')
+        self.assertEqual(
+            point,
+            metrics.Point('counter', 'record_count', 10, {'endpoint': 'users'}))
+
+    def test_parse_without_tags(self):
+        point = metrics.parse('INFO METRIC: {"type": "counter", "metric": "record_count", "value": 10}')
+        self.assertEqual(
+            point,
+            metrics.Point('counter', 'record_count', 10, None))
+
+    def test_parse_invalid_json_returns_none(self):
+        point = metrics.parse('INFO METRIC: something that is invalid }')
+        self.assertIsNone(point)
+
+    def test_parse_no_match(self):
+        point = metrics.parse('a line that is not a metric')
+        self.assertIsNone(point)
