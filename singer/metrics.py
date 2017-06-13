@@ -13,6 +13,7 @@ import attr
 
 DEFAULT_LOG_INTERVAL = 60
 
+
 class Status:  # pylint: disable=too-few-public-methods
     '''Constants for status codes'''
     succeeded = 'succeeded'
@@ -29,37 +30,39 @@ class Metric:  # pylint: disable=too-few-public-methods
 
 class Tag:  # pylint: disable=too-few-public-methods
     '''Constants for commonly used tags'''
+
     endpoint = 'endpoint'
     http_status_code = 'http_status_code'
     status = 'status'
 
-@attr.s
-class DataPoint:
+
+@attr.s  # pylint: disable=too-few-public-methods
+class Point:
+    '''Models a single data point for metric'''
     metric_type = attr.ib()
     metric = attr.ib()
     value = attr.ib()
     tags = attr.ib(default=attr.Factory(dict))
 
 
-def log(logger, data_point):
+def log(logger, point):
     '''Log a single data point.'''
     result = {
-        'type': data_point.metric_type,
-        'metric': data_point.metric,
-        'value': data_point.value,
-        'tags': data_point.tags
+        'type': point.metric_type,
+        'metric': point.metric,
+        'value': point.value,
+        'tags': point.tags
     }
     logger.info('METRIC: %s', json.dumps(result))
-
 
 
 class Counter(object):  # pylint: disable=too-few-public-methods
     '''Increments a counter metric.
 
     When you use Counter as a context manager, it will automatically emit
-    "counter" metrics periodically and also when the context exits. The
-    only thing you need to do is initialize the Counter and then call
-    increment().
+    points for a "counter" metric periodically and also when the context
+    exits. The only thing you need to do is initialize the Counter and
+    then call increment().
 
     >>> with singer.metrics.Counter(metric='record_count', endpoint='users') as counter:
     >>>    for user in get_users(...):
@@ -102,9 +105,9 @@ class Counter(object):  # pylint: disable=too-few-public-methods
         value = self.value
         self.value = 0
         self.last_log_time = time.time()
-        data_point = DataPoint('counter', self.metric, value)
-        data_point.tags[Tag.endpoint] = self.endpoint
-        log(self.logger, data_point)
+        point = Point('counter', self.metric, value)
+        point.tags[Tag.endpoint] = self.endpoint
+        log(self.logger, point)
 
     def __exit__(self, exc_type, exc_value, traceback):
         self._pop()
@@ -159,21 +162,21 @@ class Timer(object):  # pylint: disable=too-few-public-methods
         return time.time() - self.start_time
 
     def __exit__(self, exc_type, exc_value, traceback):
-        data_point = DataPoint('timer', self.metric, self.elapsed())
+        point = Point('timer', self.metric, self.elapsed())
 
         for k in [Tag.endpoint,
                   Tag.http_status_code,
                   Tag.status]:
             if self.__dict__[k] is not None:
-                data_point.tags[k] = self.__dict__[k]
+                point.tags[k] = self.__dict__[k]
 
-        print('The data point is ' + str(data_point))
-        if Tag.status not in data_point.tags:
+        print('The data point is ' + str(point))
+        if Tag.status not in point.tags:
             if exc_type is None:
-                data_point.tags[Tag.status] = Status.succeeded
+                point.tags[Tag.status] = Status.succeeded
             else:
-                data_point.tags[Tag.status] = Status.failed
-        log(self.logger, data_point)
+                point.tags[Tag.status] = Status.failed
+        log(self.logger, point)
 
 
 def record_counter(endpoint=None, log_interval=DEFAULT_LOG_INTERVAL):
@@ -197,13 +200,13 @@ def http_request_timer(endpoint):
 
 
 def parse(line):
-    '''Parse a DataPoint from a log line and return it, or None if no data point.'''
+    '''Parse a Point from a log line and return it, or None if no data point.'''
     match = re.match(r'^INFO METRIC: (.*)$', line)
     if match:
         json_str = match.group(1)
         try:
             raw = json.loads(json_str)
-            return DataPoint(
+            return Point(
                 metric_type=raw.get('type'),
                 metric=raw.get('metric'),
                 value=raw.get('value'),

@@ -8,7 +8,7 @@ class DummyException(Exception):
     pass
 
 
-def logged_data_points(mock):
+def logged_points(mock):
     return [args[1] for args, _ in mock.call_args_list]
 
 
@@ -20,8 +20,8 @@ class TestRecordCounter(unittest.TestCase):
             counter.increment()
             counter.increment()
         self.assertEqual(
-            [metrics.DataPoint('counter', 'record_count', 2, {'endpoint': 'users'})],
-            logged_data_points(log))
+            [metrics.Point('counter', 'record_count', 2, {'endpoint': 'users'})],
+            logged_points(log))
 
     @patch('singer.metrics.log')
     def test_incremental(self, log):
@@ -32,9 +32,9 @@ class TestRecordCounter(unittest.TestCase):
             counter._ready_to_log = lambda: False
             counter.increment(5)
         self.assertEqual(
-            [metrics.DataPoint('counter', 'record_count', 3, {'endpoint': 'users'}),
-             metrics.DataPoint('counter', 'record_count', 5, {'endpoint': 'users'})],             
-            logged_data_points(log))
+            [metrics.Point('counter', 'record_count', 3, {'endpoint': 'users'}),
+             metrics.Point('counter', 'record_count', 5, {'endpoint': 'users'})],             
+            logged_points(log))
 
 class TestHttpRequestTimer(unittest.TestCase):
 
@@ -44,9 +44,9 @@ class TestHttpRequestTimer(unittest.TestCase):
         timer.elapsed = lambda: 0
         with timer:
             pass
-        got = logged_data_points(log)
+        got = logged_points(log)
         self.assertEqual(
-            [metrics.DataPoint('timer', 'http_request_duration', 0, {'endpoint': 'users', 'status': 'succeeded'})],
+            [metrics.Point('timer', 'http_request_duration', 0, {'endpoint': 'users', 'status': 'succeeded'})],
             got)
 
     @patch('singer.metrics.log')
@@ -55,8 +55,8 @@ class TestHttpRequestTimer(unittest.TestCase):
             timer.elapsed = lambda: 0
             timer.http_status_code = 200
         self.assertEqual(
-            [metrics.DataPoint('timer', 'http_request_duration', 0, {'endpoint': 'users', 'status': 'succeeded', 'http_status_code': 200})],
-            logged_data_points(log))
+            [metrics.Point('timer', 'http_request_duration', 0, {'endpoint': 'users', 'status': 'succeeded', 'http_status_code': 200})],
+            logged_points(log))
 
     @patch('singer.metrics.log')
     def test_failure(self, log):
@@ -68,5 +68,5 @@ class TestHttpRequestTimer(unittest.TestCase):
         except ValueError:
             pass
         self.assertEqual(
-            [metrics.DataPoint('timer', 'http_request_duration', 0, {'endpoint': 'users', 'status': 'failed', 'http_status_code': 400})],
-            logged_data_points(log))        
+            [metrics.Point('timer', 'http_request_duration', 0, {'endpoint': 'users', 'status': 'failed', 'http_status_code': 400})],
+            logged_points(log))        
