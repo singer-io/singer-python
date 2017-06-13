@@ -44,7 +44,7 @@ import json
 import re
 import time
 import logging
-import attr
+from collections import namedtuple
 
 DEFAULT_LOG_INTERVAL = 60
 
@@ -72,13 +72,8 @@ class Tag:
     status = 'status'
 
 
-@attr.s
-class Point:
-    '''Models a single data point for metric'''
-    metric_type = attr.ib()
-    metric = attr.ib()
-    value = attr.ib()
-    tags = attr.ib(default=attr.Factory(dict))
+
+Point = namedtuple('Point', ['metric_type', 'metric', 'value', 'tags'])
 
 
 def log(logger, point):
