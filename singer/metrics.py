@@ -9,6 +9,7 @@ import json.decoder
 import re
 import time
 import logging
+import attr
 
 DEFAULT_LOG_INTERVAL = 60
 
@@ -32,22 +33,21 @@ class Tag:  # pylint: disable=too-few-public-methods
     http_status_code = 'http_status_code'
     status = 'status'
 
+@attr.s
+class DataPoint:
+    metric_type = attr.ib()
+    metric = attr.ib()
+    value = attr.ib()
+    tags = attr.ib(default=attr.Factory(dict))
 
-def log_metric(logger, metric_type, metric, value, tags):
-    '''Log a single metric.
 
-    Args:
-      logger:      The logger to log to
-      metric_type: Type of the metric, either 'counter' or 'timer'
-      value:       The value of the metric
-      tags:        Dict of tag names / values
-
-    '''
+def log(logger, data_point):
+    '''Log a single data point.'''
     result = {
-        'type': metric_type,
-        'metric': metric,
-        'value': value,
-        'tags': tags
+        'type': data_point.metric_type,
+        'metric': data_point.metric,
+        'value': data_point.value,
+        'tags': data_point.tags
     }
     logger.info('METRIC: %s', json.dumps(result))
 
@@ -96,16 +96,18 @@ class Counter(object):  # pylint: disable=too-few-public-methods
         '''Increments value by the specified amount.'''
         self.value += amount
         if self._ready_to_log():
-            self._pop_metric()
+            self._pop()
 
-    def _pop_metric(self):
+    def _pop(self):
         value = self.value
         self.value = 0
         self.last_log_time = time.time()
-        log_metric(self.logger, 'counter', self.metric, value, {Tag.endpoint: self.endpoint})
+        data_point = DataPoint('counter', self.metric, value)
+        data_point.tags[Tag.endpoint] = self.endpoint
+        log(self.logger, data_point)
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self._pop_metric()
+        self._pop()
 
     def _ready_to_log(self):
         return time.time() - self.last_log_time > self.log_interval
@@ -157,21 +159,21 @@ class Timer(object):  # pylint: disable=too-few-public-methods
         return time.time() - self.start_time
 
     def __exit__(self, exc_type, exc_value, traceback):
-        tags = {}
+        data_point = DataPoint('timer', self.metric, self.elapsed())
 
         for k in [Tag.endpoint,
                   Tag.http_status_code,
                   Tag.status]:
             if self.__dict__[k] is not None:
-                tags[k] = self.__dict__[k]
+                data_point.tags[k] = self.__dict__[k]
 
-        if Tag.status not in tags:
+        print('The data point is ' + str(data_point))
+        if Tag.status not in data_point.tags:
             if exc_type is None:
-                tags[Tag.status] = Status.succeeded
+                data_point.tags[Tag.status] = Status.succeeded
             else:
-                tags[Tag.status] = Status.failed
-
-        log_metric(self.logger, 'timer', self.metric, self.elapsed(), tags)
+                data_point.tags[Tag.status] = Status.failed
+        log(self.logger, data_point)
 
 
 def record_counter(endpoint=None, log_interval=DEFAULT_LOG_INTERVAL):
@@ -194,14 +196,18 @@ def http_request_timer(endpoint):
     return Timer(Metric.http_request_duration, endpoint)
 
 
-def parse_metrics(line):
-    '''Parse metrics from a log line and return them as a dict.'''
+def parse(line):
+    '''Parse a DataPoint from a log line and return it, or None if no data point.'''
     match = re.match(r'^INFO METRIC: (.*)$', line)
-    result = None
     if match:
         json_str = match.group(1)
         try:
-            result = json.loads(json_str)
+            raw = json.loads(json_str)
+            return DataPoint(
+                metric_type=raw.get('type'),
+                metric=raw.get('metric'),
+                value=raw.get('value'),
+                tags=raw.get('tags'))
         except Exception as exc:  # pylint: disable=broad-except
             logging.getLogger(__name__).warning('Error parsing metric: %s', exc)
-    return result
+    return None
