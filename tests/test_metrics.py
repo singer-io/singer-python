@@ -53,7 +53,7 @@ class TestHttpRequestTimer(unittest.TestCase):
     def test_success_with_http_status_code(self, log):
         with metrics.http_request_timer('users') as timer:
             timer.elapsed = lambda: 0
-            timer.http_status_code = 200
+            timer.tags[metrics.Tag.http_status_code] = 200
         self.assertEqual(
             [metrics.Point('timer', 'http_request_duration', 0, {'endpoint': 'users', 'status': 'succeeded', 'http_status_code': 200})],
             logged_points(log))
@@ -63,7 +63,7 @@ class TestHttpRequestTimer(unittest.TestCase):
         try:
             with metrics.http_request_timer('users') as timer:
                 timer.elapsed = lambda: 0
-                timer.http_status_code = 400
+                timer.tags[metrics.Tag.http_status_code] = 400
                 raise ValueError('foo is not bar')
         except ValueError:
             pass
