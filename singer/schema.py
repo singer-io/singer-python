@@ -28,6 +28,7 @@ class Schema(object):
 
     type = attr.ib(default=None)
     properties = attr.ib(default={})
+    items = attr.ib(default={})
     sqlDatatype = attr.ib(default=None)
     selected = attr.ib(default=None)
     inclusion = attr.ib(default=None)
@@ -50,6 +51,8 @@ class Schema(object):
             result['properties'] = {
                 k: v.to_dict() for k, v in self.properties.items() # pylint: disable=no-member
             }
+        if self.items:
+            result['items'] = self.items.to_dict()
         for key in STANDARD_KEYS:
             if self.__dict__[key] is not None:
                 result[key] = self.__dict__[key]
@@ -60,10 +63,15 @@ class Schema(object):
     def from_dict(self, data):
         '''Initialize a Schema object based on the raw JSON Schema data structure.'''
         kwargs = {}
-        if 'properties' in data:
+        properties = data.get('properties')
+        items = data.get('items')
+        
+        if properties:
             kwargs['properties'] = {
-                k: Schema.from_dict(v) for k, v in data['properties'].items()
+                k: Schema.from_dict(v) for k, v in properties.items()
             }
+        if items:
+            kwargs['items'] = Schema.from_dict(items)
         for key in STANDARD_KEYS:
             if key in data:
                 kwargs[key] = data[key]
