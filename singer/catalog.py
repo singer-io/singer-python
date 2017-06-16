@@ -1,21 +1,27 @@
 '''Provides an object model for a Singer Catalog.'''
 
-import attr
 import json
 
 from singer.schema import Schema
 
-@attr.s
 class CatalogEntry(object):
-    tap_stream_id = attr.ib(default=None)
-    replication_key = attr.ib(default=None)
-    key_properties = attr.ib(default=None)
-    schema = attr.ib(default=None)
-    is_view = attr.ib(default=None)
-    database = attr.ib(default=None)
-    table = attr.ib(default=None)
-    stream = attr.ib(default=None)
-    row_count = attr.ib(default=None)
+
+    def __init__(self, tap_stream_id=None, stream=None, key_properties=None, schema=None, replication_key=None, is_view=None, database=None, table=None, row_count=None):
+        self.tap_stream_id = tap_stream_id
+        self.stream = stream
+        self.key_properties = key_properties
+        self.schema = schema
+        self.replication_key = replication_key
+        self.is_view = is_view
+        self.database = database
+        self.table = table
+        self.row_count = row_count
+
+    def __str__(self):
+        return str(self.__dict__)
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
 
     def is_selected(self):
         return self.schema.selected  # pylint: disable=no-member
@@ -42,10 +48,16 @@ class CatalogEntry(object):
             result['row_count'] = self.row_count
         return result
 
-@attr.s
 class Catalog(object):
 
-    streams = attr.ib()
+    def __init__(self, streams):
+        self.streams = streams
+
+    def __str__(self):
+        return str(self.__dict__)
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
     
     def load(filename):
         with open(filename) as fp:
