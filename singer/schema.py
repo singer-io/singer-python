@@ -1,7 +1,6 @@
 '''Provides an object model for JSON Schema'''
 
 import json
-import attr
 
 # These are standard keys defined in the JSON Schema spec
 STANDARD_KEYS = [
@@ -19,7 +18,7 @@ STANDARD_KEYS = [
     'type'
 ]
 
-@attr.s # pylint: disable=too-many-instance-attributes
+
 class Schema(object):
     '''Object model for JSON Schema.
 
@@ -28,23 +27,28 @@ class Schema(object):
 
     '''
 
-    type = attr.ib(default=None)
-    properties = attr.ib(default={})
-    items = attr.ib(default={})
-    sqlDatatype = attr.ib(default=None)
-    selected = attr.ib(default=None)
-    inclusion = attr.ib(default=None)
-    description = attr.ib(default=None)
-    minimum = attr.ib(default=None)
-    maximum = attr.ib(default=None)
-    exclusiveMinimum = attr.ib(default=None)
-    exclusiveMaximum = attr.ib(default=None)
-    multipleOf = attr.ib(default=None)
-    maxLength = attr.ib(default=None)
-    format = attr.ib(default=None)
+    def __init__(self, type=None, properties=None, items=None, sqlDatatype=None, selected=None, inclusion=None, description=None, minimum=None, maximum=None, exclusiveMinimum=None, exclusiveMaximum=None, multipleOf=None, maxLength=None, format=None):
+
+        self.type = type
+        self.properties = properties
+        self.items = items
+        self.sqlDatatype = sqlDatatype
+        self.selected = selected
+        self.inclusion = inclusion
+        self.description = description
+        self.minimum = minimum
+        self.maximum = maximum
+        self.exclusiveMinimum = exclusiveMinimum
+        self.exclusiveMaximum = exclusiveMaximum
+        self.multipleOf = multipleOf
+        self.maxLength = maxLength
+        self.format = format
 
     def __str__(self):
         return json.dumps(self.to_dict())
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
 
     def to_dict(self):
         '''Return the raw JSON Schema as a (possibly nested) dict.'''
