@@ -35,16 +35,16 @@ class Schema(object): # pylint: disable=too-many-instance-attributes
         self.type = type
         self.properties = properties
         self.items = items
-        self.sqlDatatype = sqlDatatype
+        self.sqlDatatype = sqlDatatype # pylint: disable=invalid-name
         self.selected = selected
         self.inclusion = inclusion
         self.description = description
         self.minimum = minimum
         self.maximum = maximum
-        self.exclusiveMinimum = exclusiveMinimum
-        self.exclusiveMaximum = exclusiveMaximum
-        self.multipleOf = multipleOf
-        self.maxLength = maxLength
+        self.exclusiveMinimum = exclusiveMinimum # pylint: disable=invalid-name
+        self.exclusiveMaximum = exclusiveMaximum # pylint: disable=invalid-name
+        self.multipleOf = multipleOf # pylint: disable=invalid-name
+        self.maxLength = maxLength # pylint: disable=invalid-name
         self.format = format
 
     def __str__(self):

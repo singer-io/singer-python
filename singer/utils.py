@@ -5,6 +5,8 @@ import functools
 import json
 import time
 
+from singer.catalog import Catalog
+
 DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
 
 
