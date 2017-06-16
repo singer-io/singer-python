@@ -1,7 +1,7 @@
 import json
-
 import attr
 
+# These are standard keys defined in the JSON Schema spec
 STANDARD_KEYS = [
     'sqlDatatype',
     'selected',
@@ -50,9 +50,6 @@ class Schema(object):
             result['properties'] = {
                 k: v.to_dict() for k, v in self.properties.items() # pylint: disable=no-member
             }
-        if not self.type:
-            raise ValueError("Type is required")
-
         for key in STANDARD_KEYS:
             if self.__dict__[key] is not None:
                 result[key] = self.__dict__[key]
@@ -65,7 +62,7 @@ class Schema(object):
         kwargs = {}
         if 'properties' in data:
             kwargs['properties'] = {
-                k: load_schema(v) for k, v in data['properties'].items()
+                k: Schema.from_dict(v) for k, v in data['properties'].items()
             }
         for key in STANDARD_KEYS:
             if key in data:
