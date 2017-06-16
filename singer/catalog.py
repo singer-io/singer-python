@@ -1,12 +1,17 @@
 '''Provides an object model for a Singer Catalog.'''
 
 import json
+import sys
 
 from singer.schema import Schema
 
+# pylint: disable=too-many-instance-attributes
 class CatalogEntry(object):
 
-    def __init__(self, tap_stream_id=None, stream=None, key_properties=None, schema=None, replication_key=None, is_view=None, database=None, table=None, row_count=None):
+    def __init__(self, tap_stream_id=None, stream=None,
+                 key_properties=None, schema=None, replication_key=None, is_view=None,
+                 database=None, table=None, row_count=None):
+
         self.tap_stream_id = tap_stream_id
         self.stream = stream
         self.key_properties = key_properties
@@ -58,18 +63,19 @@ class Catalog(object):
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
-    
-    def load(filename):
-        with open(filename) as fp:
+
+    @classmethod
+    def load(cls, filename):
+        with open(filename) as fp: # pylint: disable=invalid-name
             return Catalog.from_dict(json.load(fp))
 
     @classmethod
-    def from_dict(self, data):
+    def from_dict(cls, data):
         streams = []
         for stream in data['streams']:
             entry = CatalogEntry()
             entry.tap_stream_id = stream.get('tap_stream_id')
-            entry.stream = stream.get('stream')            
+            entry.stream = stream.get('stream')
             entry.replication_key = stream.get('replication_key')
             entry.key_properties = stream.get('key_properties')
             entry.database = stream.get('database_name')
@@ -82,6 +88,6 @@ class Catalog(object):
 
     def to_dict(self):
         return {'streams': [stream.to_dict() for stream in self.streams]}
-    
+
     def dump(self):
         json.dump(self.to_dict(), sys.stdout, indent=2)
