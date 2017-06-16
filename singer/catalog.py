@@ -5,12 +5,13 @@ import sys
 
 from singer.schema import Schema
 
+
 # pylint: disable=too-many-instance-attributes
 class CatalogEntry(object):
 
     def __init__(self, tap_stream_id=None, stream=None,
-                 key_properties=None, schema=None, replication_key=None, is_view=None,
-                 database=None, table=None, row_count=None):
+                 key_properties=None, schema=None, replication_key=None,
+                 is_view=None, database=None, table=None, row_count=None):
 
         self.tap_stream_id = tap_stream_id
         self.stream = stream
@@ -44,7 +45,8 @@ class CatalogEntry(object):
         if self.key_properties is not None:
             result['key_properties'] = self.key_properties
         if self.schema is not None:
-            result['schema'] = self.schema.to_dict() # pylint: disable=no-member
+            schema = self.schema.to_dict()  # pylint: disable=no-member
+            result['schema'] = schema
         if self.is_view is not None:
             result['is_view'] = self.is_view
         if self.stream is not None:
@@ -52,6 +54,7 @@ class CatalogEntry(object):
         if self.row_count is not None:
             result['row_count'] = self.row_count
         return result
+
 
 class Catalog(object):
 
@@ -66,7 +69,7 @@ class Catalog(object):
 
     @classmethod
     def load(cls, filename):
-        with open(filename) as fp: # pylint: disable=invalid-name
+        with open(filename) as fp:  # pylint: disable=invalid-name
             return Catalog.from_dict(json.load(fp))
 
     @classmethod
@@ -84,7 +87,6 @@ class Catalog(object):
             entry.is_view = stream.get('is_view')
             streams.append(entry)
         return Catalog(streams)
-
 
     def to_dict(self):
         return {'streams': [stream.to_dict() for stream in self.streams]}
