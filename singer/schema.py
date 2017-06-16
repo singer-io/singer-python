@@ -1,3 +1,5 @@
+'''Provides an object model for JSON Schema'''
+
 import json
 import attr
 
@@ -52,7 +54,7 @@ class Schema(object):
                 k: v.to_dict() for k, v in self.properties.items() # pylint: disable=no-member
             }
         if self.items:
-            result['items'] = self.items.to_dict()
+            result['items'] = self.items.to_dict() # pylint: disable=no-member
         for key in STANDARD_KEYS:
             if self.__dict__[key] is not None:
                 result[key] = self.__dict__[key]
@@ -60,12 +62,12 @@ class Schema(object):
         return result
 
     @classmethod
-    def from_dict(self, data):
+    def from_dict(cls, data):
         '''Initialize a Schema object based on the raw JSON Schema data structure.'''
         kwargs = {}
         properties = data.get('properties')
         items = data.get('items')
-        
+
         if properties:
             kwargs['properties'] = {
                 k: Schema.from_dict(v) for k, v in properties.items()
@@ -76,4 +78,3 @@ class Schema(object):
             if key in data:
                 kwargs[key] = data[key]
         return Schema(**kwargs)
-
