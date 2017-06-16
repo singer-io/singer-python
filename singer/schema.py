@@ -41,14 +41,14 @@ class Schema(object):
     format = attr.ib(default=None)
 
     def __str__(self):
-        return json.dumps(self.to_json())
+        return json.dumps(self.to_dict())
 
-    def to_json(self):
+    def to_dict(self):
         '''Return the raw JSON Schema as a (possibly nested) dict.'''
         result = {}
         if self.properties:
             result['properties'] = {
-                k: v.to_json() for k, v in self.properties.items() # pylint: disable=no-member
+                k: v.to_dict() for k, v in self.properties.items() # pylint: disable=no-member
             }
         if not self.type:
             raise ValueError("Type is required")
@@ -60,7 +60,7 @@ class Schema(object):
         return result
 
     @classmethod
-    def from_json(self, data):
+    def from_dict(self, data):
         '''Initialize a Schema object based on the raw JSON Schema data structure.'''
         kwargs = {}
         if 'properties' in data:

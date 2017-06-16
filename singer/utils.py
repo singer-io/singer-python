@@ -70,7 +70,7 @@ def parse_args(required_config_keys):
     -c,--config     Config file
     -s,--state      State file
     -d,--discover   Run in discover mode
-    -p,--properties Properties file
+    -a,--catalog    Catalog file
 
     Returns the parsed args object from argparse. For each argument that
     point to JSON files (config, state, properties), we will automatically
@@ -88,8 +88,8 @@ def parse_args(required_config_keys):
         help='State file')
 
     parser.add_argument(
-        '-p', '--properties',
-        help='Property selections')
+        '-a', '--catalog',
+        help='Catalog file')
 
     parser.add_argument(
         '-d', '--discover',
@@ -103,8 +103,8 @@ def parse_args(required_config_keys):
         args.state = load_json(args.state)
     else:
         args.state = {}
-    if args.properties:
-        args.properties = load_json(args.properties)
+    if args.catalog:
+        args.catalog = Catalog.load(args.catalog)
 
     check_config(args.config, required_config_keys)
 
