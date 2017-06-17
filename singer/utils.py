@@ -5,6 +5,8 @@ import functools
 import json
 import time
 
+from singer.catalog import Catalog
+
 DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
 
 
@@ -70,7 +72,8 @@ def parse_args(required_config_keys):
     -c,--config     Config file
     -s,--state      State file
     -d,--discover   Run in discover mode
-    -p,--properties Properties file
+    -p,--properties Properties file: DEPRECATED, please use --catalog instead
+    --catalog       Catalog file
 
     Returns the parsed args object from argparse. For each argument that
     point to JSON files (config, state, properties), we will automatically
@@ -89,7 +92,11 @@ def parse_args(required_config_keys):
 
     parser.add_argument(
         '-p', '--properties',
-        help='Property selections')
+        help='Property selections: DEPRECATED, Please use --catalog instead')
+
+    parser.add_argument(
+        '--catalog',
+        help='Catalog file')
 
     parser.add_argument(
         '-d', '--discover',
@@ -105,6 +112,8 @@ def parse_args(required_config_keys):
         args.state = {}
     if args.properties:
         args.properties = load_json(args.properties)
+    if args.catalog:
+        args.catalog = Catalog.load(args.catalog)
 
     check_config(args.config, required_config_keys)
 
