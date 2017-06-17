@@ -73,7 +73,7 @@ def parse_args(required_config_keys):
     -s,--state      State file
     -d,--discover   Run in discover mode
     -p,--properties Properties file: DEPRECATED, please use --catalog instead
-    -a,--catalog    Catalog file
+    --catalog       Catalog file
 
     Returns the parsed args object from argparse. For each argument that
     point to JSON files (config, state, properties), we will automatically
@@ -95,7 +95,7 @@ def parse_args(required_config_keys):
         help='Property selections: DEPRECATED, Please use --catalog instead')
 
     parser.add_argument(
-        '-a', '--catalog',
+        '--catalog',
         help='Catalog file')
 
     parser.add_argument(
