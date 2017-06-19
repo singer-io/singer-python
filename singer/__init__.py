@@ -96,11 +96,14 @@ class StateMessage(Message):
         }
 
 class ActivateVersionMessage(Message):
-    '''ACTIVATE_VERSION message.
+    '''ACTIVATE_VERSION message (EXPERIMENTAL).
 
     >>> msg = singer.ActivateVersionMessage(
     >>>     stream='users',
     >>>     version=2)
+
+    Note that this feature is experimental and should not be relied on for
+    production use.
 
     '''
     def __init__(self, stream, version):
