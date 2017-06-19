@@ -10,6 +10,9 @@ from singer import transform
 class Message(object):
     '''Base class for messages.'''
 
+    def asdict(self):
+        raise Exception('Not implemented')
+
     def __eq__(self, other):
         return isinstance(other, Message) and self.asdict() == other.asdict()
 
