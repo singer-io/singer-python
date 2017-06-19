@@ -10,6 +10,13 @@ class TestSinger(unittest.TestCase):
             message,
             singer.RecordMessage(record={'name': 'foo'}, stream='users'))
 
+    def test_parse_message_record_with_version_good(self):
+        message = singer.parse_message(
+            '{"type": "RECORD", "record": {"name": "foo"}, "stream": "users", "version": 2}')
+        self.assertEqual(
+            message,
+            singer.RecordMessage(record={'name': 'foo'}, stream='users', version=2))        
+
     def test_parse_message_record_missing_record(self):
         with self.assertRaises(Exception):
             singer.parse_message('{"type": "RECORD", "stream": "users"}')
@@ -68,11 +75,11 @@ class TestSinger(unittest.TestCase):
         state_message = singer.StateMessage(value={'seq': 1})
 
         self.assertEqual(record_message,
-                         singer.parse_message(record_message.tojson()))
+                         singer.parse_message(singer.format_message(record_message)))
         self.assertEqual(schema_message,
-                         singer.parse_message(schema_message.tojson()))
+                         singer.parse_message(singer.format_message(schema_message)))
         self.assertEqual(state_message,
-                         singer.parse_message(state_message.tojson()))
+                         singer.parse_message(singer.format_message(state_message)))
 
     ## These three tests just confirm that writing doesn't throw
 
