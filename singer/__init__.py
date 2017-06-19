@@ -10,7 +10,7 @@ from singer import transform
 class Message(object):
     '''Base class for messages.'''
 
-    def asdict(self):
+    def asdict(self):  # pylint: disable=no-self-use
         raise Exception('Not implemented')
 
     def __eq__(self, other):
