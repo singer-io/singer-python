@@ -8,22 +8,33 @@ from singer import utils
 from singer import transform
 
 class Message(object):
+    '''Base class for messages.'''
 
     def __eq__(self, other):
         return isinstance(other, Message) and self.asdict() == other.asdict()
 
     def __repr__(self):
-        attrstr = ", ".join("{}={}".format(k, v) for k, v in self.asdict())
+        pairs = ["{}={}".format(k, v) for k, v in self.asdict().items()]
+        attrstr = ", ".join(pairs)
         return "{}({})".format(self.__class__.__name__, attrstr)
 
+    def __str__(self):
+        return str(self.asdict)
 
 class RecordMessage(Message):
+    '''RECORD message.
+
+    >>> msg = singer.RecordMessage(
+    >>>     stream='users',
+    >>>     record={'id': 1, 'name': 'Mary'})
+
+    '''
 
     def __init__(self, stream, record, version=None):
         self.stream = stream
         self.record = record
         self.version = version
-        
+
     def asdict(self):
         result = {
             'type': 'RECORD',
@@ -34,9 +45,23 @@ class RecordMessage(Message):
             result['version'] = self.version
         return result
 
+    def __str__(self):
+        return str(self.asdict)
 
 class SchemaMessage(Message):
+    '''SCHEMA message.
 
+    >>> msg = singer.SchemaMessage(
+    >>>     stream='users',
+    >>>     schema={'type': 'object',
+    >>>             'properties': {
+    >>>                 'id': {'type': 'integer'},
+    >>>                 'name': {'type': 'string'}
+    >>>             }
+    >>>            },
+    >>>     key_properties=['id'])
+
+    '''
     def __init__(self, stream, schema, key_properties):
         self.stream = stream
         self.schema = schema
@@ -49,10 +74,15 @@ class SchemaMessage(Message):
             'schema': self.schema,
             'key_properties': self.key_properties
         }
-    
+
 
 class StateMessage(Message):
+    '''STATE message.
 
+    >>> msg = singer.StateMessage(
+    >>>     value={'users': '2017-06-19T00:00:00'})
+
+    '''
     def __init__(self, value):
         self.value = value
 
@@ -63,6 +93,13 @@ class StateMessage(Message):
         }
 
 class ActivateVersionMessage(Message):
+    '''ACTIVATE_VERSION message.
+
+    >>> msg = singer.ActivateVersionMessage(
+    >>>     stream='users',
+    >>>     version=2)
+
+    '''
     def __init__(self, stream, version):
         self.stream = stream
         self.version = version
@@ -142,7 +179,8 @@ def parse_message(msg):
 
     if msg_type == 'RECORD':
         return RecordMessage(stream=_required_key(obj, 'stream'),
-                             record=_required_key(obj, 'record'))
+                             record=_required_key(obj, 'record'),
+                             version=obj.get('version'))
 
     elif msg_type == 'SCHEMA':
         return SchemaMessage(stream=_required_key(obj, 'stream'),

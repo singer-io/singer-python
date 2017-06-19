@@ -15,7 +15,7 @@ class TestSinger(unittest.TestCase):
             '{"type": "RECORD", "record": {"name": "foo"}, "stream": "users", "version": 2}')
         self.assertEqual(
             message,
-            singer.RecordMessage(record={'name': 'foo'}, stream='users', version=2))        
+            singer.RecordMessage(record={'name': 'foo'}, stream='users', version=2))
 
     def test_parse_message_record_missing_record(self):
         with self.assertRaises(Exception):
@@ -73,7 +73,7 @@ class TestSinger(unittest.TestCase):
                         'name': {'type': 'string'}}})
 
         state_message = singer.StateMessage(value={'seq': 1})
-
+        
         self.assertEqual(record_message,
                          singer.parse_message(singer.format_message(record_message)))
         self.assertEqual(schema_message,
