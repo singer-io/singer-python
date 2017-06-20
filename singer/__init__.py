@@ -8,48 +8,120 @@ from singer import utils
 from singer import transform
 
 class Message(object):
-    attr_list = []
-    _type = None
-    def __init__(self, **kwargs):
-        for k in self.attr_list:
-            if k not in kwargs:
-                raise ValueError("missing {}".format(k))
-            setattr(self, k, kwargs[k])
+    '''Base class for messages.'''
 
-    def asdict(self):
-        res = {k: getattr(self, k) for k in self.attr_list}
-        res['type'] = self._type
-        return res
+    def asdict(self):  # pylint: disable=no-self-use
+        raise Exception('Not implemented')
 
     def __eq__(self, other):
-        return self.asdict() == other.asdict()
+        return isinstance(other, Message) and self.asdict() == other.asdict()
 
     def __repr__(self):
-        attrstr = ", ".join(
-            "{}={}".format(k, getattr(self, k)) for k in self.attr_list)
+        pairs = ["{}={}".format(k, v) for k, v in self.asdict().items()]
+        attrstr = ", ".join(pairs)
         return "{}({})".format(self.__class__.__name__, attrstr)
 
-    def tojson(self):
-        return json.dumps(self.asdict())
-
+    def __str__(self):
+        return str(self.asdict)
 
 class RecordMessage(Message):
-    _type = 'RECORD'
-    attr_list = ['stream', 'record']
+    '''RECORD message.
 
+    >>> msg = singer.RecordMessage(
+    >>>     stream='users',
+    >>>     record={'id': 1, 'name': 'Mary'})
+
+    '''
+
+    def __init__(self, stream, record, version=None):
+        self.stream = stream
+        self.record = record
+        self.version = version
+
+    def asdict(self):
+        result = {
+            'type': 'RECORD',
+            'stream': self.stream,
+            'record': self.record,
+        }
+        if self.version is not None:
+            result['version'] = self.version
+        return result
+
+    def __str__(self):
+        return str(self.asdict)
 
 class SchemaMessage(Message):
-    _type = 'SCHEMA'
-    attr_list = ['stream', 'schema', 'key_properties']
+    '''SCHEMA message.
+
+    >>> msg = singer.SchemaMessage(
+    >>>     stream='users',
+    >>>     schema={'type': 'object',
+    >>>             'properties': {
+    >>>                 'id': {'type': 'integer'},
+    >>>                 'name': {'type': 'string'}
+    >>>             }
+    >>>            },
+    >>>     key_properties=['id'])
+
+    '''
+    def __init__(self, stream, schema, key_properties):
+        self.stream = stream
+        self.schema = schema
+        self.key_properties = key_properties
+
+    def asdict(self):
+        return {
+            'type': 'SCHEMA',
+            'stream': self.stream,
+            'schema': self.schema,
+            'key_properties': self.key_properties
+        }
 
 
 class StateMessage(Message):
-    _type = 'STATE'
-    attr_list = ['value']
+    '''STATE message.
 
+    >>> msg = singer.StateMessage(
+    >>>     value={'users': '2017-06-19T00:00:00'})
+
+    '''
+    def __init__(self, value):
+        self.value = value
+
+    def asdict(self):
+        return {
+            'type': 'STATE',
+            'value': self.value
+        }
+
+class ActivateVersionMessage(Message):
+    '''ACTIVATE_VERSION message (EXPERIMENTAL).
+
+    >>> msg = singer.ActivateVersionMessage(
+    >>>     stream='users',
+    >>>     version=2)
+
+    Note that this feature is experimental and should not be relied on for
+    production use.
+
+    '''
+    def __init__(self, stream, version):
+        self.stream = stream
+        self.version = version
+
+    def asdict(self):
+        return {
+            'type': 'ACTIVATE_VERSION',
+            'stream': self.stream,
+            'version': self.version
+        }
+
+def format_message(message):
+    return json.dumps(message.asdict())
 
 def write_message(message):
-    sys.stdout.write(message.tojson() + '\n')
+    sys.stdout.write(format_message(message) + '\n')
     sys.stdout.flush()
 
 
@@ -113,7 +185,8 @@ def parse_message(msg):
 
     if msg_type == 'RECORD':
         return RecordMessage(stream=_required_key(obj, 'stream'),
-                             record=_required_key(obj, 'record'))
+                             record=_required_key(obj, 'record'),
+                             version=obj.get('version'))
 
     elif msg_type == 'SCHEMA':
         return SchemaMessage(stream=_required_key(obj, 'stream'),
