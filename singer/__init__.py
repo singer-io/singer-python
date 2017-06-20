@@ -224,6 +224,10 @@ def parse_message(msg):
     elif msg_type == 'STATE':
         return StateMessage(value=_required_key(obj, 'value'))
 
+    elif msg_type == 'ACTIVATE_VERSION':
+        return ActivateVersionMessage(stream=_required_key(obj, 'stream'),
+                                      version=_required_key(obj, 'version'))
+
 
 def get_logger():
     """Return a Logger instance appropriate for using in a Tap or a Target."""
