@@ -27,6 +27,14 @@ class Message(object):
 class RecordMessage(Message):
     '''RECORD message.
 
+    The RECORD message has these fields:
+
+      * stream (string) - The name of the stream the record belongs to.
+      * record (dict) - The raw data for the record
+      * version (optional, int) - For versioned streams, the version
+        number. Note that this feature is experimental and most Taps and
+        Targets should not need to use versioned streams.
+
     >>> msg = singer.RecordMessage(
     >>>     stream='users',
     >>>     record={'id': 1, 'name': 'Mary'})
@@ -53,6 +61,12 @@ class RecordMessage(Message):
 
 class SchemaMessage(Message):
     '''SCHEMA message.
+
+    The SCHEMA message has these fields:
+
+      * stream (string) - The name of the stream this schema describes.
+      * schema (dict) - The JSON schema.
+      * key_properties (list of strings) - List of primary key properties.
 
     >>> msg = singer.SchemaMessage(
     >>>     stream='users',
@@ -82,6 +96,10 @@ class SchemaMessage(Message):
 class StateMessage(Message):
     '''STATE message.
 
+    The STATE message has one field:
+
+      * value (dict) - The value of the state.
+
     >>> msg = singer.StateMessage(
     >>>     value={'users': '2017-06-19T00:00:00'})
 
@@ -98,12 +116,22 @@ class StateMessage(Message):
 class ActivateVersionMessage(Message):
     '''ACTIVATE_VERSION message (EXPERIMENTAL).
 
+    The ACTIVATE_VERSION messages has these fields:
+
+      * stream - The name of the stream.
+      * version - The version number to activate.
+
+    This is a signal to the Target that it should delete all previously
+    seen data and replace it with all the RECORDs it has seen where the
+    record's version matches this version number.
+
+    Note that this feature is experimental. Most Taps and Targets should
+    not need to use the "version" field of "RECORD" messages or the
+    "ACTIVATE_VERSION" message at all.
+
     >>> msg = singer.ActivateVersionMessage(
     >>>     stream='users',
     >>>     version=2)
-
-    Note that this feature is experimental and should not be relied on for
-    production use.
 
     '''
     def __init__(self, stream, version):
