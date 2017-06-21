@@ -1,8 +1,8 @@
 import sys
-import simplejson as json
 import os
 import logging
 import logging.config
+import simplejson as json
 
 from singer import utils
 from singer import transform
