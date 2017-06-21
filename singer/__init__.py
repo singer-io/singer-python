@@ -1,5 +1,5 @@
 import sys
-import json
+import simplejson as json
 import os
 import logging
 import logging.config
@@ -146,7 +146,7 @@ class ActivateVersionMessage(Message):
         }
 
 def format_message(message):
-    return json.dumps(message.asdict())
+    return json.dumps(message.asdict(), use_decimal=True)
 
 def write_message(message):
     sys.stdout.write(format_message(message) + '\n')
