@@ -3,7 +3,7 @@ import unittest
 from singer.schema import Schema
 from singer.catalog import Catalog, CatalogEntry
 
-class TestCatalog(unittest.TestCase):
+class TestToDictAndFromDict(unittest.TestCase):
 
     dict_form = {
         'streams': [
@@ -68,4 +68,12 @@ class TestCatalog(unittest.TestCase):
     def test_to_dict(self):
         self.assertEqual(self.dict_form, self.obj_form.to_dict())
         
-            
+
+class TestGetStream(unittest.TestCase):
+    def test(self):
+        catalog = Catalog(
+            [CatalogEntry(tap_stream_id='a'),
+             CatalogEntry(tap_stream_id='b'),
+             CatalogEntry(tap_stream_id='c')])
+        entry = catalog.get_stream('b')
+        self.assertEquals('b', entry.tap_stream_id)

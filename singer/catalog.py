@@ -74,6 +74,11 @@ class Catalog(object):
 
     @classmethod
     def from_dict(cls, data):
+        # TODO: We may want to store streams as a dict where the key is a
+        # tap_stream_id and the value is a CatalogEntry. This will allow
+        # faster lookup based on tap_stream_id. This would be a breaking
+        # change, since callers typically access the streams property
+        # directly.
         streams = []
         for stream in data['streams']:
             entry = CatalogEntry()
@@ -93,3 +98,9 @@ class Catalog(object):
 
     def dump(self):
         json.dump(self.to_dict(), sys.stdout, indent=2)
+
+    def get_stream(self, tap_stream_id):
+        for stream in self.streams:
+            if stream.tap_stream_id == tap_stream_id:
+                return stream
+        return None
