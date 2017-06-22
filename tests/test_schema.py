@@ -63,4 +63,9 @@ class TestSchema(unittest.TestCase):
     def test_object_from_dict(self):        
         self.assertEquals(self.object_obj, Schema.from_dict(self.object_dict))        
                 
-    
+    def test_repr_atomic(self):
+        self.assertEquals(self.string_obj, eval(repr(self.string_obj)))
+
+    def test_repr_recursive(self):
+        self.assertEquals(self.object_obj, eval(repr(self.object_obj)))
+
