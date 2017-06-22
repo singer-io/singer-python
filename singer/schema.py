@@ -52,6 +52,11 @@ class Schema(object):  # pylint: disable=too-many-instance-attributes
     def __str__(self):
         return json.dumps(self.to_dict())
 
+    def __repr__(self):
+        pairs = [k + '=' + repr(v) for k, v in self.__dict__.items()]
+        args = ', '.join(pairs)
+        return 'Schema(' + args + ')'
+
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
