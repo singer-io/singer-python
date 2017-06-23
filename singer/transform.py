@@ -90,7 +90,7 @@ def _transform(data, typ, schema, integer_datetime_fmt, path, error_paths):
     else:
         return False, None, path, error_paths + [path]
 
-def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING):
+def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING, pre_hook=None):
     """
     Applies schema (and integer_datetime_fmt, if supplied) to data, transforming
     each field in data to the type specified in schema. If no type matches a
@@ -104,8 +104,11 @@ def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING):
 
     If an integer_datetime_fmt is supplied, integer values in fields with date-
     time formats are appropriately parsed as unix seconds or unix milliseconds.
+
+    The pre_hook should be a callable that takes data and type and returns the
+    transformed data to be fed into the _transform function.
     """
-    success, transformed_data, _, error_paths = transform_recur(data, schema, integer_datetime_fmt, [], [])
+    success, transformed_data, _, error_paths = transform_recur(data, schema, integer_datetime_fmt, [], [], pre_hook)
     if success:
         return transformed_data
     else:
@@ -124,7 +127,7 @@ def _transform_anyof(data, schema, integer_datetime_fmt, path, error_paths):
             else:
                 pass
 
-def transform_recur(data, schema, integer_datetime_fmt, path, error_paths):
+def transform_recur(data, schema, integer_datetime_fmt, path, error_paths, pre_hook=None):
     """
     This function (and several of its helper functions) returns a tuple:
     (success, data, path, error_paths)
@@ -132,6 +135,7 @@ def transform_recur(data, schema, integer_datetime_fmt, path, error_paths):
     data is the transformed data
     path is the current path in the tree traversal of the data and schema
     error_paths is a list of paths where the data could not be transformed according to the schema
+    pre_hook is a callable that runs before the _transform body
     """
 
     # NB: This adds support for the `anyOf` keyword, but we do NOT support
@@ -150,6 +154,9 @@ def transform_recur(data, schema, integer_datetime_fmt, path, error_paths):
     type_length = len(types)
     for i, typ in enumerate(types):
         try:
+            if pre_hook:
+                data = pre_hook(data, typ, schema)
+
             success, data, path, error_paths = _transform(data, typ, schema, integer_datetime_fmt, path, error_paths)
             if success:
                 return success, data, path, error_paths
