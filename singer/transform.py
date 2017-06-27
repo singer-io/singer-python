@@ -105,8 +105,8 @@ def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING, pr
     If an integer_datetime_fmt is supplied, integer values in fields with date-
     time formats are appropriately parsed as unix seconds or unix milliseconds.
 
-    The pre_hook should be a callable that takes data and type and returns the
-    transformed data to be fed into the _transform function.
+    The pre_hook should be a callable that takes data, type, and schema and
+    returns the transformed data to be fed into the _transform function.
     """
     success, transformed_data, _, error_paths = transform_recur(data, schema, integer_datetime_fmt, [], [], pre_hook)
     if success:
