@@ -153,12 +153,12 @@ def write_message(message):
     sys.stdout.flush()
 
 
-def write_record(stream_name, record):
+def write_record(stream_name, record, stream_alias=None):
     """Write a single record for the given stream.
 
     >>> write_record("users", {"id": 2, "email": "mike@stitchdata.com"})
     """
-    write_message(RecordMessage(stream=stream_name, record=record))
+    write_message(RecordMessage(stream=(stream_alias or stream_name), record=record))
 
 
 def write_records(stream_name, records):
@@ -172,7 +172,7 @@ def write_records(stream_name, records):
         write_record(stream_name, record)
 
 
-def write_schema(stream_name, schema, key_properties):
+def write_schema(stream_name, schema, key_properties,stream_alias=None):
     """Write a schema message.
 
     >>> stream = 'test'
@@ -186,7 +186,7 @@ def write_schema(stream_name, schema, key_properties):
         raise Exception("key_properties must be a string or list of strings")
     write_message(
         SchemaMessage(
-            stream=stream_name,
+            stream=(stream_alias or stream_name),
             schema=schema,
             key_properties=key_properties))
 
