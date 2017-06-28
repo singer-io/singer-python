@@ -3,21 +3,21 @@ import pendulum
 from singer import utils
 
 # pylint: disable=line-too-long
-def _transform_object(data, prop_schema, integer_datetime_fmt, path, error_paths):
+def _transform_object(data, prop_schema, integer_datetime_fmt, path, error_paths, pre_hook=None):
     result = {}
     successes = []
     for key, value in data.items():
         if key in prop_schema:
-            success, subdata, _, error_paths = transform_recur(value, prop_schema[key], integer_datetime_fmt, path + [key], error_paths)
+            success, subdata, _, error_paths = transform_recur(value, prop_schema[key], integer_datetime_fmt, path + [key], error_paths, pre_hook)
             successes.append(success)
             result[key] = subdata
     return all(successes), result, path, error_paths
 
-def _transform_array(data, item_schema, integer_datetime_fmt, path, error_paths):
+def _transform_array(data, item_schema, integer_datetime_fmt, path, error_paths, pre_hook=None):
     result = []
     successes = []
     for i, row in enumerate(data):
-        success, subdata, _, error_paths = transform_recur(row, item_schema, integer_datetime_fmt, path + [i], error_paths)
+        success, subdata, _, error_paths = transform_recur(row, item_schema, integer_datetime_fmt, path + [i], error_paths, pre_hook)
         successes.append(success)
         result.append(subdata)
     return all(successes), result, path, error_paths
@@ -52,7 +52,10 @@ NO_INTEGER_DATETIME_PARSING = "no-integer-datetime-parsing"
 UNIX_SECONDS_INTEGER_DATETIME_PARSING = "unix-seconds-integer-datetime-parsing"
 UNIX_MILLISECONDS_INTEGER_DATETIME_PARSING = "unix-milliseconds-integer-datetime-parsing"
 
-def _transform(data, typ, schema, integer_datetime_fmt, path, error_paths):
+def _transform(data, typ, schema, integer_datetime_fmt, path, error_paths, pre_hook=None):
+    if pre_hook:
+        data = pre_hook(data, typ, schema)
+
     if typ == "null":
         if data is None or data == "":
             return True, None, path, error_paths
@@ -63,10 +66,10 @@ def _transform(data, typ, schema, integer_datetime_fmt, path, error_paths):
         return True, _transform_datetime(data, integer_datetime_fmt), path, error_paths
 
     elif typ == "object":
-        return _transform_object(data, schema["properties"], integer_datetime_fmt, path, error_paths)
+        return _transform_object(data, schema["properties"], integer_datetime_fmt, path, error_paths, pre_hook)
 
     elif typ == "array":
-        return _transform_array(data, schema["items"], integer_datetime_fmt, path, error_paths)
+        return _transform_array(data, schema["items"], integer_datetime_fmt, path, error_paths, pre_hook)
 
     elif typ == "string":
         if data != None:
@@ -114,11 +117,11 @@ def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING, pr
     else:
         raise Exception("Errors at paths {} in data {} for schema {}".format(error_paths, data, schema))
 
-def _transform_anyof(data, schema, integer_datetime_fmt, path, error_paths):
+def _transform_anyof(data, schema, integer_datetime_fmt, path, error_paths, pre_hook=None):
     subschemas = schema["anyOf"]
     subschemas_length = len(subschemas)
     for i, subschema in enumerate(subschemas):
-        success, transformed_data, path, error_paths = transform_recur(data, subschema, integer_datetime_fmt, path, error_paths)
+        success, transformed_data, path, error_paths = transform_recur(data, subschema, integer_datetime_fmt, path, error_paths, pre_hook)
         if success:
             return success, transformed_data, path, error_paths
         else:
@@ -141,7 +144,7 @@ def transform_recur(data, schema, integer_datetime_fmt, path, error_paths, pre_h
     # NB: This adds support for the `anyOf` keyword, but we do NOT support
     # the follow json schema keywords: `allOf`, `oneOf`, `not`
     if schema.get("anyOf"):
-        return _transform_anyof(data, schema, integer_datetime_fmt, path, error_paths)
+        return _transform_anyof(data, schema, integer_datetime_fmt, path, error_paths, pre_hook)
 
     types = schema["type"]
     if not isinstance(types, list):
@@ -154,10 +157,7 @@ def transform_recur(data, schema, integer_datetime_fmt, path, error_paths, pre_h
     type_length = len(types)
     for i, typ in enumerate(types):
         try:
-            if pre_hook:
-                data = pre_hook(data, typ, schema)
-
-            success, data, path, error_paths = _transform(data, typ, schema, integer_datetime_fmt, path, error_paths)
+            success, data, path, error_paths = _transform(data, typ, schema, integer_datetime_fmt, path, error_paths, pre_hook)
             if success:
                 return success, data, path, error_paths
             else:
