@@ -182,7 +182,7 @@ def write_schema(stream_name, schema, key_properties,stream_alias=None):
     """
     if isinstance(key_properties, (str, bytes)):
         key_properties = [key_properties]
-    if not isinstance(key_properties, list):
+    if not isinstance(key_properties, (list, tuple)):
         raise Exception("key_properties must be a string or list of strings")
     write_message(
         SchemaMessage(
