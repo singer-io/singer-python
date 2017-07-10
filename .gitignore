@@ -83,6 +83,16 @@ celerybeat-schedule
 venv/
 ENV/
 
+# zsh + virtualenvwrapper
+.venv
+
+# osx
+.DS_Store
+
+# pycharm
+.idea
+.idea/*
+
 # Spyder project settings
 .spyderproject
 
