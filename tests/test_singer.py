@@ -81,7 +81,7 @@ class TestSinger(unittest.TestCase):
         self.assertEqual(state_message,
                          singer.parse_message(singer.format_message(state_message)))
 
-    ## These three tests just confirm that writing doesn't throw
+    ## These tests just confirm that writing doesn't throw
 
     def test_write_record(self):
         singer.write_record("users", {"name": "mike"})
@@ -91,6 +91,12 @@ class TestSinger(unittest.TestCase):
                 'properties': {
                     'name': {'type': 'string'}}}
         singer.write_schema("users", schema, ["name"])
+
+    def test_write_schema_key_properties_tuple(self):
+        schema={'type': 'object',
+                'properties': {
+                    'name': {'type': 'string'}}}
+        singer.write_schema("users", schema, ("name",))
 
     def test_write_state(self):
         singer.write_state({"foo": 1})
