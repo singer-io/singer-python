@@ -40,7 +40,7 @@ class Error:
     schema = attr.ib()
 
     def tostr(self):
-        path = ".".join(self.path)
+        path = ".".join(map(str, self.path))
         if self.schema:
             msg = "does not match {}".format(self.schema)
         else:
@@ -82,14 +82,14 @@ class Transformer:
                     return success, transformed_data
                 else:
                     if i == (types_len - 1):
-                        if typ not in ["object", "array"]:
+                        if "object" not in types and "array" not in types:
                             self._errors.append(Error(path, data, schema))
                         return False, None
                     else:
                         pass
             except:
                 if i == (types_len - 1):
-                    if typ not in ["object", "array"]:
+                    if "object" not in types and "array" not in types:
                         self._errors.append(Error(path, data, schema))
                     return False, None
                 else:
@@ -117,8 +117,8 @@ class Transformer:
                 successes.append(success)
                 result[key] = subdata
             else:
-                self._errors.append(Error(path + [key], value, None))
-                successes.append(False)
+                # Pass on fields not in schema
+                result[key] = value
 
         return all(successes), result
 
