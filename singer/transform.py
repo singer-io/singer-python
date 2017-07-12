@@ -33,7 +33,7 @@ class SchemaMismatch(Exception):
         super(SchemaMismatch, self).__init__(msg)
 
 
-@attr.s
+@attr.s()
 class Error:
     path = attr.ib()
     data = attr.ib()
