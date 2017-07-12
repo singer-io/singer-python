@@ -28,7 +28,13 @@ def unix_seconds_to_datetime(value):
 
 class SchemaMismatch(Exception):
     def __init__(self, errors):
-        msg = "Errors during transform\n\t{}".format("\n\t".join(e.tostr() for e in errors))
+        if not errors:
+            msg = "An error occured during transform that was not a schema mismatch"
+
+        else:
+            msg = "Errors during transform\n\t{}".format("\n\t".join(e.tostr() for e in errors))
+            msg += "\nErrors during transform: [{}]".format(", ".join(e.tostr() for e in errors))
+
         super(SchemaMismatch, self).__init__(msg)
 
 
@@ -81,15 +87,13 @@ class Transformer:
                     return success, transformed_data
                 else:
                     if i == (types_len - 1):
-                        if "object" not in types and "array" not in types:
-                            self._errors.append(Error(path, data, schema))
+                        self._errors.append(Error(path, data, schema))
                         return False, None
                     else:
                         pass
             except:
                 if i == (types_len - 1):
-                    if "object" not in types and "array" not in types:
-                        self._errors.append(Error(path, data, schema))
+                    self._errors.append(Error(path, data, schema))
                     return False, None
                 else:
                     pass
