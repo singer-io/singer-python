@@ -2,96 +2,196 @@ import datetime
 import pendulum
 from singer import utils
 
-# pylint: disable=line-too-long
-def _transform_object(data, prop_schema, integer_datetime_fmt, path, error_paths, pre_hook=None):
-    result = {}
-    successes = []
-    for key, value in data.items():
-        if key in prop_schema:
-            success, subdata, _, error_paths = transform_recur(value, prop_schema[key], integer_datetime_fmt, path + [key], error_paths, pre_hook)
-            successes.append(success)
-            result[key] = subdata
-    return all(successes), result, path, error_paths
-
-def _transform_array(data, item_schema, integer_datetime_fmt, path, error_paths, pre_hook=None):
-    result = []
-    successes = []
-    for i, row in enumerate(data):
-        success, subdata, _, error_paths = transform_recur(row, item_schema, integer_datetime_fmt, path + [i], error_paths, pre_hook)
-        successes.append(success)
-        result.append(subdata)
-    return all(successes), result, path, error_paths
-
-def unix_milliseconds_to_datetime(value):
-    return utils.strftime(datetime.datetime.utcfromtimestamp(int(value) * 0.001))
-
-def unix_seconds_to_datetime(value):
-    return utils.strftime(datetime.datetime.utcfromtimestamp(int(value)))
-
-def string_to_datetime(value):
-    return utils.strftime(pendulum.parse(value))
-
-def _transform_datetime(value, integer_datetime_fmt):
-    if integer_datetime_fmt not in [NO_INTEGER_DATETIME_PARSING,
-                                    UNIX_SECONDS_INTEGER_DATETIME_PARSING,
-                                    UNIX_MILLISECONDS_INTEGER_DATETIME_PARSING]:
-        raise Exception("Invalid integer datetime parsing option")
-
-    if integer_datetime_fmt == NO_INTEGER_DATETIME_PARSING:
-        return string_to_datetime(value)
-    else:
-        try:
-            if integer_datetime_fmt == UNIX_SECONDS_INTEGER_DATETIME_PARSING:
-                return unix_seconds_to_datetime(value)
-            elif integer_datetime_fmt == UNIX_MILLISECONDS_INTEGER_DATETIME_PARSING:
-                return unix_milliseconds_to_datetime(value)
-        except:
-            return string_to_datetime(value)
 
 NO_INTEGER_DATETIME_PARSING = "no-integer-datetime-parsing"
 UNIX_SECONDS_INTEGER_DATETIME_PARSING = "unix-seconds-integer-datetime-parsing"
 UNIX_MILLISECONDS_INTEGER_DATETIME_PARSING = "unix-milliseconds-integer-datetime-parsing"
 
-def _transform(data, typ, schema, integer_datetime_fmt, path, error_paths, pre_hook=None):
-    if pre_hook:
-        data = pre_hook(data, typ, schema)
+VALID_DATETIME_FORMATS = [
+    NO_INTEGER_DATETIME_PARSING,
+    UNIX_SECONDS_INTEGER_DATETIME_PARSING,
+    UNIX_MILLISECONDS_INTEGER_DATETIME_PARSING,
+]
 
-    if typ == "null":
-        if data is None or data == "":
-            return True, None, path, error_paths
+
+def string_to_datetime(value):
+    return utils.strftime(pendulum.parse(value))
+
+
+def unix_milliseconds_to_datetime(value):
+    return utils.strftime(datetime.datetime.utcfromtimestamp(int(value) * 0.001))
+
+
+def unix_seconds_to_datetime(value):
+    return utils.strftime(datetime.datetime.utcfromtimestamp(int(value)))
+
+
+class SchemaMismatch(Exception):
+    def __init__(self, errors):
+        msg = "Errors during transform\n\t{}".format("\n\t".join(e.tostr() for e in errors))
+        super(SchemaMismatch, self).__init__(msg)
+
+
+class Error:
+    def __init__(self, path, data, schema=None):
+        self.path = path
+        self.data = data
+        self.schema = schema
+
+    def tostr(self):
+        path = ".".join(map(str, self.path))
+        if self.schema:
+            msg = "does not match {}".format(self.schema)
         else:
-            return False, None, path, error_paths + [path]
+            msg = "not in schema"
 
-    elif schema.get("format") == "date-time":
-        return True, _transform_datetime(data, integer_datetime_fmt), path, error_paths
+        return "{}: {} {}".format(path, self.data, msg)
 
-    elif typ == "object":
-        return _transform_object(data, schema["properties"], integer_datetime_fmt, path, error_paths, pre_hook)
 
-    elif typ == "array":
-        return _transform_array(data, schema["items"], integer_datetime_fmt, path, error_paths, pre_hook)
+class Transformer:
+    def __init__(self, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING, pre_hook=None):
+        self.integer_datetime_fmt = integer_datetime_fmt
+        self.pre_hook = pre_hook
+        self._errors = []
 
-    elif typ == "string":
-        if data != None:
-            return True, str(data), path, error_paths
+    def transform(self, data, schema):
+        success, transformed_data = self.transform_recur(data, schema, [])
+        if not success:
+            raise SchemaMismatch(self._errors)
+
+        return transformed_data
+
+    def transform_recur(self, data, schema, path):
+        if "anyOf" in schema:
+            return self._transform_anyof(data, schema, path)
+
+        types = schema["type"]
+        if not isinstance(types, list):
+            types = [types]
+
+        if "null" in types:
+            types.remove("null")
+            types.append("null")
+
+        types_len = len(types)
+        for i, typ in enumerate(types):
+            try:
+                success, transformed_data = self._transform(data, typ, schema, path)
+                if success:
+                    return success, transformed_data
+                else:
+                    if i == (types_len - 1):
+                        if "object" not in types and "array" not in types:
+                            self._errors.append(Error(path, data, schema))
+                        return False, None
+                    else:
+                        pass
+            except:
+                if i == (types_len - 1):
+                    if "object" not in types and "array" not in types:
+                        self._errors.append(Error(path, data, schema))
+                    return False, None
+                else:
+                    pass
+
+    def _transform_anyof(self, data, schema, path):
+        subschemas = schema['anyOf']
+        subschemas_len = len(subschemas)
+        for i, subschema in enumerate(subschemas):
+            success, transformed_data = self.transform_recur(data, subschema, path)
+            if success:
+                return success, transformed_data
+            else:
+                if i == (subschemas_len - 1):
+                    return False, None
+                else:
+                    pass
+
+    def _transform_object(self, data, schema, path):
+        result = {}
+        successes = []
+        for key, value in data.items():
+            if key in schema:
+                success, subdata = self.transform_recur(value, schema[key], path + [key])
+                successes.append(success)
+                result[key] = subdata
+            else:
+                # Pass on fields not in schema
+                result[key] = value
+
+        return all(successes), result
+
+    def _transform_array(self, data, schema, path):
+        result = []
+        successes = []
+        for i, row in enumerate(data):
+            success, subdata = self.transform_recur(row, schema, path + [i])
+            successes.append(success)
+            result.append(subdata)
+
+        return all(successes), result
+
+    def _transform_datetime(self, value):
+        if self.integer_datetime_fmt not in VALID_DATETIME_FORMATS:
+            raise Exception("Invalid integer datetime parsing option")
+
+        if self.integer_datetime_fmt == NO_INTEGER_DATETIME_PARSING:
+            return string_to_datetime(value)
         else:
-            return False, None, path, error_paths + [path]
+            try:
+                if self.integer_datetime_fmt == UNIX_SECONDS_INTEGER_DATETIME_PARSING:
+                    return unix_seconds_to_datetime(value)
+                else:
+                    return unix_milliseconds_to_datetime(value)
+            except:
+                return string_to_datetime(value)
 
-    elif typ == "integer":
-        if isinstance(data, str):
-            data = data.replace(',', '')
-        return True, int(data), path, error_paths
+    def _transform(self, data, typ, schema, path):
+        if self.pre_hook:
+            data = self.pre_hook(data, typ, schema)
 
-    elif typ == "number":
-        if isinstance(data, str):
-            data = data.replace(',', '')
-        return True, float(data), path, error_paths
+        if typ == "null":
+            if data is None or data == "":
+                return True, None
+            else:
+                return False, None
 
-    elif typ == "boolean":
-        return True, bool(data), path, error_paths
+        elif schema.get("format") == "date-time":
+            return True, self._transform_datetime(data)
 
-    else:
-        return False, None, path, error_paths + [path]
+        elif typ == "object":
+            return self._transform_object(data, schema["properties"], path)
+
+        elif typ == "array":
+            return self._transform_array(data, schema["items"], path)
+
+        elif typ == "string":
+            if data != None:
+                return True, str(data)
+            else:
+                return False, None
+
+        elif typ == "integer":
+            if isinstance(data, str):
+                data = data.replace(",", "")
+
+            return True, int(data)
+
+        elif typ == "number":
+            if isinstance(data, str):
+                data = data.replace(",", "")
+
+            return True, float(data)
+
+        elif typ == "boolean":
+            if isinstance(data, str) and data.lower() == "false":
+                return True, False
+
+            return True, bool(data)
+
+        else:
+            return False, None
+
 
 def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING, pre_hook=None):
     """
@@ -111,62 +211,5 @@ def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING, pr
     The pre_hook should be a callable that takes data, type, and schema and
     returns the transformed data to be fed into the _transform function.
     """
-    success, transformed_data, _, error_paths = transform_recur(data, schema, integer_datetime_fmt, [], [], pre_hook)
-    if success:
-        return transformed_data
-    else:
-        raise Exception("Errors at paths {} in data {} for schema {}".format(error_paths, data, schema))
-
-def _transform_anyof(data, schema, integer_datetime_fmt, path, error_paths, pre_hook=None):
-    subschemas = schema["anyOf"]
-    subschemas_length = len(subschemas)
-    for i, subschema in enumerate(subschemas):
-        success, transformed_data, path, error_paths = transform_recur(data, subschema, integer_datetime_fmt, path, error_paths, pre_hook)
-        if success:
-            return success, transformed_data, path, error_paths
-        else:
-            if i == (subschemas_length - 1):
-                return False, None, path, error_paths + [path]
-            else:
-                pass
-
-def transform_recur(data, schema, integer_datetime_fmt, path, error_paths, pre_hook=None):
-    """
-    This function (and several of its helper functions) returns a tuple:
-    (success, data, path, error_paths)
-    success is a boolean flag indicating whether data was successfully transformed with schema
-    data is the transformed data
-    path is the current path in the tree traversal of the data and schema
-    error_paths is a list of paths where the data could not be transformed according to the schema
-    pre_hook is a callable that runs before the _transform body
-    """
-
-    # NB: This adds support for the `anyOf` keyword, but we do NOT support
-    # the follow json schema keywords: `allOf`, `oneOf`, `not`
-    if schema.get("anyOf"):
-        return _transform_anyof(data, schema, integer_datetime_fmt, path, error_paths, pre_hook)
-
-    types = schema["type"]
-    if not isinstance(types, list):
-        types = [types]
-
-    if "null" in types:
-        types.remove("null")
-        types.append("null")
-
-    type_length = len(types)
-    for i, typ in enumerate(types):
-        try:
-            success, data, path, error_paths = _transform(data, typ, schema, integer_datetime_fmt, path, error_paths, pre_hook)
-            if success:
-                return success, data, path, error_paths
-            else:
-                if i == (type_length - 1):
-                    return False, None, path, error_paths
-                else:
-                    pass
-        except:
-            if i == (type_length - 1):
-                return False, None, path, error_paths + [path]
-            else:
-                pass
+    transformer = Transformer(integer_datetime_fmt, pre_hook)
+    return transformer.transform(data, schema)
