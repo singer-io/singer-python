@@ -218,3 +218,8 @@ def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING, pr
     """
     transformer = Transformer(integer_datetime_fmt, pre_hook)
     return transformer.transform(data, schema)
+
+
+def _transform_datetime(value, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING):
+    transformer = Transformer(integer_datetime_fmt)
+    return transformer._transform_datetime(value)
