@@ -1,5 +1,4 @@
 import datetime
-import attr
 import pendulum
 from singer import utils
 
@@ -33,11 +32,11 @@ class SchemaMismatch(Exception):
         super(SchemaMismatch, self).__init__(msg)
 
 
-@attr.s()
 class Error:
-    path = attr.ib()
-    data = attr.ib()
-    schema = attr.ib()
+    def __init__(self, path, data, schema=None):
+        self.path = path
+        self.data = data
+        self.schema = schema
 
     def tostr(self):
         path = ".".join(map(str, self.path))
