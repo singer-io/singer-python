@@ -12,6 +12,7 @@ setup(name="singer-python",
       install_requires=[
           'pendulum==1.2.0',
           'simplejson==3.11.1',
+          'attr==0.2.0',
       ],
       packages=find_packages(),
       package_data = {
