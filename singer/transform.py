@@ -1,6 +1,10 @@
 import datetime
 import pendulum
+import singer
 from singer import utils
+
+
+LOGGER = singer.get_logger()
 
 
 NO_INTEGER_DATETIME_PARSING = "no-integer-datetime-parsing"
@@ -60,6 +64,14 @@ class Transformer:
         self.pre_hook = pre_hook
         self.removed = set()
         self.errors = []
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        if self.removed:
+            LOGGER.warning("Removed {} paths during transforms:\n\t{}".format(
+                len(self.removed), "\n\t".join(sorted(self.removed))))
 
     def transform(self, data, schema):
         success, transformed_data = self.transform_recur(data, schema, [])
