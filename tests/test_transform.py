@@ -166,5 +166,5 @@ class TestTransform(unittest.TestCase):
                 "bad_property": "unexpected data"}
         trans = Transformer()
         success, transformed_data = trans.transform_recur(data, schema, [])
-        self.assertFalse(success)
-        self.assertIsNone(transformed_data)
+        self.assertTrue(success)
+        self.assertDictEqual(data, transformed_data)
