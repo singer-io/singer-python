@@ -58,12 +58,13 @@ class Transformer:
     def __init__(self, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING, pre_hook=None):
         self.integer_datetime_fmt = integer_datetime_fmt
         self.pre_hook = pre_hook
-        self._errors = []
+        self.removed = set()
+        self.errors = []
 
     def transform(self, data, schema):
         success, transformed_data = self.transform_recur(data, schema, [])
         if not success:
-            raise SchemaMismatch(self._errors)
+            raise SchemaMismatch(self.errors)
 
         return transformed_data
 
@@ -87,13 +88,13 @@ class Transformer:
                     return success, transformed_data
                 else:
                     if i == (types_len - 1):
-                        self._errors.append(Error(path, data, schema))
+                        self.errors.append(Error(path, data, schema))
                         return False, None
                     else:
                         pass
             except:
                 if i == (types_len - 1):
-                    self._errors.append(Error(path, data, schema))
+                    self.errors.append(Error(path, data, schema))
                     return False, None
                 else:
                     pass
@@ -120,8 +121,8 @@ class Transformer:
                 successes.append(success)
                 result[key] = subdata
             else:
-                # Pass on fields not in schema
-                result[key] = value
+                # track that field has been removed
+                self.removed.add(".".join(path + [key]))
 
         return all(successes), result
 
