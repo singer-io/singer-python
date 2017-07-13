@@ -9,7 +9,7 @@ from singer.utils import (
     update_state,
 )
 
-from singer.logging import get_logger
+from singer.logger import get_logger
 
 from singer.metrics import (
     Counter,

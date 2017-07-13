@@ -1,6 +1,5 @@
-import os
-import simplejson as json
 import sys
+import simplejson as json
 
 
 class Message(object):

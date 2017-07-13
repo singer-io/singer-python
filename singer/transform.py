@@ -1,11 +1,10 @@
 import datetime
 import pendulum
-import singer
-from singer import utils
+from singer.logger import get_logger
+from singer.utils import strftime
 
 
-LOGGER = singer.get_logger()
-
+LOGGER = get_logger()
 
 NO_INTEGER_DATETIME_PARSING = "no-integer-datetime-parsing"
 UNIX_SECONDS_INTEGER_DATETIME_PARSING = "unix-seconds-integer-datetime-parsing"
@@ -19,15 +18,15 @@ VALID_DATETIME_FORMATS = [
 
 
 def string_to_datetime(value):
-    return utils.strftime(pendulum.parse(value))
+    return strftime(pendulum.parse(value))
 
 
 def unix_milliseconds_to_datetime(value):
-    return utils.strftime(datetime.datetime.utcfromtimestamp(int(value) * 0.001))
+    return strftime(datetime.datetime.utcfromtimestamp(int(value) * 0.001))
 
 
 def unix_seconds_to_datetime(value):
-    return utils.strftime(datetime.datetime.utcfromtimestamp(int(value)))
+    return strftime(datetime.datetime.utcfromtimestamp(int(value)))
 
 
 class SchemaMismatch(Exception):
@@ -36,8 +35,9 @@ class SchemaMismatch(Exception):
             msg = "An error occured during transform that was not a schema mismatch"
 
         else:
-            msg = "Errors during transform\n\t{}".format("\n\t".join(e.tostr() for e in errors))
-            msg += "\nErrors during transform: [{}]".format(", ".join(e.tostr() for e in errors))
+            estrs = [e.tostr() for e in errors]
+            msg = "Errors during transform\n\t{}".format("\n\t".join(estrs))
+            msg += "\n\n\nErrors during transform: [{}]".format(", ".join(estrs))
 
         super(SchemaMismatch, self).__init__(msg)
 
@@ -70,8 +70,9 @@ class Transformer:
 
     def __exit__(self, *args):
         if self.removed:
-            LOGGER.warning("Removed {} paths during transforms:\n\t{}".format(
-                len(self.removed), "\n\t".join(sorted(self.removed))))
+            LOGGER.warning("Removed %s paths during transforms:\n\t%s",
+                           len(self.removed),
+                           "\n\t".join(sorted(self.removed)))
 
     def transform(self, data, schema):
         success, transformed_data = self.transform_recur(data, schema, [])
@@ -230,7 +231,6 @@ def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING, pr
     """
     transformer = Transformer(integer_datetime_fmt, pre_hook)
     return transformer.transform(data, schema)
-
 
 def _transform_datetime(value, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING):
     transformer = Transformer(integer_datetime_fmt)
