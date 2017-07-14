@@ -8,4 +8,4 @@ def get_logger():
     this_dir, _ = os.path.split(__file__)
     path = os.path.join(this_dir, 'logging.conf')
     logging.config.fileConfig(path)
-    return logging.getLogger('root')
+    return logging.getLogger()
