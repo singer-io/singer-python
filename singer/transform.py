@@ -100,7 +100,7 @@ class Transformer:
             success, transformed_data = self._transform(data, typ, schema, path)
             if success:
                 return success, transformed_data
-        else:
+        else: # pylint: disable=useless-else-on-loop
             # exhaused all types and didn't return, so we failed :-(
             self.errors.append(Error(path, data, schema))
             return False, None
@@ -111,7 +111,7 @@ class Transformer:
             success, transformed_data = self.transform_recur(data, subschema, path)
             if success:
                 return success, transformed_data
-        else:
+        else: # pylint: disable=useless-else-on-loop
             # exhaused all schemas and didn't return, so we failed :-(
             self.errors.append(Error(path, data, schema))
             return False, None
@@ -126,8 +126,7 @@ class Transformer:
                 result[key] = subdata
             else:
                 # track that field has been removed
-                path.append(key)
-                self.removed.add(".".join(map(str, path)))
+                self.removed.add(".".join(path + [key]))
 
         return all(successes), result
 
