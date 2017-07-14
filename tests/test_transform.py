@@ -38,12 +38,12 @@ class TestTransform(unittest.TestCase):
         self.assertEqual('1970-01-01T00:01:26Z', transform(86400, schema, UNIX_MILLISECONDS_INTEGER_DATETIME_PARSING))
         self.assertEqual(string_datetime, transform(string_datetime, schema, UNIX_MILLISECONDS_INTEGER_DATETIME_PARSING))
 
-        with self.assertRaises(Exception):
-            transform('cat', schema, NO_INTEGER_DATETIME_PARSING)
-        with self.assertRaises(Exception):
-            transform('cat', schema, UNIX_SECONDS_INTEGER_DATETIME_PARSING)
-        with self.assertRaises(Exception):
-            transform(0, schema, NO_INTEGER_DATETIME_PARSING)
+        trans = Transformer(NO_INTEGER_DATETIME_PARSING)
+        self.assertIsNone(trans._transform_datetime('cat'))
+        self.assertIsNone(trans._transform_datetime(0))
+
+        trans.integer_datetime_fmt = UNIX_SECONDS_INTEGER_DATETIME_PARSING
+        self.assertIsNone(trans._transform_datetime('cat'))
 
     def test_anyof_datetime(self):
         schema = {'anyOf': [{'type': 'null'}, {'format': 'date-time', 'type': 'string'}]}
@@ -60,7 +60,7 @@ class TestTransform(unittest.TestCase):
         success, data = trans.transform_recur(data, schema, [])
         self.assertFalse(success)
         self.assertIsNone(data)
-        self.assertListEqual([["foo"]], sorted(e.path for e in trans._errors))
+        self.assertListEqual([[], ["foo"]], sorted(e.path for e in trans.errors))
 
     def test_nested_error_path_throws(self):
         schema = {
@@ -88,7 +88,14 @@ class TestTransform(unittest.TestCase):
         trans = Transformer()
         success, _ = trans.transform_recur(data, schema, [])
         self.assertFalse(success)
-        self.assertListEqual([['key1', 'key2', 'key3', 'key4']], sorted(e.path for e in trans._errors))
+        expected = [
+            [],
+            ['key1'],
+            ['key1', 'key2'],
+            ['key1', 'key2', 'key3'],
+            ['key1', 'key2', 'key3', 'key4'],
+        ]
+        self.assertListEqual(expected, sorted(e.path for e in trans.errors))
 
     def test_nested_error_path_no_throw(self):
         schema = {
@@ -118,9 +125,15 @@ class TestTransform(unittest.TestCase):
         success, data = trans.transform_recur(data, schema, [])
         self.assertFalse(success)
         self.assertIsNone(data)
-        # NB> error_paths may be returned in any order, so we sort here to be deterministic
-        self.assertListEqual([['key1', 'key2', 'key3', 'key4'], ['key1', 'key2', 'key3', 'key5']],
-                             sorted(e.path for e in trans._errors))
+        expected = [
+            [],
+            ['key1'],
+            ['key1', 'key2'],
+            ['key1', 'key2', 'key3'],
+            ['key1', 'key2', 'key3', 'key4'],
+            ['key1', 'key2', 'key3', 'key5'],
+        ]
+        self.assertListEqual(expected, sorted(e.path for e in trans.errors))
 
     def test_error_path_array(self):
         schema =  {"type": "object",
@@ -130,8 +143,13 @@ class TestTransform(unittest.TestCase):
         trans = Transformer()
         success, data = trans.transform_recur(data, schema, [])
         self.assertFalse(success)
-        # NB> error_paths may be returned in any order, so we sort here to be deterministic
-        self.assertListEqual([["integers", 2], ["integers", 4]], sorted(e.path for e in trans._errors))
+        expected = [
+            [],
+            ['integers'],
+            ['integers', 2],
+            ['integers', 4],
+        ]
+        self.assertListEqual(expected, sorted(e.path for e in trans.errors))
 
     def test_nested_error_path_array(self):
         schema =  {"type": "object",
@@ -142,9 +160,15 @@ class TestTransform(unittest.TestCase):
         trans = Transformer()
         success, transformed_data = trans.transform_recur(data, schema, [])
         self.assertFalse(success)
-        self.assertListEqual(
-            [["lists_of_integers", 0, 1], ["lists_of_integers", 2, 0]],
-            sorted(e.path for e in trans._errors))
+        expected = [
+            [],
+            ['lists_of_integers'],
+            ['lists_of_integers', 0],
+            ['lists_of_integers', 0, 1],
+            ['lists_of_integers', 2],
+            ['lists_of_integers', 2, 0],
+        ]
+        self.assertListEqual(expected, sorted(e.path for e in trans.errors))
 
     def test_error_path_datetime(self):
         schema = {"type": "object",
@@ -157,7 +181,12 @@ class TestTransform(unittest.TestCase):
         trans = Transformer()
         success, transformed_data = trans.transform_recur(data, schema, [])
         self.assertFalse(success)
-        self.assertListEqual([["bad_datetime1"], ["bad_datetime2"]], sorted(e.path for e in trans._errors))
+        expected = [
+            [],
+            ['bad_datetime1'],
+            ['bad_datetime2'],
+        ]
+        self.assertListEqual(expected, sorted(e.path for e in trans.errors))
 
     def test_unexpected_object_properties(self):
         schema = {"type": "object",
@@ -167,4 +196,6 @@ class TestTransform(unittest.TestCase):
         trans = Transformer()
         success, transformed_data = trans.transform_recur(data, schema, [])
         self.assertTrue(success)
-        self.assertDictEqual(data, transformed_data)
+        self.assertDictEqual({"good_property": "expected data"}, transformed_data)
+        self.assertSetEqual(set(["bad_property"]), trans.removed)
+        self.assertListEqual([], trans.errors)
