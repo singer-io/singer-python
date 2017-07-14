@@ -118,7 +118,7 @@ class Counter(object):
         self.value = 0
         self.tags = tags if tags else {}
         self.log_interval = log_interval
-        self.logger = get_logger(__name__)
+        self.logger = get_logger()
         self.last_log_time = None
 
     def __enter__(self):
@@ -173,7 +173,7 @@ class Timer(object):  # pylint: disable=too-few-public-methods
     def __init__(self, metric, tags):
         self.metric = metric
         self.tags = tags if tags else {}
-        self.logger = get_logger(__name__)
+        self.logger = get_logger()
         self.start_time = None
 
     def __enter__(self):
@@ -244,5 +244,5 @@ def parse(line):
                 value=raw.get('value'),
                 tags=raw.get('tags'))
         except Exception as exc:  # pylint: disable=broad-except
-            get_logger(__name__).warning('Error parsing metric: %s', exc)
+            get_logger().warning('Error parsing metric: %s', exc)
     return None
