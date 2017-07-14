@@ -126,7 +126,8 @@ class Transformer:
                 result[key] = subdata
             else:
                 # track that field has been removed
-                self.removed.add(".".join(path + [key]))
+                path.append(key)
+                self.removed.add(".".join(map(str, path)))
 
         return all(successes), result
 
