@@ -18,7 +18,10 @@ VALID_DATETIME_FORMATS = [
 
 
 def string_to_datetime(value):
-    return strftime(pendulum.parse(value))
+    try:
+        return strftime(pendulum.parse(value))
+    except:
+        return None
 
 
 def unix_milliseconds_to_datetime(value):
@@ -93,37 +96,25 @@ class Transformer:
             types.remove("null")
             types.append("null")
 
-        types_len = len(types)
-        for i, typ in enumerate(types):
-            try:
-                success, transformed_data = self._transform(data, typ, schema, path)
-                if success:
-                    return success, transformed_data
-                else:
-                    if i == (types_len - 1):
-                        self.errors.append(Error(path, data, schema))
-                        return False, None
-                    else:
-                        pass
-            except:
-                if i == (types_len - 1):
-                    self.errors.append(Error(path, data, schema))
-                    return False, None
-                else:
-                    pass
+        for typ in types:
+            success, transformed_data = self._transform(data, typ, schema, path)
+            if success:
+                return success, transformed_data
+        else:
+            # exhaused all types and didn't return, so we failed :-(
+            self.errors.append(Error(path, data, schema))
+            return False, None
 
     def _transform_anyof(self, data, schema, path):
         subschemas = schema['anyOf']
-        subschemas_len = len(subschemas)
-        for i, subschema in enumerate(subschemas):
+        for subschema in subschemas:
             success, transformed_data = self.transform_recur(data, subschema, path)
             if success:
                 return success, transformed_data
-            else:
-                if i == (subschemas_len - 1):
-                    return False, None
-                else:
-                    pass
+        else:
+            # exhaused all schemas and didn't return, so we failed :-(
+            self.errors.append(Error(path, data, schema))
+            return False, None
 
     def _transform_object(self, data, schema, path):
         result = {}
@@ -175,7 +166,11 @@ class Transformer:
                 return False, None
 
         elif schema.get("format") == "date-time":
-            return True, self._transform_datetime(data)
+            data = self._transform_datetime(data)
+            if data is None:
+                return False, None
+
+            return True, data
 
         elif typ == "object":
             return self._transform_object(data, schema["properties"], path)
@@ -185,7 +180,10 @@ class Transformer:
 
         elif typ == "string":
             if data != None:
-                return True, str(data)
+                try:
+                    return True, str(data)
+                except:
+                    return False, None
             else:
                 return False, None
 
@@ -193,19 +191,28 @@ class Transformer:
             if isinstance(data, str):
                 data = data.replace(",", "")
 
-            return True, int(data)
+            try:
+                return True, int(data)
+            except:
+                return False, None
 
         elif typ == "number":
             if isinstance(data, str):
                 data = data.replace(",", "")
 
-            return True, float(data)
+            try:
+                return True, float(data)
+            except:
+                return False, None
 
         elif typ == "boolean":
             if isinstance(data, str) and data.lower() == "false":
                 return True, False
 
-            return True, bool(data)
+            try:
+                return True, bool(data)
+            except:
+                return False, None
 
         else:
             return False, None

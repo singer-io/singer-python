@@ -38,12 +38,12 @@ class TestTransform(unittest.TestCase):
         self.assertEqual('1970-01-01T00:01:26Z', transform(86400, schema, UNIX_MILLISECONDS_INTEGER_DATETIME_PARSING))
         self.assertEqual(string_datetime, transform(string_datetime, schema, UNIX_MILLISECONDS_INTEGER_DATETIME_PARSING))
 
-        with self.assertRaises(Exception):
-            transform('cat', schema, NO_INTEGER_DATETIME_PARSING)
-        with self.assertRaises(Exception):
-            transform('cat', schema, UNIX_SECONDS_INTEGER_DATETIME_PARSING)
-        with self.assertRaises(Exception):
-            transform(0, schema, NO_INTEGER_DATETIME_PARSING)
+        trans = Transformer(NO_INTEGER_DATETIME_PARSING)
+        self.assertIsNone(trans._transform_datetime('cat'))
+        self.assertIsNone(trans._transform_datetime(0))
+
+        trans.integer_datetime_fmt = UNIX_SECONDS_INTEGER_DATETIME_PARSING
+        self.assertIsNone(trans._transform_datetime('cat'))
 
     def test_anyof_datetime(self):
         schema = {'anyOf': [{'type': 'null'}, {'format': 'date-time', 'type': 'string'}]}
