@@ -52,7 +52,7 @@ class Error:
         self.schema = schema
 
     def tostr(self):
-        path = ".".join(map(str, self.path))
+        path = ".".join(map(str, self.path + [key]))
         if self.schema:
             msg = "does not match {}".format(self.schema)
         else:
