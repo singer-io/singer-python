@@ -45,6 +45,15 @@ from singer.transform import (
 from singer.catalog import Catalog
 from singer.schema import Schema
 
+from singer.bookmarks import (
+    write_bookmark,
+    get_bookmark,
+    set_offset,
+    clear_offset,
+    get_offset,
+    set_currently_syncing,
+    get_currently_syncing,
+)
 
 if __name__ == "__main__":
     import doctest
