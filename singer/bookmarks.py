@@ -33,4 +33,4 @@ def set_currently_syncing(state, tap_stream_id):
     return state
 
 def get_currently_syncing(state):
-    return state['currently_syncing']
+    return state.get('currently_syncing')
