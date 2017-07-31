@@ -27,6 +27,7 @@ from singer.messages import (
     StateMessage,
     format_message,
     parse_message,
+    write_message,
     write_record,
     write_records,
     write_schema,
