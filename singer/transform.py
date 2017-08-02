@@ -68,14 +68,17 @@ class Transformer:
         self.removed = set()
         self.errors = []
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
+    def log_warning(self):
         if self.removed:
             LOGGER.warning("Removed %s paths during transforms:\n\t%s",
                            len(self.removed),
                            "\n\t".join(sorted(self.removed)))
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.log_warning()
 
     def transform(self, data, schema):
         success, transformed_data = self.transform_recur(data, schema, [])
