@@ -119,7 +119,7 @@ class Counter(object):
         self.tags = tags if tags else {}
         self.log_interval = log_interval
         self.logger = get_logger()
-        self.last_log_time = None
+        self.last_log_time = time.time()
 
     def __enter__(self):
         self.last_log_time = time.time()
