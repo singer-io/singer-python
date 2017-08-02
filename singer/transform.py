@@ -91,6 +91,9 @@ class Transformer:
         if "anyOf" in schema:
             return self._transform_anyof(data, schema, path)
 
+        if "type" not in schema:
+            raise Exception("Malformed schema. Missing 'type'. schema={} path={}".format(schema, path))
+
         types = schema["type"]
         if not isinstance(types, list):
             types = [types]
