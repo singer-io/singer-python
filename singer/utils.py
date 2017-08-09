@@ -7,12 +7,15 @@ import time
 
 from singer.catalog import Catalog
 
-DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
+DATETIME_PARSE = "%Y-%m-%dT%H:%M:%SZ"
+DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 
 def strptime(dtime):
-    return datetime.datetime.strptime(dtime, DATETIME_FMT)
-
+    try:
+        return datetime.datetime.strptime(dtime, DATETIME_FMT)
+    except Exception:
+        return datetime.datetime.strptime(dtime, DATETIME_PARSE)
 
 def strftime(dtime):
     return dtime.strftime(DATETIME_FMT)
