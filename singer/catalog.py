@@ -11,7 +11,8 @@ class CatalogEntry(object):
 
     def __init__(self, tap_stream_id=None, stream=None,
                  key_properties=None, schema=None, replication_key=None,
-                 is_view=None, database=None, table=None, row_count=None):
+                 is_view=None, database=None, table=None, row_count=None,
+                 stream_alias=None):
 
         self.tap_stream_id = tap_stream_id
         self.stream = stream
@@ -22,6 +23,7 @@ class CatalogEntry(object):
         self.database = database
         self.table = table
         self.row_count = row_count
+        self.stream_alias = stream_alias
 
     def __str__(self):
         return str(self.__dict__)
@@ -90,6 +92,7 @@ class Catalog(object):
             entry.table = stream.get('table_name')
             entry.schema = Schema.from_dict(stream.get('schema'))
             entry.is_view = stream.get('is_view')
+            entry.stream_alias = stream.get('stream_alias')
             streams.append(entry)
         return Catalog(streams)
 
