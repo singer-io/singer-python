@@ -206,3 +206,11 @@ class TestTransform(unittest.TestCase):
         self.assertDictEqual({"good_property": "expected data"}, transformed_data)
         self.assertSetEqual(set(["bad_property"]), trans.removed)
         self.assertListEqual([], trans.errors)
+
+    def test_unix_seconds_to_datetime(self):
+        self.assertEqual(unix_seconds_to_datetime(0), '1970-01-01T00:00:00.000000Z')
+        self.assertEqual(unix_seconds_to_datetime(1502722441), '2017-08-14T14:54:01.000000Z')
+
+    def test_unix_seconds_to_datetime(self):
+        self.assertEqual(unix_milliseconds_to_datetime(0), '1970-01-01T00:00:00.000000Z')
+        self.assertEqual(unix_milliseconds_to_datetime(1502722441000), '2017-08-14T14:54:01.000000Z')

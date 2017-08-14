@@ -4,12 +4,16 @@ import datetime
 import functools
 import json
 import time
+import dateutil
 
 from singer.catalog import Catalog
 
 DATETIME_PARSE = "%Y-%m-%dT%H:%M:%SZ"
 DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
+
+def strptime_with_tz(dtime):
+    return dateutil.parser.parse(dtime)
 
 def strptime(dtime):
     try:
@@ -18,8 +22,9 @@ def strptime(dtime):
         return datetime.datetime.strptime(dtime, DATETIME_PARSE)
 
 def strftime(dtime):
-    return dtime.strftime(DATETIME_FMT)
-
+    if dtime.utcoffset() != datetime.timedelta(0):
+        raise Exception("datetime must be pegged at UTC tzoneinfo")
+    return dtime.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
 def ratelimit(limit, every):
     def limitdecorator(func):
