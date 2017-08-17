@@ -25,11 +25,11 @@ def string_to_datetime(value):
 
 
 def unix_milliseconds_to_datetime(value):
-    return strftime(datetime.datetime.utcfromtimestamp(int(value) * 0.001))
+    return strftime(datetime.datetime.fromtimestamp(int(value) * 0.001, datetime.timezone.utc))
 
 
 def unix_seconds_to_datetime(value):
-    return strftime(datetime.datetime.utcfromtimestamp(int(value)))
+    return strftime(datetime.datetime.fromtimestamp(int(value), datetime.timezone.utc))
 
 
 class SchemaMismatch(Exception):

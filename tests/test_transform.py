@@ -32,11 +32,12 @@ class TestTransform(unittest.TestCase):
     def test_datetime_transform(self):
         schema = {"type": "string", "format": "date-time"}
         string_datetime = "2017-01-01T00:00:00Z"
-        self.assertEqual(string_datetime, transform(string_datetime, schema, NO_INTEGER_DATETIME_PARSING))
-        self.assertEqual('1970-01-02T00:00:00Z', transform(86400, schema, UNIX_SECONDS_INTEGER_DATETIME_PARSING))
-        self.assertEqual(string_datetime, transform(string_datetime, schema, UNIX_SECONDS_INTEGER_DATETIME_PARSING))
-        self.assertEqual('1970-01-01T00:01:26Z', transform(86400, schema, UNIX_MILLISECONDS_INTEGER_DATETIME_PARSING))
-        self.assertEqual(string_datetime, transform(string_datetime, schema, UNIX_MILLISECONDS_INTEGER_DATETIME_PARSING))
+        transformed_string_datetime = "2017-01-01T00:00:00.000000Z"
+        self.assertEqual(transformed_string_datetime, transform(string_datetime, schema, NO_INTEGER_DATETIME_PARSING))
+        self.assertEqual('1970-01-02T00:00:00.000000Z', transform(86400, schema, UNIX_SECONDS_INTEGER_DATETIME_PARSING))
+        self.assertEqual(transformed_string_datetime, transform(string_datetime, schema, UNIX_SECONDS_INTEGER_DATETIME_PARSING))
+        self.assertEqual('1970-01-01T00:01:26.400000Z', transform(86400, schema, UNIX_MILLISECONDS_INTEGER_DATETIME_PARSING))
+        self.assertEqual(transformed_string_datetime, transform(string_datetime, schema, UNIX_MILLISECONDS_INTEGER_DATETIME_PARSING))
 
         trans = Transformer(NO_INTEGER_DATETIME_PARSING)
         self.assertIsNone(trans._transform_datetime('cat'))
@@ -45,10 +46,16 @@ class TestTransform(unittest.TestCase):
         trans.integer_datetime_fmt = UNIX_SECONDS_INTEGER_DATETIME_PARSING
         self.assertIsNone(trans._transform_datetime('cat'))
 
+    def test_datetime_fractional_seconds_transform(self):
+        schema = {"type": "string", "format": "date-time"}
+        string_datetime = "2017-01-01T00:00:00.123000Z"
+        self.assertEqual(string_datetime, transform(string_datetime, schema, NO_INTEGER_DATETIME_PARSING))
+
     def test_anyof_datetime(self):
         schema = {'anyOf': [{'type': 'null'}, {'format': 'date-time', 'type': 'string'}]}
         string_datetime = '2016-03-10T18:47:20Z'
-        self.assertEqual(string_datetime, transform(string_datetime, schema))
+        transformed_string_datetime = '2016-03-10T18:47:20.000000Z'
+        self.assertEqual(transformed_string_datetime, transform(string_datetime, schema))
         self.assertIsNone(transform(None, schema))
 
     def test_error_path(self):
@@ -199,3 +206,11 @@ class TestTransform(unittest.TestCase):
         self.assertDictEqual({"good_property": "expected data"}, transformed_data)
         self.assertSetEqual(set(["bad_property"]), trans.removed)
         self.assertListEqual([], trans.errors)
+
+    def test_unix_seconds_to_datetime(self):
+        self.assertEqual(unix_seconds_to_datetime(0), '1970-01-01T00:00:00.000000Z')
+        self.assertEqual(unix_seconds_to_datetime(1502722441), '2017-08-14T14:54:01.000000Z')
+
+    def test_unix_seconds_to_datetime(self):
+        self.assertEqual(unix_milliseconds_to_datetime(0), '1970-01-01T00:00:00.000000Z')
+        self.assertEqual(unix_milliseconds_to_datetime(1502722441000), '2017-08-14T14:54:01.000000Z')
