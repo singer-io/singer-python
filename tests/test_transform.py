@@ -214,3 +214,12 @@ class TestTransform(unittest.TestCase):
     def test_unix_seconds_to_datetime(self):
         self.assertEqual(unix_milliseconds_to_datetime(0), '1970-01-01T00:00:00.000000Z')
         self.assertEqual(unix_milliseconds_to_datetime(1502722441000), '2017-08-14T14:54:01.000000Z')
+
+    def test_null_object_transform(self):
+        schema =  {"type": "object",
+                   "properties": {"addrs": {"type": ["null", "object"],
+                                            "properties": {"city": {"type": "string"}}}}}
+        none_data = {'addrs': None}
+        self.assertDictEqual(none_data, transform(none_data, schema))
+        empty_data = {'addrs': {}}
+        self.assertDictEqual(empty_data, transform(empty_data, schema))

@@ -124,6 +124,11 @@ class Transformer:
             return False, None
 
     def _transform_object(self, data, schema, path):
+        # only a schema of "null" can match a null value
+        # NB> This will not fail an empty dictionary, i.e. {}
+        if data is None:
+            return False, None
+
         result = {}
         successes = []
         for key, value in data.items():
