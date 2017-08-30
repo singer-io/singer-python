@@ -260,7 +260,7 @@ def _transform_datetime(value, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING)
     transformer = Transformer(integer_datetime_fmt)
     return transformer._transform_datetime(value)
 
-def resolve_schema_references(schema, refs={}):
+def resolve_schema_references(schema, refs={}): #pylint: disable=dangerous-default-value
     '''Resolves and replaces json-schema $refs with the appropriate dict.
 
     Recursively walks the given schema dict, converting every instance
@@ -284,8 +284,8 @@ def _resolve_schema_references(schema, resolver):
         return _resolve_schema_references(resolver.resolve(schema[SchemaKey.ref])[1], resolver)
 
     if SchemaKey.properties in schema:
-        for k, v in schema[SchemaKey.properties].items():
-            schema[SchemaKey.properties][k] = _resolve_schema_references(v, resolver)
+        for k, val in schema[SchemaKey.properties].items():
+            schema[SchemaKey.properties][k] = _resolve_schema_references(val, resolver)
 
     if SchemaKey.items in schema:
         schema[SchemaKey.items] = _resolve_schema_references(schema[SchemaKey.items], resolver)
