@@ -41,6 +41,7 @@ from singer.transform import (
     Transformer,
     transform,
     _transform_datetime,
+    resolve_schema_references
 )
 
 from singer.catalog import Catalog

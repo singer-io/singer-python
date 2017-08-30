@@ -215,6 +215,7 @@ class TestTransform(unittest.TestCase):
         self.assertEqual(unix_milliseconds_to_datetime(0), '1970-01-01T00:00:00.000000Z')
         self.assertEqual(unix_milliseconds_to_datetime(1502722441000), '2017-08-14T14:54:01.000000Z')
 
+
     def test_null_object_transform(self):
         schema =  {"type": "object",
                    "properties": {"addrs": {"type": ["null", "object"],
@@ -223,3 +224,56 @@ class TestTransform(unittest.TestCase):
         self.assertDictEqual(none_data, transform(none_data, schema))
         empty_data = {'addrs': {}}
         self.assertDictEqual(empty_data, transform(empty_data, schema))
+
+class TestResolveSchemaReferences(unittest.TestCase):
+    def test_internal_refs_resolve(self):
+        schema =  {"type": "object",
+                   "definitions": { "string_type": {"type": "string"}},
+                   "properties": { "name": {"$ref": "#/definitions/string_type"}}}
+        result = resolve_schema_references(schema)
+        self.assertEqual(result['properties']['name']['type'], "string")
+
+
+    def test_external_refs_resolve(self):
+        schema =  {"type": "object",
+                   "properties": { "name": {"$ref": "references.json#/definitions/string_type"}}}
+        refs =  {"references.json": {"definitions": { "string_type": {"type": "string"}}}}
+        result = resolve_schema_references(schema, refs)
+        self.assertEqual(result['properties']['name']['type'], "string")
+
+    def test_refs_resolve_items(self):
+        schema =  {"type": "object",
+                   "properties": { "dogs":
+                                   {"type": "array",
+                                    "items": {"$ref": "doggie.json#/dogs"}}}}
+        refs =  {"doggie.json": {"dogs": {
+                                   "type": "object",
+                                   "properties": {
+                                     "breed": {
+                                       "type": "string"
+                                     },
+                                     "name": {
+                                       "type": "string"}}}}}
+        result = resolve_schema_references(schema, refs)
+        self.assertEqual(result['properties']['dogs']['items']['properties']['breed'], {"type": "string"})
+
+    def test_refs_resolve_nested(self):
+        # Nested schemas[0]['properties']['foo']['properties']['bar']['type'] == "string" its recursive
+        # properties -> thing -> properties -> $ref
+        schema = {"type": "object",
+                   "properties": {
+                       "thing": {
+                           "type": "object",
+                           "properties": {
+                               "name": {"$ref": "references.json#/definitions/string_type"}}}}}
+        refs = {"references.json": {"definitions": { "string_type": {"type": "string"}}}}
+        result = resolve_schema_references(schema, refs)
+        self.assertEqual(result['properties']['thing']['properties']['name']['type'], "string")
+
+    def test_indirect_reference(self):
+        schema =  {"type": "object",
+                   "properties": { "name": {"$ref": "references.json#/definitions/string_type"}}}
+        refs =  {"references.json": {"definitions": { "string_type": {"$ref": "second_reference.json"}}},
+                 "second_reference.json": {"type": "string"}}
+        result = resolve_schema_references(schema, refs)
+        self.assertEqual(result['properties']['name']['type'], "string")
