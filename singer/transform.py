@@ -261,7 +261,7 @@ def _transform_datetime(value, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING)
     return transformer._transform_datetime(value)
 
 def resolve_schema_references(schema, refs={}):
-    '''Resolves and replaces json-schema $refs with the appropriate dict
+    '''Resolves and replaces json-schema $refs with the appropriate dict.
 
     Recursively walks the given schema dict, converting every instance
     of $ref in a 'properties' structure with a resolved dict.
@@ -271,8 +271,8 @@ def resolve_schema_references(schema, refs={}):
     Arguments:
         schema:
             the schema dict
-        resolver:
-            a RefResolver with a complete `store` of referenced schemata
+        refs:
+            a dict of <string, dict> which forms a store of referenced schemata
 
     Returns:
         schema
