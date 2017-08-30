@@ -258,8 +258,6 @@ class TestResolveSchemaReferences(unittest.TestCase):
         self.assertEqual(result['properties']['dogs']['items']['properties']['breed'], {"type": "string"})
 
     def test_refs_resolve_nested(self):
-        # Nested schemas[0]['properties']['foo']['properties']['bar']['type'] == "string" its recursive
-        # properties -> thing -> properties -> $ref
         schema = {"type": "object",
                    "properties": {
                        "thing": {
