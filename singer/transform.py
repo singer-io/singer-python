@@ -3,6 +3,7 @@ import pendulum
 from singer.logger import get_logger
 from singer.utils import strftime
 
+from jsonschema import RefResolver
 
 LOGGER = get_logger()
 
@@ -44,6 +45,10 @@ class SchemaMismatch(Exception):
 
         super(SchemaMismatch, self).__init__(msg)
 
+class SchemaKey:
+    ref = "$ref"
+    items = "items"
+    properties = "properties"
 
 class Error:
     def __init__(self, path, data, schema=None):
@@ -254,3 +259,38 @@ def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING, pr
 def _transform_datetime(value, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING):
     transformer = Transformer(integer_datetime_fmt)
     return transformer._transform_datetime(value)
+
+def resolve_schema_references(schema, refs={}): #pylint: disable=dangerous-default-value
+    '''Resolves and replaces json-schema $refs with the appropriate dict.
+
+    Recursively walks the given schema dict, converting every instance
+    of $ref in a 'properties' structure with a resolved dict.
+
+    This modifies the input schema and also returns it.
+
+    Arguments:
+        schema:
+            the schema dict
+        refs:
+            a dict of <string, dict> which forms a store of referenced schemata
+
+    Returns:
+        schema
+    '''
+    return _resolve_schema_references(schema, RefResolver("", schema, store=refs))
+
+def _resolve_schema_references(schema, resolver):
+    if SchemaKey.ref in schema:
+        reference_path = schema.pop(SchemaKey.ref, None)
+        resolved = resolver.resolve(reference_path)[1]
+        schema.update(resolved)
+        return _resolve_schema_references(schema, resolver)
+
+    if SchemaKey.properties in schema:
+        for k, val in schema[SchemaKey.properties].items():
+            schema[SchemaKey.properties][k] = _resolve_schema_references(val, resolver)
+
+    if SchemaKey.items in schema:
+        schema[SchemaKey.items] = _resolve_schema_references(schema[SchemaKey.items], resolver)
+
+    return schema
