@@ -281,7 +281,10 @@ def resolve_schema_references(schema, refs={}): #pylint: disable=dangerous-defau
 
 def _resolve_schema_references(schema, resolver):
     if SchemaKey.ref in schema:
-        return _resolve_schema_references(resolver.resolve(schema[SchemaKey.ref])[1], resolver)
+        reference_path = schema.pop(SchemaKey.ref, None)
+        resolved = resolver.resolve(reference_path)[1]
+        schema.update(resolved)
+        return _resolve_schema_references(schema, resolver)
 
     if SchemaKey.properties in schema:
         for k, val in schema[SchemaKey.properties].items():

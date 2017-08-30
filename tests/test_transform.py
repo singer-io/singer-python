@@ -275,3 +275,12 @@ class TestResolveSchemaReferences(unittest.TestCase):
                  "second_reference.json": {"type": "string"}}
         result = resolve_schema_references(schema, refs)
         self.assertEqual(result['properties']['name']['type'], "string")
+
+    def test_refs_resolve_preserves_existing_fields(self):
+        schema =  {"type": "object",
+                   "properties": { "name": {"$ref": "references.json#/definitions/string_type",
+                                            "still_here": "yep"}}}
+        refs =  {"references.json": {"definitions": { "string_type": {"type": "string"}}}}
+        result = resolve_schema_references(schema, refs)
+        self.assertEqual(result['properties']['name']['type'], "string")
+        self.assertEqual(result['properties']['name']['still_here'], "yep")
