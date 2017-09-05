@@ -78,6 +78,8 @@ class Transformer:
             LOGGER.warning("Removed %s paths during transforms:\n\t%s",
                            len(self.removed),
                            "\n\t".join(sorted(self.removed)))
+            # Output list format to parse for reporting
+            LOGGER.warning("Removed paths list: %s", sorted(self.removed))
 
     def __enter__(self):
         return self
