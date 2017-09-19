@@ -5,15 +5,22 @@ import functools
 import json
 import time
 import dateutil
+import pytz
 
 from singer.catalog import Catalog
 
 DATETIME_PARSE = "%Y-%m-%dT%H:%M:%SZ"
 DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
+def now():
+    return datetime.datetime.utcnow().replace(tzinfo=pytz.UTC)
 
 def strptime_with_tz(dtime):
-    return dateutil.parser.parse(dtime)
+    d_object = dateutil.parser.parse(dtime)
+    if d_object.tzinfo is None:
+        return d_object.replace(tzinfo=pytz.UTC)
+
+    return d_object
 
 def strptime(dtime):
     try:
