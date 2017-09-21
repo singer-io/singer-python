@@ -1,10 +1,10 @@
 def compile_metadata(catalog):
     md_dict = {}
-    for md in catalog.get('metadata'):
-        breadcrumb = tuple(md['breadcrumb'])
+    for mdata in catalog.get('metadata'):
+        breadcrumb = tuple(mdata['breadcrumb'])
         if md_dict.get(breadcrumb) is None:
-            md_dict[breadcrumb] = md.get('metadata')
+            md_dict[breadcrumb] = mdata.get('metadata')
         else:
-            md_dict[breadcrumb].update(md.get('metadata'))
+            md_dict[breadcrumb].update(mdata.get('metadata'))
 
     return md_dict
