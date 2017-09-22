@@ -14,6 +14,7 @@ setup(name="singer-python",
           'pendulum==1.2.0',
           'simplejson==3.11.1',
           'python-dateutil==2.6.0',
+          'backoff==1.3.2',
       ],
       packages=find_packages(),
       package_data = {

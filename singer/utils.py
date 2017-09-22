@@ -6,6 +6,7 @@ import json
 import time
 import dateutil
 import pytz
+import backoff
 
 from singer.catalog import Catalog
 
@@ -139,3 +140,12 @@ def check_config(config, required_keys):
     missing_keys = [key for key in required_keys if key not in config]
     if missing_keys:
         raise Exception("Config is missing required keys: {}".format(missing_keys))
+
+
+def backoff(exceptions, giveup):
+    return backoff.on_exception(
+        backoff.expo,
+        exceptions,
+        max_tries=5,
+        giveup=giveup,
+        factor=2)
