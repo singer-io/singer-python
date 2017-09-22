@@ -149,3 +149,7 @@ def backoff(exceptions, giveup):
         max_tries=5,
         giveup=giveup,
         factor=2)
+
+
+def exception_is_4xx(exception):
+    return e.response is not None and 400 <= e.response.status_code < 500
