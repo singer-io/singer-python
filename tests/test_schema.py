@@ -25,7 +25,8 @@ class TestSchema(unittest.TestCase):
         'properties': {
             'a_string': string_dict,
             'an_array': array_dict
-        }
+        },
+        'inclusion': 'whatever',
     }
 
     # Schema object forms of the same schemas as above
@@ -37,7 +38,8 @@ class TestSchema(unittest.TestCase):
 
     object_obj = Schema(type='object',
                         properties={'a_string': string_obj,
-                                    'an_array': array_obj})
+                                    'an_array': array_obj},
+                        inclusion='whatever')
 
     def test_string_to_dict(self):
         self.assertEquals(self.string_dict, self.string_obj.to_dict())
@@ -71,6 +73,7 @@ class TestSchema(unittest.TestCase):
 
     def test_object_from_dict_with_defaults(self):
         schema = Schema.from_dict(self.object_dict, inclusion='automatic')
-        self.assertEquals('automatic', schema.inclusion)
+        self.assertEquals('whatever', schema.inclusion,
+                          msg='The schema value should override the default')
         self.assertEquals('automatic', schema.properties['a_string'].inclusion)
         self.assertEquals('automatic', schema.properties['an_array'].items.inclusion)
