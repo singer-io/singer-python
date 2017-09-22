@@ -78,18 +78,22 @@ class Schema(object):  # pylint: disable=too-many-instance-attributes
         return result
 
     @classmethod
-    def from_dict(cls, data):
-        '''Initialize a Schema object based on the JSON Schema structure.'''
-        kwargs = {}
+    def from_dict(cls, data, **schema_defaults):
+        '''Initialize a Schema object based on the JSON Schema structure.
+
+        :param schema_defaults: The default values to the Schema
+        constructor.'''
+        kwargs = schema_defaults.copy()
         properties = data.get('properties')
         items = data.get('items')
 
         if properties:
             kwargs['properties'] = {
-                k: Schema.from_dict(v) for k, v in properties.items()
+                k: Schema.from_dict(v, **schema_defaults)
+                for k, v in properties.items()
             }
         if items:
-            kwargs['items'] = Schema.from_dict(items)
+            kwargs['items'] = Schema.from_dict(items, **schema_defaults)
         for key in STANDARD_KEYS:
             if key in data:
                 kwargs[key] = data[key]
