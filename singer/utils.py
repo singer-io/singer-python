@@ -162,7 +162,7 @@ def exception_is_4xx(exception):
     if not hasattr(exception, "response"):
         return False
 
-    return exception.response is None:
+    if exception.response is None:
         return False
 
     if not hasattr(exception.response, "status_code"):
