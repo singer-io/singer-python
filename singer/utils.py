@@ -152,4 +152,4 @@ def backoff(exceptions, giveup):
 
 
 def exception_is_4xx(exception):
-    return e.response is not None and 400 <= e.response.status_code < 500
+    return exception.response is not None and 400 <= exception.response.status_code < 500
