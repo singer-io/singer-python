@@ -6,7 +6,7 @@ import json
 import time
 import dateutil
 import pytz
-import backoff
+import backoff as backoff_module
 
 from singer.catalog import Catalog
 
@@ -143,8 +143,8 @@ def check_config(config, required_keys):
 
 
 def backoff(exceptions, giveup):
-    return backoff.on_exception(
-        backoff.expo,
+    return backoff_module.on_exception(
+        backoff_module.expo,
         exceptions,
         max_tries=5,
         giveup=giveup,
