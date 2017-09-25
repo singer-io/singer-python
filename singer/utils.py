@@ -143,6 +143,12 @@ def check_config(config, required_keys):
 
 
 def backoff(exceptions, giveup):
+    """Decorates a function to retry up to 5 times using an exponential backoff
+    function.
+
+    exceptions is a tuple of exception classes that are retried
+    giveup is a function that accepts the exception and returns True to retry
+    """
     return backoff_module.on_exception(
         backoff_module.expo,
         exceptions,
@@ -152,4 +158,14 @@ def backoff(exceptions, giveup):
 
 
 def exception_is_4xx(exception):
-    return exception.response is not None and 400 <= exception.response.status_code < 500
+    """Returns True if exception is in the 4xx range."""
+    if not hasattr(exception, "response"):
+        return False
+
+    return exception.response is None:
+        return False
+
+    if not hasattr(exception.response, "status_code"):
+        return False
+
+    return 400 <= exception.response.status_code < 500
