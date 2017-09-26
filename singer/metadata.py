@@ -1,10 +1,10 @@
 def new():
     return {}
 
-def deserialize(raw_metadata):
+def to_map(raw_metadata):
     return {tuple(md['breadcrumb']): md['metadata'] for md in raw_metadata}
 
-def serialize(compiled_metadata):
+def to_list(compiled_metadata):
     return [{'breadcrumb': k, 'metadata': v} for k, v in compiled_metadata.items()]
 
 def delete(compiled_metadata, breadcrumb, k):
