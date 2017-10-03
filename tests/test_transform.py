@@ -233,13 +233,19 @@ class TestResolveSchemaReferences(unittest.TestCase):
         result = resolve_schema_references(schema)
         self.assertEqual(result['properties']['name']['type'], "string")
 
-
     def test_external_refs_resolve(self):
         schema =  {"type": "object",
                    "properties": { "name": {"$ref": "references.json#/definitions/string_type"}}}
         refs =  {"references.json": {"definitions": { "string_type": {"type": "string"}}}}
         result = resolve_schema_references(schema, refs)
         self.assertEqual(result['properties']['name']['type'], "string")
+
+    def test_refs_resolve_pattern_properties(self):
+        schema =  {"type": "object",
+                   "definitions": { "string_type": {"type": "string"}},
+                   "patternProperties": {".+": {"$ref": "#/definitions/string_type"}}}
+        result = resolve_schema_references(schema)
+        self.assertEqual(result["patternProperties"][".+"]["type"], "string")
 
     def test_refs_resolve_items(self):
         schema =  {"type": "object",

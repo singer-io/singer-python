@@ -49,6 +49,7 @@ class SchemaKey:
     ref = "$ref"
     items = "items"
     properties = "properties"
+    pattern_properties = "patternProperties"
 
 class Error:
     def __init__(self, path, data, schema=None):
@@ -291,6 +292,10 @@ def _resolve_schema_references(schema, resolver):
     if SchemaKey.properties in schema:
         for k, val in schema[SchemaKey.properties].items():
             schema[SchemaKey.properties][k] = _resolve_schema_references(val, resolver)
+
+    if SchemaKey.pattern_properties in schema:
+        for k, val in schema[SchemaKey.pattern_properties].items():
+            schema[SchemaKey.pattern_properties][k] = _resolve_schema_references(val, resolver)
 
     if SchemaKey.items in schema:
         schema[SchemaKey.items] = _resolve_schema_references(schema[SchemaKey.items], resolver)
