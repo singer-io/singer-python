@@ -132,10 +132,11 @@ class Transformer:
             return False, None
 
     def _transform_object(self, data, schema, path):
-        # only a schema of "null" can match a null value
-        # NB> This will not fail an empty dictionary, i.e. {}
-        if data is None:
-            return False, None
+        # We do not necessarily have a dict to transform here. The schema's
+        # type could contain multiple possible values. Eg:
+        #     ["null", "object", "string"]
+        if not isinstance(data, dict):
+            return False, data
 
         result = {}
         successes = []
@@ -151,6 +152,11 @@ class Transformer:
         return all(successes), result
 
     def _transform_array(self, data, schema, path):
+        # We do not necessarily have a list to transform here. The schema's
+        # type could contain multiple possible values. Eg:
+        #     ["null", "array", "integer"]
+        if not isinstance(data, list):
+            return False, data
         result = []
         successes = []
         for i, row in enumerate(data):
