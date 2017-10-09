@@ -180,7 +180,7 @@ class Transformer:
             data = self.pre_hook(data, typ, schema)
 
         if typ == "null":
-            if data is None or data == "":
+            if data is None or data == "" or data == "null":
                 return True, None
             else:
                 return False, None
