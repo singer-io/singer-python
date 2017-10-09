@@ -100,8 +100,8 @@ class Transformer:
             return self._transform_anyof(data, schema, path)
 
         if "type" not in schema:
-            # pylint: disable=line-too-long
-            raise Exception("Malformed schema. Missing 'type'. schema={} path={}".format(schema, path))
+            # indicates no typing information so don't bother transforming it
+            return True, data
 
         types = schema["type"]
         if not isinstance(types, list):
