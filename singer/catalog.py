@@ -5,14 +5,13 @@ import sys
 
 from singer.schema import Schema
 
-
 # pylint: disable=too-many-instance-attributes
 class CatalogEntry(object):
 
     def __init__(self, tap_stream_id=None, stream=None,
                  key_properties=None, schema=None, replication_key=None,
                  is_view=None, database=None, table=None, row_count=None,
-                 stream_alias=None):
+                 stream_alias=None, metadata=None):
 
         self.tap_stream_id = tap_stream_id
         self.stream = stream
@@ -24,6 +23,7 @@ class CatalogEntry(object):
         self.table = table
         self.row_count = row_count
         self.stream_alias = stream_alias
+        self.metadata = metadata
 
     def __str__(self):
         return str(self.__dict__)
@@ -55,6 +55,8 @@ class CatalogEntry(object):
             result['stream'] = self.stream
         if self.row_count is not None:
             result['row_count'] = self.row_count
+        if self.metadata is not None:
+            result['metadata'] = self.metadata
         return result
 
 
