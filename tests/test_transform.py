@@ -225,6 +225,15 @@ class TestTransform(unittest.TestCase):
         empty_data = {'addrs': {}}
         self.assertDictEqual(empty_data, transform(empty_data, schema))
 
+    def test_null_array_transform(self):
+        schema =  {"type": "object",
+                   "properties": {"addrs": {"type": ["null", "array"],
+                                            "items": {"type": ["null", "string"]}}}}
+        none_data = {'addrs': None}
+        self.assertDictEqual(none_data, transform(none_data, schema))
+        empty_data = {'addrs': []}
+        self.assertDictEqual(empty_data, transform(empty_data, schema))
+
 class TestResolveSchemaReferences(unittest.TestCase):
     def test_internal_refs_resolve(self):
         schema =  {"type": "object",
