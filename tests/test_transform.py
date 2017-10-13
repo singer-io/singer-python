@@ -22,6 +22,27 @@ class TestTransform(unittest.TestCase):
         expected = {'addrs': [{'amount': 123}, {'amount': 456}]}
         self.assertDictEqual(expected, transform(data, schema))
 
+    def test_multi_type_object_transform(self):
+        schema =  {"type": ["null", "object", "string"],
+                   "properties": {"whatever": {"type": "date-time",
+                                               "format": "date-time"}}}
+        data = {"whatever": "2017-01-01"}
+        expected = {"whatever": "2017-01-01T00:00:00.000000Z"}
+        self.assertDictEqual(expected, transform(data, schema))
+        data = "justastring"
+        expected = "justastring"
+        self.assertEqual(expected, transform(data, schema))
+
+    def test_multi_type_array_transform(self):
+        schema =  {"type": ["null", "array", "integer"],
+                   "items": {"type": "date-time", "format": "date-time"}}
+        data = ["2017-01-01"]
+        expected = ["2017-01-01T00:00:00.000000Z"]
+        self.assertEqual(expected, transform(data, schema))
+        data = 23
+        expected = 23
+        self.assertEqual(expected, transform(data, schema))
+
     def test_null_transform(self):
         self.assertEqual('', transform('', {'type': ['null', 'string']}))
         self.assertEqual('', transform('', {'type': [ 'string', 'null']}))
