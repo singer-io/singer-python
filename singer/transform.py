@@ -151,6 +151,11 @@ class Transformer:
         return all(successes), result
 
     def _transform_array(self, data, schema, path):
+        # only a schema of "null" can match a null value
+        # NB> This will not fail an empty array, i.e. []
+        if data is None:
+            return False, None
+
         result = []
         successes = []
         for i, row in enumerate(data):
