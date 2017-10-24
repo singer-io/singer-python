@@ -5,7 +5,6 @@ import json
 
 # These are standard keys defined in the JSON Schema spec
 STANDARD_KEYS = [
-    'sqlDatatype',
     'selected',
     'inclusion',
     'description',
@@ -28,16 +27,14 @@ class Schema(object):  # pylint: disable=too-many-instance-attributes
 
     '''
 
-    def __init__(self, type=None, format=None, properties=None,
-                 items=None, sqlDatatype=None, selected=None,
-                 inclusion=None, description=None, minimum=None,
-                 maximum=None, exclusiveMinimum=None,
-                 exclusiveMaximum=None, multipleOf=None, maxLength=None):
+    def __init__(self, type=None, format=None, properties=None, items=None,
+                 selected=None, inclusion=None, description=None, minimum=None,
+                 maximum=None, exclusiveMinimum=None, exclusiveMaximum=None,
+                 multipleOf=None, maxLength=None):
 
         self.type = type
         self.properties = properties
         self.items = items
-        self.sqlDatatype = sqlDatatype
         self.selected = selected
         self.inclusion = inclusion
         self.description = description
