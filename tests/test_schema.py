@@ -27,6 +27,7 @@ class TestSchema(unittest.TestCase):
             'an_array': array_dict
         },
         'inclusion': 'whatever',
+        'additionalProperties': True,
     }
 
     # Schema object forms of the same schemas as above
@@ -39,7 +40,8 @@ class TestSchema(unittest.TestCase):
     object_obj = Schema(type='object',
                         properties={'a_string': string_obj,
                                     'an_array': array_obj},
-                        inclusion='whatever')
+                        inclusion='whatever',
+                        additionalProperties=True)
 
     def test_string_to_dict(self):
         self.assertEquals(self.string_dict, self.string_obj.to_dict())
