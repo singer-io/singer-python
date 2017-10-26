@@ -11,7 +11,7 @@ import backoff as backoff_module
 from singer.catalog import Catalog
 
 DATETIME_PARSE = "%Y-%m-%dT%H:%M:%SZ"
-DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
+DATETIME_FMT = "%04Y-%m-%dT%H:%M:%S.%fZ"
 
 def now():
     return datetime.datetime.utcnow().replace(tzinfo=pytz.UTC)
@@ -32,7 +32,7 @@ def strptime(dtime):
 def strftime(dtime):
     if dtime.utcoffset() != datetime.timedelta(0):
         raise Exception("datetime must be pegged at UTC tzoneinfo")
-    return dtime.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    return dtime.strftime(DATETIME_FMT)
 
 def ratelimit(limit, every):
     def limitdecorator(func):
