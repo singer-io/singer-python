@@ -15,7 +15,8 @@ STANDARD_KEYS = [
     'multipleOf',
     'maxLength',
     'format',
-    'type'
+    'type',
+    'additionalProperties',
 ]
 
 
@@ -30,7 +31,7 @@ class Schema(object):  # pylint: disable=too-many-instance-attributes
     def __init__(self, type=None, format=None, properties=None, items=None,
                  selected=None, inclusion=None, description=None, minimum=None,
                  maximum=None, exclusiveMinimum=None, exclusiveMaximum=None,
-                 multipleOf=None, maxLength=None):
+                 multipleOf=None, maxLength=None, additionalProperties=None):
 
         self.type = type
         self.properties = properties
@@ -45,6 +46,7 @@ class Schema(object):  # pylint: disable=too-many-instance-attributes
         self.multipleOf = multipleOf
         self.maxLength = maxLength
         self.format = format
+        self.additionalProperties = additionalProperties
 
     def __str__(self):
         return json.dumps(self.to_dict())
