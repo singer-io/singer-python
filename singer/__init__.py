@@ -41,6 +41,7 @@ from singer.messages import (
     write_records,
     write_schema,
     write_state,
+    write_version,
 )
 
 from singer.transform import (

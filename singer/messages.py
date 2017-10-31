@@ -227,3 +227,13 @@ def write_state(value):
     >>> write_state({'last_updated_at': '2017-02-14T09:21:00'})
     """
     write_message(StateMessage(value=value))
+
+
+def write_version(stream_name, version):
+    """Write an activate version message.
+
+    >>> stream = 'test'
+    >>> version = int(time.time())
+    >>> write_version(stream, version)
+    """
+    write_message(ActivateVersionMessage(stream_name, version))
