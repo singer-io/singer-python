@@ -5,27 +5,26 @@ Add    = collections.namedtuple('Add',    ['path', 'newval'])
 Change = collections.namedtuple('Change', ['path', 'oldval', 'newval'])
 Remove = collections.namedtuple('Remove', ['path', 'oldval'])
 
-def paths(s, base=None):
+def paths(data, base=None):
     '''Walk a data structure and return a list of (path, value) tuples, where
     each path is the path to a leaf node in the data structure and the
-    value is the value it points to. Each path will be a tuple of strings
-    and integers.
+    value is the value it points to. Each path will be a tuple.
 
     '''
     if base is None:
         base = ()
 
     result = []
-    if isinstance(s, dict):
-        for k, v in sorted(s.items()):
+    if isinstance(data, dict):
+        for k, v in sorted(data.items()):
             result.extend(paths(v, base + (k,)))
 
-    elif isinstance(s, list):
-        for i, v in enumerate(s):
+    elif isinstance(data, list):
+        for i, v in enumerate(data):
             result.extend(paths(v, base + (i,)))
 
-    else:
-        result.append((base, s))
+    elif base:
+        result.append((base, data))
 
     return result
 

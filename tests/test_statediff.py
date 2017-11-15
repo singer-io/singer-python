@@ -56,6 +56,9 @@ class TestPaths(unittest.TestCase):
                 }
             )
         )
+
+    def test_none(self):
+        self.assertEqual([], statediff.paths(None))
                 
 class TestDiff(unittest.TestCase):
 
@@ -78,3 +81,25 @@ class TestDiff(unittest.TestCase):
             statediff.diff({'a': 1, 'b': 2},
                            {'a': 100, 'b': 200}))
                            
+    def test_null_input_for_old(self):
+        self.assertEqual(
+            [Add(('a',), 1)],
+            statediff.diff(None, {'a': 1}))
+
+    def test_null_input_for_new(self):
+        self.assertEqual(
+            [Remove(('a',), 1)],
+            statediff.diff({'a': 1}, None))
+
+    def test_null_input_for_both(self):
+        self.assertEqual([], statediff.diff(None, None))
+
+    def test_null_at_leaf(self):
+        self.assertEqual(
+            [Change(('a',), 1, None),
+             Change(('b',), None, 2)],
+            statediff.diff({'a': 1, 'b': None},
+                           {'a': None, 'b': 2}))
+
+
+        
