@@ -1,7 +1,7 @@
 import collections
 
 # Named tuples for holding add, change, and remove operations
-Add    = collections.namedtuple('Add',    ['path', 'newval'])
+Add = collections.namedtuple('Add', ['path', 'newval'])
 Change = collections.namedtuple('Change', ['path', 'oldval', 'newval'])
 Remove = collections.namedtuple('Remove', ['path', 'oldval'])
 
@@ -16,12 +16,12 @@ def paths(data, base=None):
 
     result = []
     if isinstance(data, dict):
-        for k, v in sorted(data.items()):
-            result.extend(paths(v, base + (k,)))
+        for key, val in sorted(data.items()):
+            result.extend(paths(val, base + (key,)))
 
     elif isinstance(data, list):
-        for i, v in enumerate(data):
-            result.extend(paths(v, base + (i,)))
+        for i, val in enumerate(data):
+            result.extend(paths(val, base + (i,)))
 
     elif base:
         result.append((base, data))
@@ -38,7 +38,7 @@ def diff(oldstate, newstate):
     Change(path, oldval, newval) means that path exists in both oldstate
     and newstate but has different values. oldval is the val in oldstate
     and newval is the value in newstate.
-    
+
     Remove(path, oldval) means the path exists in oldstate but not in
     newstate, and the value in oldstate is oldval.
 
