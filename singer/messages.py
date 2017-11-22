@@ -167,14 +167,14 @@ def parse_message(msg):
         return RecordMessage(stream=_required_key(obj, 'stream'),
                              record=_required_key(obj, 'record'),
                              version=obj.get('version'),
-                             time_extracted= obj.get('time_extracted'))
+                             time_extracted=obj.get('time_extracted'))
 
 
     elif msg_type == 'SCHEMA':
         return SchemaMessage(stream=_required_key(obj, 'stream'),
                              schema=_required_key(obj, 'schema'),
                              key_properties=_required_key(obj, 'key_properties'),
-                             bookmark_properties= obj.get('bookmark_properties'))
+                             bookmark_properties=obj.get('bookmark_properties'))
 
     elif msg_type == 'STATE':
         return StateMessage(value=_required_key(obj, 'value'))
@@ -198,7 +198,8 @@ def write_record(stream_name, record, stream_alias=None, time_extracted=None):
 
     >>> write_record("users", {"id": 2, "email": "mike@stitchdata.com"})
     """
-    write_message(RecordMessage(stream=(stream_alias or stream_name), record=record, time_extracted=time_extracted))
+    write_message(RecordMessage(stream=(stream_alias or stream_name), record=record, 
+        time_extracted=time_extracted))
 
 
 def write_records(stream_name, records):
