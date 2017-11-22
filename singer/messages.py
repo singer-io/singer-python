@@ -166,15 +166,15 @@ def parse_message(msg):
     if msg_type == 'RECORD':
         return RecordMessage(stream=_required_key(obj, 'stream'),
                              record=_required_key(obj, 'record'),
-                             time_extracted= obj.get('time_extracted')
-                             version=obj.get('version'))
+                             version=obj.get('version'),
+                             time_extracted= obj.get('time_extracted'))
 
 
     elif msg_type == 'SCHEMA':
         return SchemaMessage(stream=_required_key(obj, 'stream'),
                              schema=_required_key(obj, 'schema'),
-                             key_properties=_required_key(obj, 'key_properties')
-                             bookmark_properties= obj.get('bookmark_properties') )
+                             key_properties=_required_key(obj, 'key_properties'),
+                             bookmark_properties= obj.get('bookmark_properties'))
 
     elif msg_type == 'STATE':
         return StateMessage(value=_required_key(obj, 'value'))
