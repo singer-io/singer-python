@@ -37,9 +37,10 @@ class RecordMessage(Message):
 
     '''
 
-    def __init__(self, stream, record, version=None):
+    def __init__(self, stream, record, time_extracted=None, version=None):
         self.stream = stream
         self.record = record
+        self.time_extracted = time_extracted
         self.version = version
 
     def asdict(self):
@@ -48,6 +49,8 @@ class RecordMessage(Message):
             'stream': self.stream,
             'record': self.record,
         }
+        if self.time_extracted is not None:
+            result['time_extracted'] = self.time_extracted
         if self.version is not None:
             result['version'] = self.version
         return result
@@ -76,18 +79,22 @@ class SchemaMessage(Message):
     >>>     key_properties=['id'])
 
     '''
-    def __init__(self, stream, schema, key_properties):
+    def __init__(self, stream, schema, key_properties, bookmark_properties=None):
         self.stream = stream
         self.schema = schema
         self.key_properties = key_properties
+        self.bookmark_properties = bookmark_properties
 
     def asdict(self):
-        return {
+        result = {
             'type': 'SCHEMA',
             'stream': self.stream,
             'schema': self.schema,
             'key_properties': self.key_properties
         }
+        if self.bookmark_properties is not None:
+            result['bookmark_properties'] = self.bookmark_properties
+        return result
 
 
 class StateMessage(Message):
@@ -159,12 +166,15 @@ def parse_message(msg):
     if msg_type == 'RECORD':
         return RecordMessage(stream=_required_key(obj, 'stream'),
                              record=_required_key(obj, 'record'),
+                             time_extracted= obj.get('time_extracted')
                              version=obj.get('version'))
+
 
     elif msg_type == 'SCHEMA':
         return SchemaMessage(stream=_required_key(obj, 'stream'),
                              schema=_required_key(obj, 'schema'),
-                             key_properties=_required_key(obj, 'key_properties'))
+                             key_properties=_required_key(obj, 'key_properties')
+                             bookmark_properties= obj.get('bookmark_properties') )
 
     elif msg_type == 'STATE':
         return StateMessage(value=_required_key(obj, 'value'))
@@ -183,12 +193,12 @@ def write_message(message):
     sys.stdout.flush()
 
 
-def write_record(stream_name, record, stream_alias=None):
+def write_record(stream_name, record, stream_alias=None, time_extracted=None):
     """Write a single record for the given stream.
 
     >>> write_record("users", {"id": 2, "email": "mike@stitchdata.com"})
     """
-    write_message(RecordMessage(stream=(stream_alias or stream_name), record=record))
+    write_message(RecordMessage(stream=(stream_alias or stream_name), record=record, time_extracted=time_extracted))
 
 
 def write_records(stream_name, records):
@@ -202,7 +212,7 @@ def write_records(stream_name, records):
         write_record(stream_name, record)
 
 
-def write_schema(stream_name, schema, key_properties, stream_alias=None):
+def write_schema(stream_name, schema, key_properties, bookmark_properties=None, stream_alias=None):
     """Write a schema message.
 
     >>> stream = 'test'
@@ -218,7 +228,8 @@ def write_schema(stream_name, schema, key_properties, stream_alias=None):
         SchemaMessage(
             stream=(stream_alias or stream_name),
             schema=schema,
-            key_properties=key_properties))
+            key_properties=key_properties,
+            bookmark_properties=bookmark_properties))
 
 
 def write_state(value):
