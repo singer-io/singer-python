@@ -34,6 +34,14 @@ def strftime(dtime):
         raise Exception("datetime must be pegged at UTC tzoneinfo")
     return dtime.strftime(DATETIME_FMT)
 
+def is_aware_datetime(dtime):
+    d_object = dateutil.parser.parse(dtime)
+    return(d_object.tzinfo is not None)
+
+def convert_string_timezone_to_utc(dtime):
+    d_object = dateutil.parser.parse(dtime)
+    return d_object.astimezone(pytz.utc).strftime(DATETIME_FMT)
+
 def ratelimit(limit, every):
     def limitdecorator(func):
         times = collections.deque()

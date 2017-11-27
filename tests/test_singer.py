@@ -17,6 +17,11 @@ class TestSinger(unittest.TestCase):
             message,
             singer.RecordMessage(record={'name': 'foo'}, stream='users', version=2))
 
+    def test_parse_message_record_naive_extraction_time(self):
+        with self.assertRaises(Exception):
+            message = singer.parse_message(
+                '{"type": "RECORD", "record": {"name": "foo"}, "stream": "users", "version": 2, "time_extracted": "1970-01-02T00:00:00"}')
+
     def test_parse_message_record_missing_record(self):
         with self.assertRaises(Exception):
             singer.parse_message('{"type": "RECORD", "stream": "users"}')

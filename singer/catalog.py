@@ -11,7 +11,7 @@ class CatalogEntry(object):
     def __init__(self, tap_stream_id=None, stream=None,
                  key_properties=None, schema=None, replication_key=None,
                  is_view=None, database=None, table=None, row_count=None,
-                 stream_alias=None, metadata=None, bookmark_properties=None):
+                 stream_alias=None, metadata=None):
 
         self.tap_stream_id = tap_stream_id
         self.stream = stream
@@ -24,7 +24,6 @@ class CatalogEntry(object):
         self.row_count = row_count
         self.stream_alias = stream_alias
         self.metadata = metadata
-        self.bookmark_properties = bookmark_properties
 
     def __str__(self):
         return str(self.__dict__)
@@ -58,8 +57,6 @@ class CatalogEntry(object):
             result['row_count'] = self.row_count
         if self.metadata is not None:
             result['metadata'] = self.metadata
-        if self.bookmark_properties is not None:
-            result['bookmark_properties'] = self.bookmark_properties
         return result
 
 
@@ -98,7 +95,6 @@ class Catalog(object):
             entry.schema = Schema.from_dict(stream.get('schema'))
             entry.is_view = stream.get('is_view')
             entry.stream_alias = stream.get('stream_alias')
-            entry.bookmark_properties = stream.get('bookmark_properties')
             streams.append(entry)
         return Catalog(streams)
 

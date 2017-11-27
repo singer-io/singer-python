@@ -1,6 +1,6 @@
 import sys
 import simplejson as json
-
+import singer.utils as u
 
 class Message(object):
     '''Base class for messages.'''
@@ -37,11 +37,16 @@ class RecordMessage(Message):
 
     '''
 
-    def __init__(self, stream, record, time_extracted=None, version=None):
+    def __init__(self, stream, record, version=None, time_extracted=None):
         self.stream = stream
         self.record = record
-        self.time_extracted = time_extracted
         self.version = version
+        if time_extracted is not None:
+            if u.is_aware_datetime(time_extracted):
+                self.time_extracted = time_extracted
+            else:
+                raise Exception("'time_extracted' must be an aware "
+                    "datetime (with a time zone)")
 
     def asdict(self):
         result = {
@@ -49,10 +54,10 @@ class RecordMessage(Message):
             'stream': self.stream,
             'record': self.record,
         }
-        if self.time_extracted is not None:
-            result['time_extracted'] = self.time_extracted
         if self.version is not None:
             result['version'] = self.version
+        if self.time_extracted is not None:
+            result['time_extracted'] = u.convert_string_timezone_to_utc(self.time_extracted)
         return result
 
     def __str__(self):
