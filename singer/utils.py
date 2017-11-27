@@ -36,7 +36,7 @@ def strftime(dtime):
 
 def is_aware_datetime(dtime):
     d_object = dateutil.parser.parse(dtime)
-    return(d_object.tzinfo is not None)
+    return d_object.tzinfo is not None
 
 def convert_string_timezone_to_utc(dtime):
     d_object = dateutil.parser.parse(dtime)

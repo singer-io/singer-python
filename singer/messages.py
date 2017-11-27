@@ -41,12 +41,11 @@ class RecordMessage(Message):
         self.stream = stream
         self.record = record
         self.version = version
+        self.time_extracted = time_extracted
         if time_extracted is not None:
-            if u.is_aware_datetime(time_extracted):
-                self.time_extracted = time_extracted
-            else:
+            if not u.is_aware_datetime(time_extracted):
                 raise Exception("'time_extracted' must be an aware "
-                    "datetime (with a time zone)")
+                                "datetime (with a time zone)")
 
     def asdict(self):
         result = {
