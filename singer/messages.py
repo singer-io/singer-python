@@ -57,7 +57,8 @@ class RecordMessage(Message):
         if self.version is not None:
             result['version'] = self.version
         if self.time_extracted:
-            result['time_extracted'] = self.time_extracted.astimezone(pytz.utc).strftime(u.DATETIME_FMT)
+            as_utc = self.time_extracted.astimezone(pytz.utc)
+            result['time_extracted'] = as_utc.strftime(u.DATETIME_FMT)
         return result
 
     def __str__(self):
