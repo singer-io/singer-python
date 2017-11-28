@@ -5,6 +5,7 @@ import functools
 import json
 import time
 import dateutil
+import pytz
 import backoff as backoff_module
 
 from singer.catalog import Catalog
