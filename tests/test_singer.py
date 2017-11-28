@@ -1,6 +1,7 @@
 import singer
 import unittest
-
+import datetime
+import dateutil
 
 class TestSinger(unittest.TestCase):
     def test_parse_message_record_good(self):
@@ -16,6 +17,23 @@ class TestSinger(unittest.TestCase):
         self.assertEqual(
             message,
             singer.RecordMessage(record={'name': 'foo'}, stream='users', version=2))
+
+    def test_parse_message_record_naive_extraction_time(self):
+        with self.assertRaisesRegex(ValueError, "must be either None or an aware datetime"):
+            message = singer.parse_message(
+                '{"type": "RECORD", "record": {"name": "foo"}, "stream": "users", "version": 2, "time_extracted": "1970-01-02T00:00:00"}')
+
+    def test_parse_message_record_aware_extraction_time(self):
+        message = singer.parse_message(
+            '{"type": "RECORD", "record": {"name": "foo"}, "stream": "users", "version": 2, "time_extracted": "1970-01-02T00:00:00.000Z"}')
+        expected = singer.RecordMessage(
+            record={'name': 'foo'},
+            stream='users',
+            version=2,
+            time_extracted=dateutil.parser.parse("1970-01-02T00:00:00.000Z"))
+        print(message)
+        print(expected)
+        self.assertEqual(message, expected)
 
     def test_parse_message_record_missing_record(self):
         with self.assertRaises(Exception):
