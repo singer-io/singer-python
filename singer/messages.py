@@ -1,6 +1,8 @@
 import sys
 import simplejson as json
 import singer.utils as u
+import dateutil
+import pytz
 
 class Message(object):
     '''Base class for messages.'''
@@ -42,10 +44,9 @@ class RecordMessage(Message):
         self.record = record
         self.version = version
         self.time_extracted = time_extracted
-        if time_extracted is not None:
-            if not u.is_aware_datetime(time_extracted):
-                raise Exception("'time_extracted' must be an aware "
-                                "datetime (with a time zone)")
+        if time_extracted and not time_extracted.tzinfo:
+            raise ValueError("'time_extracted' must be either None " +
+                             "or an aware datetime (with a time zone)")
 
     def asdict(self):
         result = {
@@ -55,8 +56,8 @@ class RecordMessage(Message):
         }
         if self.version is not None:
             result['version'] = self.version
-        if self.time_extracted is not None:
-            result['time_extracted'] = u.convert_string_timezone_to_utc(self.time_extracted)
+        if self.time_extracted:
+            result['time_extracted'] = self.time_extracted.astimezone(pytz.utc).strftime(u.DATETIME_FMT)
         return result
 
     def __str__(self):
@@ -96,7 +97,7 @@ class SchemaMessage(Message):
             'schema': self.schema,
             'key_properties': self.key_properties
         }
-        if self.bookmark_properties is not None:
+        if self.bookmark_properties:
             result['bookmark_properties'] = self.bookmark_properties
         return result
 
@@ -168,10 +169,13 @@ def parse_message(msg):
     msg_type = _required_key(obj, 'type')
 
     if msg_type == 'RECORD':
+        time_extracted = obj.get('time_extracted')
+        if time_extracted:
+            time_extracted = dateutil.parser.parse(time_extracted)
         return RecordMessage(stream=_required_key(obj, 'stream'),
                              record=_required_key(obj, 'record'),
                              version=obj.get('version'),
-                             time_extracted=obj.get('time_extracted'))
+                             time_extracted=time_extracted)
 
 
     elif msg_type == 'SCHEMA':
