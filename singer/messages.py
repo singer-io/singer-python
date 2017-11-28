@@ -238,7 +238,7 @@ def write_schema(stream_name, schema, key_properties, bookmark_properties=None, 
 
     if isinstance(bookmark_properties, (str, bytes)):
         bookmark_properties = [bookmark_properties]
-    if not isinstance(bookmark_properties, list):
+    if bookmark_properties and not isinstance(bookmark_properties, list):
         raise Exception("bookmark_properties must be a string or list of strings")
 
     write_message(
