@@ -91,6 +91,11 @@ class SchemaMessage(Message):
         self.key_properties = key_properties
         self.bookmark_properties = bookmark_properties
 
+        if isinstance(bookmark_properties, (str, bytes)):
+            bookmark_properties = [bookmark_properties]
+        if bookmark_properties and not isinstance(bookmark_properties, list):
+            raise Exception("bookmark_properties must be a string or list of strings")
+
     def asdict(self):
         result = {
             'type': 'SCHEMA',
@@ -235,11 +240,6 @@ def write_schema(stream_name, schema, key_properties, bookmark_properties=None, 
         key_properties = [key_properties]
     if not isinstance(key_properties, list):
         raise Exception("key_properties must be a string or list of strings")
-
-    if isinstance(bookmark_properties, (str, bytes)):
-        bookmark_properties = [bookmark_properties]
-    if bookmark_properties and not isinstance(bookmark_properties, list):
-        raise Exception("bookmark_properties must be a string or list of strings")
 
     write_message(
         SchemaMessage(
