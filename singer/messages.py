@@ -95,7 +95,7 @@ class SchemaMessage(Message):
         if bookmark_properties and not isinstance(bookmark_properties, list):
             raise Exception("bookmark_properties must be a string or list of strings")
 
-       self.bookmark_properties = bookmark_properties
+        self.bookmark_properties = bookmark_properties
 
     def asdict(self):
         result = {
