@@ -89,12 +89,13 @@ class SchemaMessage(Message):
         self.stream = stream
         self.schema = schema
         self.key_properties = key_properties
-        self.bookmark_properties = bookmark_properties
 
         if isinstance(bookmark_properties, (str, bytes)):
             bookmark_properties = [bookmark_properties]
         if bookmark_properties and not isinstance(bookmark_properties, list):
             raise Exception("bookmark_properties must be a string or list of strings")
+
+       self.bookmark_properties = bookmark_properties
 
     def asdict(self):
         result = {
