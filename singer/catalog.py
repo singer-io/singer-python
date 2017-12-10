@@ -55,6 +55,8 @@ class CatalogEntry(object):
             result['stream'] = self.stream
         if self.row_count is not None:
             result['row_count'] = self.row_count
+        if self.stream_alias is not None:
+            result['stream_alias'] = self.stream_alias
         if self.metadata is not None:
             result['metadata'] = self.metadata
         return result
