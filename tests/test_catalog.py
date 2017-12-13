@@ -10,6 +10,7 @@ class TestToDictAndFromDict(unittest.TestCase):
             {
                 'stream': 'users',
                 'tap_stream_id': 'prod_users',
+                'stream_alias': 'users_alias',
                 'database_name': 'prod',
                 'table_name': 'users',
                 'schema': {
@@ -42,6 +43,7 @@ class TestToDictAndFromDict(unittest.TestCase):
         CatalogEntry(
             stream='users',
             tap_stream_id='prod_users',
+            stream_alias='users_alias',
             database='prod',
             table='users',
             schema=Schema(
