@@ -169,3 +169,18 @@ def exception_is_4xx(exception):
         return False
 
     return 400 <= exception.response.status_code < 500
+
+
+def handle_top_exception(logger):
+    """A decorator that will catch exceptions and log the exception's message
+    as a CRITICAL log."""
+    def decorator(fn):
+        @functools.wraps(fn)
+        def wrapped(*args, **kwargs):
+            try:
+                return fn(*args, **kwargs)
+            except Exception as exc:
+                logger.critical(exc)
+                raise
+        return wrapped
+    return decorator
