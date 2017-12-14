@@ -97,6 +97,7 @@ class Catalog(object):
             entry.schema = Schema.from_dict(stream.get('schema'))
             entry.is_view = stream.get('is_view')
             entry.stream_alias = stream.get('stream_alias')
+            entry.metadata = stream.get('metadata')
             streams.append(entry)
         return Catalog(streams)
 

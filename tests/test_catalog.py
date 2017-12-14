@@ -21,6 +21,17 @@ class TestToDictAndFromDict(unittest.TestCase):
                         'name': {'type': 'string', 'selected': True}
                     }
                 },
+                'metadata': [
+                    {
+                        'metadata': {
+                            'metadata-key': 'metadata-value'
+                        },
+                        'breadcrumb': [
+                            'properties',
+                            'name',
+                        ],
+                    },
+                ],
             },
             {
                 'stream': 'orders',
@@ -51,7 +62,16 @@ class TestToDictAndFromDict(unittest.TestCase):
                 selected=True,
                 properties={
                     'id': Schema(type='integer', selected=True),
-                    'name': Schema(type='string', selected=True)})),
+                    'name': Schema(type='string', selected=True)}),
+            metadata=[{
+                'metadata': {
+                    'metadata-key': 'metadata-value'
+                },
+                'breadcrumb': [
+                    'properties',
+                    'name',
+                ],
+            }]),
         CatalogEntry(
             stream='orders',
             tap_stream_id='prod_orders',
