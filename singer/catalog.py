@@ -115,23 +115,24 @@ class Catalog(object):
         return None
 
 
-CATALOG_SCHEMA = {'type': 'object',
-                  'required': ['streams'],
-                  'properties': {
-                      'streams' : {
-                          'type': 'array',
-                          'items': {
-                              'type': 'object',
-                              'required': ['stream', 'tap_stream_id', 'schema'],
-                              'properties': {
-                                  'stream': {'type': 'string'},
-                                  'tap_stream_id': {'type': 'string'},
-                                  'schema': {'type': 'object'}
-                              }
-                          }
-                      }
-                  }
-              }
+CATALOG_SCHEMA = {
+    'type': 'object',
+    'required': ['streams'],
+    'properties': {
+        'streams' : {
+            'type': 'array',
+            'items': {
+                'type': 'object',
+                'required': ['stream', 'tap_stream_id', 'schema'],
+                'properties': {
+                    'stream': {'type': 'string'},
+                    'tap_stream_id': {'type': 'string'},
+                    'schema': {'type': 'object'}
+                }
+            }
+        }
+    }
+}
 
 CATALOG_VALIDATOR = Draft4Validator(CATALOG_SCHEMA,
                                     format_checker=FormatChecker())
