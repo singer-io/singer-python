@@ -4,7 +4,7 @@ import json
 import sys
 
 from singer.schema import Schema
-from jsonschema import ValidationError, Draft4Validator, FormatChecker
+from jsonschema import Draft4Validator, FormatChecker
 
 # pylint: disable=too-many-instance-attributes
 class CatalogEntry(object):
