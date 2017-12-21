@@ -26,7 +26,7 @@ def string_to_datetime(value):
 
 
 def unix_milliseconds_to_datetime(value):
-    return strftime(datetime.datetime.fromtimestamp(int(value) * 0.001, datetime.timezone.utc))
+    return strftime(datetime.datetime.fromtimestamp(float(value) / 1000.0, datetime.timezone.utc))
 
 
 def unix_seconds_to_datetime(value):
