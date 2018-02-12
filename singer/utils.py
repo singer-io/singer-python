@@ -11,7 +11,7 @@ import backoff as backoff_module
 from singer.catalog import Catalog
 
 DATETIME_PARSE = "%Y-%m-%dT%H:%M:%SZ"
-DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
+DATETIME_FMT = "%04Y-%m-%dT%H:%M:%S.%fZ"
 
 def now():
     return datetime.datetime.utcnow().replace(tzinfo=pytz.UTC)
