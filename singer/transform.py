@@ -1,9 +1,8 @@
 import datetime
 import pendulum
+from jsonschema import RefResolver
 from singer.logger import get_logger
 from singer.utils import strftime
-
-from jsonschema import RefResolver
 
 LOGGER = get_logger()
 
