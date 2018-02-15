@@ -11,13 +11,14 @@ class CatalogEntry(object):
     def __init__(self, tap_stream_id=None, stream=None,
                  key_properties=None, schema=None, replication_key=None,
                  is_view=None, database=None, table=None, row_count=None,
-                 stream_alias=None, metadata=None):
+                 stream_alias=None, metadata=None, replication_method=None):
 
         self.tap_stream_id = tap_stream_id
         self.stream = stream
         self.key_properties = key_properties
         self.schema = schema
         self.replication_key = replication_key
+        self.replication_method = replication_method
         self.is_view = is_view
         self.database = database
         self.table = table
@@ -44,6 +45,8 @@ class CatalogEntry(object):
             result['table_name'] = self.table
         if self.replication_key is not None:
             result['replication_key'] = self.replication_key
+        if self.replication_method is not None:
+            result['replication_method'] = self.replication_method
         if self.key_properties is not None:
             result['key_properties'] = self.key_properties
         if self.schema is not None:
@@ -98,6 +101,7 @@ class Catalog(object):
             entry.is_view = stream.get('is_view')
             entry.stream_alias = stream.get('stream_alias')
             entry.metadata = stream.get('metadata')
+            entry.replication_method = stream.get('replication_method')
             streams.append(entry)
         return Catalog(streams)
 
