@@ -16,6 +16,12 @@ setup(name="singer-python",
           'python-dateutil>=2.6.0',
           'backoff==1.3.2',
       ],
+      extras_require={
+          'dev': [
+              'pylint',
+              'nose'
+          ]
+      },
       packages=find_packages(),
       package_data = {
           'singer': [

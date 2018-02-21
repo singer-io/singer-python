@@ -2,10 +2,6 @@ machine:
   python:
     version: 3.6.0
 
-dependencies:
-  pre:
-    - pip install pylint
-
 test:
-  post:
-    - pylint singer -d missing-docstring,broad-except,bare-except,too-many-return-statements,too-many-branches,too-many-arguments,no-else-return,too-few-public-methods,fixme,protected-access,too-many-locals,inconsistent-return-statements
+  override:
+    - make

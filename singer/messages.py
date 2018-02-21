@@ -1,8 +1,10 @@
 import sys
-import simplejson as json
-import singer.utils as u
+
 import dateutil
 import pytz
+import simplejson as json
+
+import singer.utils as u
 
 class Message(object):
     '''Base class for messages.'''
@@ -197,6 +199,8 @@ def parse_message(msg):
     elif msg_type == 'ACTIVATE_VERSION':
         return ActivateVersionMessage(stream=_required_key(obj, 'stream'),
                                       version=_required_key(obj, 'version'))
+    else:
+        return None
 
 
 def format_message(message):
