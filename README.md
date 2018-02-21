@@ -10,16 +10,16 @@ This library depends on python3. We recommend using a `virtualenv`
 like this:
 
 ```bash
-› mkvirtualenv -p python3 singer
+python3 -m venv ~/.virtualenvs/singer-python
 ```
 
 Next, install this library:
 
 ```bash
-› workon singer
-› git clone http://github.com/singer-io/singer-python
-› cd singer-python
-› python setup.py install
+source ~/.virtualenvs/singer-python/bin/activate
+git clone http://github.com/singer-io/singer-python
+cd singer-python
+python -m pip install -e .
 ```
 
 Now, from python code within the same `virtualenv`, you can use the
