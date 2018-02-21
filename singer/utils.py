@@ -79,8 +79,8 @@ def update_state(state, entity, dtime):
         state[entity] = dtime
 
 
-def parse_args(required_config_keys):
-    '''Parse standard command-line args.
+def get_default_args_parser():
+    '''Create parser for standard command-line args.
 
     Parses the command-line arguments mentioned in the SPEC and the
     BEST_PRACTICES documents:
@@ -118,6 +118,29 @@ def parse_args(required_config_keys):
         '-d', '--discover',
         action='store_true',
         help='Do schema discovery')
+
+    return parser
+
+def parse_args(required_config_keys, parser=None):
+    '''Parse standard (and extended) command-line args.
+
+    By default it will create a parser using get_default_args_parser. If
+    you need more args you may call that function yourself, extend the
+    returned parser, and then pass it in. Failing to do so will result in
+    undefined behavior.
+
+    Also checks the config arg for validity using the required_config_keys
+    parameter.
+
+    See the docs for get_default_args_parser for further information.
+
+    Returns the parsed args object from argparse. For arguments that point
+    to JSON files (config, state, properties), we will automatically load
+    and parse the JSON file.
+    '''
+
+    if parser is None:
+        parser = get_default_args_parser()
 
     args = parser.parse_args()
     if args.config:
