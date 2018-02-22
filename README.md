@@ -19,7 +19,7 @@ Next, install this library:
 source ~/.virtualenvs/singer-python/bin/activate
 git clone http://github.com/singer-io/singer-python
 cd singer-python
-python -m pip install -e .
+make install
 ```
 
 Now, from python code within the same `virtualenv`, you can use the
