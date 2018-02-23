@@ -19,7 +19,8 @@ setup(name="singer-python",
       extras_require={
           'dev': [
               'pylint',
-              'nose'
+              'nose',
+              'singer-tools'
           ]
       },
       packages=find_packages(),
