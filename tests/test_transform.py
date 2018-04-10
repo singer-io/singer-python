@@ -67,6 +67,12 @@ class TestTransform(unittest.TestCase):
         trans.integer_datetime_fmt = UNIX_SECONDS_INTEGER_DATETIME_PARSING
         self.assertIsNone(trans._transform_datetime('cat'))
 
+    def test_datetime_string_with_timezone(self):
+        schema = {"type": "string", "format": "date-time"}
+        string_datetime = "2017-03-18T07:00:05-0700"
+        transformed_string_datetime = "2017-03-18T14:00:05.000000Z"
+        self.assertEqual(transformed_string_datetime, transform(string_datetime, schema))
+
     def test_datetime_fractional_seconds_transform(self):
         schema = {"type": "string", "format": "date-time"}
         string_datetime = "2017-01-01T00:00:00.123000Z"
