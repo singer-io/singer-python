@@ -1,8 +1,7 @@
 import datetime
-import pendulum
 from jsonschema import RefResolver
 from singer.logger import get_logger
-from singer.utils import strftime
+from singer.utils import (strftime, strptime_to_utc)
 
 LOGGER = get_logger()
 
@@ -19,8 +18,9 @@ VALID_DATETIME_FORMATS = [
 
 def string_to_datetime(value):
     try:
-        return strftime(pendulum.parse(value))
-    except:
+        return strftime(strptime_to_utc(value))
+    except Exception as ex:
+        LOGGER.error(ex)
         return None
 
 

@@ -4,7 +4,7 @@ import datetime
 import functools
 import json
 import time
-import dateutil
+import dateutil.parser
 import pytz
 import backoff as backoff_module
 
@@ -28,6 +28,13 @@ def strptime(dtime):
         return datetime.datetime.strptime(dtime, DATETIME_FMT)
     except Exception:
         return datetime.datetime.strptime(dtime, DATETIME_PARSE)
+
+def strptime_to_utc(dtimestr):
+    d_object = dateutil.parser.parse(dtimestr)
+    if d_object.tzinfo is None:
+        return d_object.replace(tzinfo=pytz.UTC)
+    else:
+        return d_object.astimezone(tz=pytz.UTC)
 
 def strftime(dtime, format_str=DATETIME_FMT):
     if dtime.utcoffset() != datetime.timedelta(0):
