@@ -1,6 +1,6 @@
 import sys
 
-import dateutil
+import dateutil.parser
 import pytz
 import simplejson as json
 
