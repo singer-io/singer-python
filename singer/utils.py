@@ -12,6 +12,7 @@ from singer.catalog import Catalog
 
 DATETIME_PARSE = "%Y-%m-%dT%H:%M:%SZ"
 DATETIME_FMT = "%04Y-%m-%dT%H:%M:%S.%fZ"
+DATETIME_FMT_MAC = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 def now():
     return datetime.datetime.utcnow().replace(tzinfo=pytz.UTC)
@@ -39,7 +40,10 @@ def strptime_to_utc(dtimestr):
 def strftime(dtime, format_str=DATETIME_FMT):
     if dtime.utcoffset() != datetime.timedelta(0):
         raise Exception("datetime must be pegged at UTC tzoneinfo")
-    return dtime.strftime(format_str)
+    dt_str = dtime.strftime(format_str)
+    if dt_str.startswith('4Y'):
+        dt_str = dtime.strftime(DATETIME_FMT_MAC)
+    return dt_str
 
 def ratelimit(limit, every):
     def limitdecorator(func):
