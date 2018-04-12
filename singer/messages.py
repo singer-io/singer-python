@@ -60,7 +60,7 @@ class RecordMessage(Message):
             result['version'] = self.version
         if self.time_extracted:
             as_utc = self.time_extracted.astimezone(pytz.utc)
-            result['time_extracted'] = as_utc.strftime(u.DATETIME_FMT)
+            result['time_extracted'] = u.strftime(as_utc)
         return result
 
     def __str__(self):
