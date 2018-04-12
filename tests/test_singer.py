@@ -36,6 +36,7 @@ class TestSinger(unittest.TestCase):
         self.assertEqual(message, expected)
 
     def test_extraction_time_strftime(self):
+        """ Test that we're not corrupting timestamps with cross platform parsing. (Test case for OSX, specifically) """
         message = singer.RecordMessage(
             record={'name': 'foo'},
             stream='users',
