@@ -42,8 +42,8 @@ class TestSinger(unittest.TestCase):
             stream='users',
             version=2,
             time_extracted=dateutil.parser.parse("1970-01-02T00:00:00.000Z"))
-        expected = "{'type': 'RECORD', 'stream': 'users', 'record': {'name': 'foo'}, 'version': 2, 'time_extracted': '1970-01-02T00:00:00.000000Z'}"
-        self.assertEqual(str(message), expected)
+        expected = "1970-01-02T00:00:00.000000Z"
+        self.assertEqual(message.asdict()["time_extracted"], expected)
 
 
     def test_parse_message_record_missing_record(self):
