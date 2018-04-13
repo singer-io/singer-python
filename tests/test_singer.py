@@ -35,6 +35,17 @@ class TestSinger(unittest.TestCase):
         print(expected)
         self.assertEqual(message, expected)
 
+    def test_extraction_time_strftime(self):
+        """ Test that we're not corrupting timestamps with cross platform parsing. (Test case for OSX, specifically) """
+        message = singer.RecordMessage(
+            record={'name': 'foo'},
+            stream='users',
+            version=2,
+            time_extracted=dateutil.parser.parse("1970-01-02T00:00:00.000Z"))
+        expected = "1970-01-02T00:00:00.000000Z"
+        self.assertEqual(message.asdict()["time_extracted"], expected)
+
+
     def test_parse_message_record_missing_record(self):
         with self.assertRaises(Exception):
             singer.parse_message('{"type": "RECORD", "stream": "users"}')
