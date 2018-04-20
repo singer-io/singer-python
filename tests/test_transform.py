@@ -252,6 +252,49 @@ class TestTransform(unittest.TestCase):
         empty_data = {'addrs': {}}
         self.assertDictEqual(empty_data, transform(empty_data, schema))
 
+class TestTransformsWithMetadata(unittest.TestCase):
+
+    def test_drops_no_data_when_not_dict(self):
+        schema = {"type": "string"}
+        metadata = {}
+        string_value = "hello"
+        self.assertEqual(string_value, transform(string_value, schema, NO_INTEGER_DATETIME_PARSING, metadata=metadata))
+
+    def test_keeps_selected_data_from_dicts(self):
+        schema = {"type": "object",
+                  "properties": { "name": {"type": "string"}}}
+        metadata = {('properties','name'): {"selected": True}}
+        dict_value = {"name": "chicken"}
+        self.assertEqual({"name": "chicken"}, transform(dict_value, schema, NO_INTEGER_DATETIME_PARSING, metadata=metadata))
+
+    def test_keeps_automatic_data_from_dicts(self):
+        schema = {"type": "object",
+                  "properties": { "name": {"type": "string"}}}
+        metadata = {('properties','name'): {"inclusion": "automatic"}}
+        dict_value = {"name": "chicken"}
+        self.assertEqual({"name": "chicken"}, transform(dict_value, schema, NO_INTEGER_DATETIME_PARSING, metadata=metadata))
+
+    def test_keeps_fields_without_metadata(self):
+        schema = {"type": "object",
+                  "properties": { "name": {"type": "string"}}}
+        metadata = {('properties','age'): {"inclusion": "automatic"}}
+        dict_value = {"name": "chicken"}
+        self.assertEqual({"name": "chicken"}, transform(dict_value, schema, NO_INTEGER_DATETIME_PARSING, metadata=metadata))
+
+    def test_drops_fields_which_are_unselected(self):
+        schema = {"type": "object",
+                  "properties": { "name": {"type": "string"}}}
+        metadata = {('properties','name'): {"selected": False}}
+        dict_value = {"name": "chicken"}
+        self.assertEqual({}, transform(dict_value, schema, NO_INTEGER_DATETIME_PARSING, metadata=metadata))
+
+    def test_drops_fields_which_are_unsupported(self):
+        schema = {"type": "object",
+                  "properties": { "name": {"type": "string"}}}
+        metadata = {('properties','name'): {"inclusion": "unsupported"}}
+        dict_value = {"name": "chicken"}
+        self.assertEqual({}, transform(dict_value, schema, NO_INTEGER_DATETIME_PARSING, metadata=metadata))
+
 class TestResolveSchemaReferences(unittest.TestCase):
     def test_internal_refs_resolve(self):
         schema =  {"type": "object",
