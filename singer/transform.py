@@ -78,11 +78,11 @@ class Transformer:
 
     def log_warning(self):
         if self.filtered:
-            LOGGER.warning("Filtered %s paths during transforms:\n\t%s",
+            LOGGER.info("Filtered %s paths during transforms:\n\t%s",
                            len(self.filtered),
                            "\n\t".join(sorted(self.filtered)))
             # Output list format to parse for reporting
-            LOGGER.warning("Filtered paths list: %s as they were unsupported or not selected", sorted(self.filtered))
+            LOGGER.info("Filtered paths list: %s as they were unsupported or not selected", sorted(self.filtered))
 
         if self.removed:
             LOGGER.warning("Removed %s paths during transforms:\n\t%s",
