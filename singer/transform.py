@@ -20,7 +20,7 @@ def string_to_datetime(value):
     try:
         return strftime(strptime_to_utc(value))
     except Exception as ex:
-        LOGGER.error("{}, ({}), replacing with null.".format(ex, value))
+        LOGGER.warning("{}, ({})".format(ex, value))
         return None
 
 
@@ -167,7 +167,7 @@ class Transformer:
 
     def _transform_datetime(self, value):
         if value is None or value == "":
-            return None # Short circuit in the case of null or empty
+            return None # Short circuit in the case of null or empty string
 
         if self.integer_datetime_fmt not in VALID_DATETIME_FORMATS:
             raise Exception("Invalid integer datetime parsing option")
