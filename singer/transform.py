@@ -1,5 +1,7 @@
 import datetime
 from jsonschema import RefResolver
+
+import singer.metadata
 from singer.logger import get_logger
 from singer.utils import (strftime, strptime_to_utc)
 
@@ -71,9 +73,19 @@ class Transformer:
         self.integer_datetime_fmt = integer_datetime_fmt
         self.pre_hook = pre_hook
         self.removed = set()
+        self.filtered = set()
         self.errors = []
 
     def log_warning(self):
+        if self.filtered:
+            LOGGER.info("Filtered %s paths during transforms "
+                        "as they were unsupported or not selected:\n\t%s",
+                        len(self.filtered),
+                        "\n\t".join(sorted(self.filtered)))
+            # Output list format to parse for reporting
+            LOGGER.info("Filtered paths list: %s",
+                        sorted(self.filtered))
+
         if self.removed:
             LOGGER.warning("Removed %s paths during transforms:\n\t%s",
                            len(self.removed),
@@ -87,7 +99,27 @@ class Transformer:
     def __exit__(self, *args):
         self.log_warning()
 
-    def transform(self, data, schema):
+    def filter_data_by_metadata(self, data, metadata):
+        if isinstance(data, dict) and metadata:
+            for field_name in list(data.keys()):
+                selected = singer.metadata.get(metadata, ('properties', field_name), 'selected')
+                inclusion = singer.metadata.get(metadata, ('properties', field_name), 'inclusion')
+                if inclusion == 'automatic':
+                    continue
+
+                if selected is False:
+                    data.pop(field_name, None)
+                    self.filtered.add(field_name)
+
+                if inclusion == 'unsupported':
+                    data.pop(field_name, None)
+                    self.filtered.add(field_name)
+
+        return data
+
+    def transform(self, data, schema, metadata=None):
+        data = self.filter_data_by_metadata(data, metadata)
+
         success, transformed_data = self.transform_recur(data, schema, [])
         if not success:
             raise SchemaMismatch(self.errors)
@@ -246,7 +278,8 @@ class Transformer:
             return False, None
 
 
-def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING, pre_hook=None):
+def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING,
+              pre_hook=None, metadata=None):
     """
     Applies schema (and integer_datetime_fmt, if supplied) to data, transforming
     each field in data to the type specified in schema. If no type matches a
@@ -265,7 +298,7 @@ def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING, pr
     returns the transformed data to be fed into the _transform function.
     """
     transformer = Transformer(integer_datetime_fmt, pre_hook)
-    return transformer.transform(data, schema)
+    return transformer.transform(data, schema, metadata=metadata)
 
 def _transform_datetime(value, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING):
     transformer = Transformer(integer_datetime_fmt)
