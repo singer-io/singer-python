@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.1.0
+  * Improves logging around unparseable datetimes, now warning level instead of error.
+  * Adds feature to transformer to respect `selected` and `"inclusion": "unsupported"` metadata if passed in.
+
 ## 5.0.15
   * Fix datetime serialization call in `messages.write_record` for `time_extracted` to format consistently across platforms
 
