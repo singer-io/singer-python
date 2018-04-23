@@ -1,7 +1,7 @@
 import datetime
-import singer.metadata
-
 from jsonschema import RefResolver
+
+import singer.metadata
 from singer.logger import get_logger
 from singer.utils import (strftime, strptime_to_utc)
 
@@ -78,11 +78,13 @@ class Transformer:
 
     def log_warning(self):
         if self.filtered:
-            LOGGER.info("Filtered %s paths during transforms:\n\t%s",
-                           len(self.filtered),
-                           "\n\t".join(sorted(self.filtered)))
+            LOGGER.info("Filtered %s paths during transforms "
+                        "as they were unsupported or not selected:\n\t%s",
+                        len(self.filtered),
+                        "\n\t".join(sorted(self.filtered)))
             # Output list format to parse for reporting
-            LOGGER.info("Filtered paths list: %s as they were unsupported or not selected", sorted(self.filtered))
+            LOGGER.info("Filtered paths list: %s",
+                        sorted(self.filtered))
 
         if self.removed:
             LOGGER.warning("Removed %s paths during transforms:\n\t%s",
@@ -105,7 +107,7 @@ class Transformer:
                 if inclusion == 'automatic':
                     continue
 
-                if selected == False:
+                if selected is False:
                     data.pop(field_name, None)
                     self.filtered.add(field_name)
 
@@ -273,7 +275,8 @@ class Transformer:
             return False, None
 
 
-def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING, pre_hook=None, metadata=None):
+def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING,
+              pre_hook=None, metadata=None):
     """
     Applies schema (and integer_datetime_fmt, if supplied) to data, transforming
     each field in data to the type specified in schema. If no type matches a
