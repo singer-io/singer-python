@@ -12,6 +12,16 @@ def write_bookmark(state, tap_stream_id, key, val):
     state['bookmarks'][tap_stream_id][key] = val
     return state
 
+def clear_bookmark(state, tap_stream_id, key):
+    state = ensure_bookmark_path(state, ['bookmarks', tap_stream_id])
+    state['bookmarks'][tap_stream_id].pop(key, None)
+    return state
+
+def reset_stream(state, tap_stream_id):
+    state = ensure_bookmark_path(state, ['bookmarks', tap_stream_id])
+    state['bookmarks'][tap_stream_id] = {}
+    return state
+
 def get_bookmark(state, tap_stream_id, key):
     return state.get('bookmarks', {}).get(tap_stream_id, {}).get(key)
 

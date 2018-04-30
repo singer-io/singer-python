@@ -60,6 +60,8 @@ from singer.schema import Schema
 from singer.bookmarks import (
     write_bookmark,
     get_bookmark,
+    clear_bookmark,
+    reset_stream,
     set_offset,
     clear_offset,
     get_offset,
