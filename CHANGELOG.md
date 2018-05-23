@@ -1,5 +1,8 @@
 # Changelog
 
+## 6.0.0
+  * Modified the behavior of `parse_message` to pass `use_decimal` True to preserve the value of large decimals [#74](https://github.com/singer-io/singer-python/pull/74)
+
 ## 5.1.0
   * Improves logging around unparseable datetimes, now warning level instead of error.
   * Adds feature to transformer to respect `selected` and `"inclusion": "unsupported"` metadata if passed in.
