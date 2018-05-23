@@ -174,7 +174,7 @@ def _required_key(msg, k):
 
 def parse_message(msg):
     """Parse a message string into a Message object."""
-    obj = json.loads(msg)
+    obj = json.loads(msg, use_decimal=True)
     msg_type = _required_key(obj, 'type')
 
     if msg_type == 'RECORD':

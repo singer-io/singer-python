@@ -139,7 +139,7 @@ class TestParsingNumbers(unittest.TestCase):
 
     def test_parse_regular_decimal(self):
         value = self.create_record('3.14')
-        self.assertEqual(3.14, value)
+        self.assertEqual(Decimal('3.14'), value)
         
     def test_parse_large_decimal(self):
         value = self.create_record('9999999999999999.9999')
