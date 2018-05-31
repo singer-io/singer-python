@@ -65,12 +65,14 @@ class Schema(object):  # pylint: disable=too-many-instance-attributes
     def to_dict(self):
         '''Return the raw JSON Schema as a (possibly nested) dict.'''
         result = {}
-        if self.properties:
+
+        if self.properties is not None:
             result['properties'] = {
                 k: v.to_dict()
                 for k, v
                 in self.properties.items()  # pylint: disable=no-member
             }
+
         if self.items:
             result['items'] = self.items.to_dict()  # pylint: disable=no-member
         for key in STANDARD_KEYS:
@@ -89,7 +91,7 @@ class Schema(object):  # pylint: disable=too-many-instance-attributes
         properties = data.get('properties')
         items = data.get('items')
 
-        if properties:
+        if properties is not None:
             kwargs['properties'] = {
                 k: Schema.from_dict(v, **schema_defaults)
                 for k, v in properties.items()
