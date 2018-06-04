@@ -73,7 +73,8 @@ class Schema(object):  # pylint: disable=too-many-instance-attributes
                 in self.properties.items()  # pylint: disable=no-member
             }
 
-        if self.items:
+
+        if self.items is not None:
             result['items'] = self.items.to_dict()  # pylint: disable=no-member
         for key in STANDARD_KEYS:
             if self.__dict__[key] is not None:
@@ -96,7 +97,7 @@ class Schema(object):  # pylint: disable=too-many-instance-attributes
                 k: Schema.from_dict(v, **schema_defaults)
                 for k, v in properties.items()
             }
-        if items:
+        if items is not None:
             kwargs['items'] = Schema.from_dict(items, **schema_defaults)
         for key in STANDARD_KEYS:
             if key in data:
