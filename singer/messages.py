@@ -174,6 +174,12 @@ def _required_key(msg, k):
 
 def parse_message(msg):
     """Parse a message string into a Message object."""
+
+    # We are not using Decimals for parsing here.
+    # We recognize that exposes data to potentially
+    # lossy conversions.  However, this will affect
+    # very few data points and we have chosen to
+    # leave conversion as is for now.
     obj = json.loads(msg)
     msg_type = _required_key(obj, 'type')
 
