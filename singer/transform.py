@@ -233,7 +233,8 @@ class Transformer:
             return True, data
 
         elif typ == "object":
-            return self._transform_object(data, schema["properties"], path)
+            # Objects do not necessarily specify properties
+            return self._transform_object(data, schema.get("properties", {}), path)
 
         elif typ == "array":
             return self._transform_array(data, schema["items"], path)
