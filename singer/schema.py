@@ -22,7 +22,7 @@ STANDARD_KEYS = [
 ]
 
 
-class Schema(object):  # pylint: disable=too-many-instance-attributes
+class Schema():  # pylint: disable=too-many-instance-attributes
     '''Object model for JSON Schema.
 
     Tap and Target authors may find this to be more convenient than
@@ -34,7 +34,8 @@ class Schema(object):  # pylint: disable=too-many-instance-attributes
     def __init__(self, type=None, format=None, properties=None, items=None,
                  selected=None, inclusion=None, description=None, minimum=None,
                  maximum=None, exclusiveMinimum=None, exclusiveMaximum=None,
-                 multipleOf=None, maxLength=None, minLength=None, additionalProperties=None, anyOf=None):
+                 multipleOf=None, maxLength=None, minLength=None, additionalProperties=None,
+                 anyOf=None):
 
         self.type = type
         self.properties = properties

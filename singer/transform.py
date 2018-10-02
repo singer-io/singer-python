@@ -169,6 +169,10 @@ class Transformer:
         if not isinstance(data, dict):
             return False, data
 
+        # Don't touch an empty schema
+        if schema == {}:
+            return True, data
+
         result = {}
         successes = []
         for key, value in data.items():
@@ -240,7 +244,7 @@ class Transformer:
             return self._transform_array(data, schema["items"], path)
 
         elif typ == "string":
-            if data != None:
+            if data is not None:
                 try:
                     return True, str(data)
                 except:
