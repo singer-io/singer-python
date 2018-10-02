@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.2.2
+  * Transform now treats empty object schemas as *all* properties [#77](https://github.com/singer-io/singer-python/pull/77)
+
 ## 5.1.0
   * Improves logging around unparseable datetimes, now warning level instead of error.
   * Adds feature to transformer to respect `selected` and `"inclusion": "unsupported"` metadata if passed in.
