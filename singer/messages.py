@@ -6,7 +6,7 @@ import simplejson as json
 
 import singer.utils as u
 
-class Message(object):
+class Message():
     '''Base class for messages.'''
 
     def asdict(self):  # pylint: disable=no-self-use

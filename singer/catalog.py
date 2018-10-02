@@ -6,7 +6,7 @@ import sys
 from singer.schema import Schema
 
 # pylint: disable=too-many-instance-attributes
-class CatalogEntry(object):
+class CatalogEntry():
 
     def __init__(self, tap_stream_id=None, stream=None,
                  key_properties=None, schema=None, replication_key=None,
@@ -65,7 +65,7 @@ class CatalogEntry(object):
         return result
 
 
-class Catalog(object):
+class Catalog():
 
     def __init__(self, streams):
         self.streams = streams

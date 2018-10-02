@@ -87,7 +87,7 @@ def log(logger, point):
     logger.info('METRIC: %s', json.dumps(result))
 
 
-class Counter(object):
+class Counter():
     '''Increments a counter metric.
 
     When you use Counter as a context manager, it will automatically emit
@@ -143,7 +143,7 @@ class Counter(object):
         return time.time() - self.last_log_time > self.log_interval
 
 
-class Timer(object):  # pylint: disable=too-few-public-methods
+class Timer():  # pylint: disable=too-few-public-methods
     '''Produces metrics about the duration of operations.
 
     You use a Timer as a context manager wrapping around some operation.

@@ -243,7 +243,7 @@ class Transformer:
             return self._transform_array(data, schema["items"], path)
 
         elif typ == "string":
-            if data != None:
+            if data is not None:
                 try:
                     return True, str(data)
                 except:
