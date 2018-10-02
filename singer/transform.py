@@ -169,6 +169,10 @@ class Transformer:
         if not isinstance(data, dict):
             return False, data
 
+        # Don't touch an empty schema
+        if schema == {}:
+            return True, data
+
         result = {}
         successes = []
         for key, value in data.items():
