@@ -205,9 +205,7 @@ def should_sync_field(inclusion, selected, default=False):
     selected: True|False|None
     default: (default: False) True|False
 
-
     "automatic" inclusion always returns True:
-
     >>> should_sync_field("automatic", None, False)
     True
     >>> should_sync_field("automatic", True, False)
@@ -223,7 +221,6 @@ def should_sync_field(inclusion, selected, default=False):
 
 
     "unsupported" inclusion always returns False
-
     >>> should_sync_field("unsupported", None, False)
     False
     >>> should_sync_field("unsupported", True, False)
@@ -248,7 +245,6 @@ def should_sync_field(inclusion, selected, default=False):
     False
 
     "available" inclusion uses the default value when selected is None
-
     >>> should_sync_field("available", None, False)
     False
     >>> should_sync_field("available", None, True)
