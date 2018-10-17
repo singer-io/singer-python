@@ -195,3 +195,73 @@ def handle_top_exception(logger):
                 raise
         return wrapped
     return decorator
+
+
+def should_sync_field(inclusion, selected, default=False):
+    """
+    Returns True if a field should be synced.
+
+    inclusion: automatic|available|unsupported
+    selected: True|False|None
+    default: (default: False) True|False
+
+    "automatic" inclusion always returns True:
+    >>> should_sync_field("automatic", None, False)
+    True
+    >>> should_sync_field("automatic", True, False)
+    True
+    >>> should_sync_field("automatic", False, False)
+    True
+    >>> should_sync_field("automatic", None, True)
+    True
+    >>> should_sync_field("automatic", True, True)
+    True
+    >>> should_sync_field("automatic", False, True)
+    True
+
+
+    "unsupported" inclusion always returns False
+    >>> should_sync_field("unsupported", None, False)
+    False
+    >>> should_sync_field("unsupported", True, False)
+    False
+    >>> should_sync_field("unsupported", False, False)
+    False
+    >>> should_sync_field("unsupported", None, True)
+    False
+    >>> should_sync_field("unsupported", True, True)
+    False
+    >>> should_sync_field("unsupported", False, True)
+    False
+
+    "available" inclusion uses the selected value when set
+    >>> should_sync_field("available", True, False)
+    True
+    >>> should_sync_field("available", False, False)
+    False
+    >>> should_sync_field("available", True, True)
+    True
+    >>> should_sync_field("available", False, True)
+    False
+
+    "available" inclusion uses the default value when selected is None
+    >>> should_sync_field("available", None, False)
+    False
+    >>> should_sync_field("available", None, True)
+    True
+    """
+    # always select automatic fields
+    if inclusion == "automatic":
+        return True
+
+    # never select unsupported fields
+    if inclusion == "unsupported":
+        return False
+
+    # at this point inclusion == "available"
+    # selected could be None, otherwise use the value of selected
+    if selected is not None:
+        return selected
+
+    # if there was no selected value, use the default
+    return default

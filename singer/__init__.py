@@ -7,6 +7,7 @@ from singer.utils import (
     strftime,
     strptime,
     update_state,
+    should_sync_field,
 )
 
 from singer.logger import (
