@@ -1,0 +1,24 @@
+language:
+  python
+env:
+  matrix:
+  - PYTHON_VERSION="3.4"
+  - PYTHON_VERSION="3.4.3"
+  - PYTHON_VERSION="3.5"
+  - PYTHON_VERSION="3.5.2"
+  - PYTHON_VERSION="3.6"
+  - PYTHON_VERSION="3.7"
+install:
+  - sudo apt-get update
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
+  - conda create -q -n test-environment python=$PYTHON_VERSION nose
+  - source activate test-environment
+  - python3 -m pip install .
+script:
+  - nosetests -v
