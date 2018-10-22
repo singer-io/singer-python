@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-source ~/.virtualenvs/singer-python/bin/activate
-
-python --version
-pip -V
-pip freeze
-
-make

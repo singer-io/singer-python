@@ -19,6 +19,8 @@ setup(name="singer-python",
       extras_require={
           'dev': [
               'pylint',
+              'ipython',
+              'ipdb',
               'nose',
               'singer-tools'
           ]

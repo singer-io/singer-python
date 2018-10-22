@@ -4,6 +4,8 @@ import datetime
 import functools
 import json
 import time
+from warnings import warn
+
 import dateutil.parser
 import pytz
 import backoff as backoff_module
@@ -25,10 +27,35 @@ def strptime_with_tz(dtime):
     return d_object
 
 def strptime(dtime):
-    try:
-        return datetime.datetime.strptime(dtime, DATETIME_FMT)
-    except Exception:
-        return datetime.datetime.strptime(dtime, DATETIME_PARSE)
+    """DEPRECATED Use strptime_to_utc instead.
+
+    Parse DTIME according to DATETIME_PARSE without TZ safety.
+
+    >>> strptime("2018-01-01T00:00:00Z")
+    datetime.datetime(2018, 1, 1, 0, 0)
+
+    Requires the Z TZ signifier
+    >>> strptime("2018-01-01T00:00:00")
+    Traceback (most recent call last):
+      ...
+    ValueError: time data '2018-01-01T00:00:00' does not match format '%Y-%m-%dT%H:%M:%SZ'
+
+    Can't parse non-UTC DTs
+    >>> strptime("2018-01-01T00:00:00-04:00")
+    Traceback (most recent call last):
+      ...
+    ValueError: time data '2018-01-01T00:00:00-04:00' does not match format '%Y-%m-%dT%H:%M:%SZ'
+
+    Does not support fractional seconds
+    >>> strptime("2018-01-01T00:00:00.000000Z")
+    Traceback (most recent call last):
+      ...
+    ValueError: time data '2018-01-01T00:00:00.000000Z' does not match format '%Y-%m-%dT%H:%M:%SZ'
+    """
+
+    warn("Use strptime_to_utc instead", DeprecationWarning, stacklevel=2)
+
+    return datetime.datetime.strptime(dtime, DATETIME_PARSE)
 
 def strptime_to_utc(dtimestr):
     d_object = dateutil.parser.parse(dtimestr)

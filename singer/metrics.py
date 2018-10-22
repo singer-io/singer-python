@@ -10,10 +10,10 @@ a metric that indicates the amount by which the counter was incremented
 since the last time it reported. For example, to increment a record count
 for records from a "users" endpoint, you could do:
 
-    >>> with Counter('record_count', {'endpoint': 'users'}) as counter:
-    >>>     for record in my_records:
-    >>>         # Do stuff...
-    >>>         counter.increment()
+    with Counter('record_count', {'endpoint': 'users'}) as counter:
+        for record in my_records:
+            # Do stuff...
+            counter.increment()
 
 Timer is class that allows you to track the timing of operations. Like
 Counter, you initialize it as a context manager, with a metric name and a
@@ -22,8 +22,8 @@ metric that indicates how long it took in seconds. The metric will
 automatically include a tag called "status" that is set to "failed" if an
 Exception was raised, or "succeeded" otherwise.
 
-    >>> with Timer('http_request_duration', {'endpoint': 'users'}):
-    >>>     # Make a request, do some things
+    with Timer('http_request_duration', {'endpoint': 'users'}):
+        # Make a request, do some things
 
 In order to encourage consistent metric and tag names, this module
 provides several functions for creating Counters and Timers for very
@@ -95,10 +95,10 @@ class Counter():
     exits. The only thing you need to do is initialize the Counter and
     then call increment().
 
-    >>> with singer.metrics.Counter('record_count', {'endpoint': 'users'}) as counter:
-    >>>    for user in get_users(...):
-    >>>        # Print out the user
-    >>>        counter.increment()
+    with singer.metrics.Counter('record_count', {'endpoint': 'users'}) as counter:
+       for user in get_users(...):
+           # Print out the user
+           counter.increment()
 
     This would print a metric like this:
 
@@ -154,8 +154,8 @@ class Timer():  # pylint: disable=too-few-public-methods
     context exits with an Exception or "success" if it exits cleanly. You
     can override this by setting timer.status within the context.
 
-    >>> with singer.metrics.Timer('request_duration', {'endpoint': 'users'}):
-    >>>    # Do some stuff
+    with singer.metrics.Timer('request_duration', {'endpoint': 'users'}):
+       # Do some stuff
 
     This produces a metric like this:
 
@@ -196,10 +196,10 @@ class Timer():  # pylint: disable=too-few-public-methods
 def record_counter(endpoint=None, log_interval=DEFAULT_LOG_INTERVAL):
     '''Use for counting records retrieved from the source.
 
-    >>> with singer.metrics.record_counter(endpoint="users") as counter:
-    >>>     for record in my_records:
-    >>>         # Do something with the record
-    >>>         counter.increment()
+    with singer.metrics.record_counter(endpoint="users") as counter:
+         for record in my_records:
+             # Do something with the record
+             counter.increment()
     '''
     tags = {}
     if endpoint:
@@ -210,8 +210,8 @@ def record_counter(endpoint=None, log_interval=DEFAULT_LOG_INTERVAL):
 def http_request_timer(endpoint):
     '''Use for timing HTTP requests to an endpoint
 
-    >>> with singer.metrics.http_request_timer("users") as timer:
-    >>>     # Make a request
+    with singer.metrics.http_request_timer("users") as timer:
+        # Make a request
     '''
     tags = {}
     if endpoint:
@@ -222,8 +222,8 @@ def http_request_timer(endpoint):
 def job_timer(job_type=None):
     '''Use for timing asynchronous jobs
 
-    >>> with singer.metrics.job_timer(job_type="users") as timer:
-    >>>     # Make a request
+    with singer.metrics.job_timer(job_type="users") as timer:
+         # Make a request
     '''
     tags = {}
     if job_type:

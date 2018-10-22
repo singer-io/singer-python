@@ -1,0 +1,26 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: ubuntu:16.04
+    steps:
+      - checkout
+      - run:
+          name: 'Install python 3.5.2'
+          command: |
+            apt update
+            apt install --yes python3 python3-pip python3-venv
+      - run:
+          name: 'Setup virtualenv'
+          command: |
+            mkdir -p ~/.virtualenvs
+            python3 -m venv ~/.virtualenvs/singer-python
+            source ~/.virtualenvs/singer-python/bin/activate
+            pip install -U pip setuptools
+            make install
+      - run:
+          name: 'Run tests'
+          command: |
+            # Need to re-activate the virtualenv
+            source ~/.virtualenvs/singer-python/bin/activate
+            make test

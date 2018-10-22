@@ -35,9 +35,9 @@ class RecordMessage(Message):
         number. Note that this feature is experimental and most Taps and
         Targets should not need to use versioned streams.
 
-    >>> msg = singer.RecordMessage(
-    >>>     stream='users',
-    >>>     record={'id': 1, 'name': 'Mary'})
+    msg = singer.RecordMessage(
+        stream='users',
+        record={'id': 1, 'name': 'Mary'})
 
     '''
 
@@ -76,15 +76,15 @@ class SchemaMessage(Message):
       * schema (dict) - The JSON schema.
       * key_properties (list of strings) - List of primary key properties.
 
-    >>> msg = singer.SchemaMessage(
-    >>>     stream='users',
-    >>>     schema={'type': 'object',
-    >>>             'properties': {
-    >>>                 'id': {'type': 'integer'},
-    >>>                 'name': {'type': 'string'}
-    >>>             }
-    >>>            },
-    >>>     key_properties=['id'])
+    msg = singer.SchemaMessage(
+        stream='users',
+        schema={'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'name': {'type': 'string'}
+                }
+               },
+        key_properties=['id'])
 
     '''
     def __init__(self, stream, schema, key_properties, bookmark_properties=None):
@@ -118,8 +118,8 @@ class StateMessage(Message):
 
       * value (dict) - The value of the state.
 
-    >>> msg = singer.StateMessage(
-    >>>     value={'users': '2017-06-19T00:00:00'})
+    msg = singer.StateMessage(
+        value={'users': '2017-06-19T00:00:00'})
 
     '''
     def __init__(self, value):
@@ -148,9 +148,9 @@ class ActivateVersionMessage(Message):
     not need to use the "version" field of "RECORD" messages or the
     "ACTIVATE_VERSION" message at all.
 
-    >>> msg = singer.ActivateVersionMessage(
-    >>>     stream='users',
-    >>>     version=2)
+    msg = singer.ActivateVersionMessage(
+        stream='users',
+        version=2)
 
     '''
     def __init__(self, stream, version):
@@ -221,7 +221,7 @@ def write_message(message):
 def write_record(stream_name, record, stream_alias=None, time_extracted=None):
     """Write a single record for the given stream.
 
-    >>> write_record("users", {"id": 2, "email": "mike@stitchdata.com"})
+    write_record("users", {"id": 2, "email": "mike@stitchdata.com"})
     """
     write_message(RecordMessage(stream=(stream_alias or stream_name),
                                 record=record,
@@ -231,9 +231,9 @@ def write_record(stream_name, record, stream_alias=None, time_extracted=None):
 def write_records(stream_name, records):
     """Write a list of records for the given stream.
 
-    >>> chris = {"id": 1, "email": "chris@stitchdata.com"}
-    >>> mike = {"id": 2, "email": "mike@stitchdata.com"}
-    >>> write_records("users", [chris, mike])
+    chris = {"id": 1, "email": "chris@stitchdata.com"}
+    mike = {"id": 2, "email": "mike@stitchdata.com"}
+    write_records("users", [chris, mike])
     """
     for record in records:
         write_record(stream_name, record)
@@ -242,10 +242,10 @@ def write_records(stream_name, records):
 def write_schema(stream_name, schema, key_properties, bookmark_properties=None, stream_alias=None):
     """Write a schema message.
 
-    >>> stream = 'test'
-    >>> schema = {'properties': {'id': {'type': 'integer'}, 'email': {'type': 'string'}}}  # nopep8
-    >>> key_properties = ['id']
-    >>> write_schema(stream, schema, key_properties)
+    stream = 'test'
+    schema = {'properties': {'id': {'type': 'integer'}, 'email': {'type': 'string'}}}  # nopep8
+    key_properties = ['id']
+    write_schema(stream, schema, key_properties)
     """
     if isinstance(key_properties, (str, bytes)):
         key_properties = [key_properties]
@@ -263,7 +263,7 @@ def write_schema(stream_name, schema, key_properties, bookmark_properties=None, 
 def write_state(value):
     """Write a state message.
 
-    >>> write_state({'last_updated_at': '2017-02-14T09:21:00'})
+    write_state({'last_updated_at': '2017-02-14T09:21:00'})
     """
     write_message(StateMessage(value=value))
 
@@ -271,8 +271,8 @@ def write_state(value):
 def write_version(stream_name, version):
     """Write an activate version message.
 
-    >>> stream = 'test'
-    >>> version = int(time.time())
-    >>> write_version(stream, version)
+    stream = 'test'
+    version = int(time.time())
+    write_version(stream, version)
     """
     write_message(ActivateVersionMessage(stream_name, version))

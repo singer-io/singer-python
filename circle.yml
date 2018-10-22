@@ -1,7 +1,0 @@
-dependencies:
-  override:
-    - bin/circle_deps
-
-test:
-  override:
-    - bin/circle_test
