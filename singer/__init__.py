@@ -43,6 +43,7 @@ from singer.messages import (
     write_schema,
     write_state,
     write_version,
+    read_tap
 )
 
 from singer.transform import (

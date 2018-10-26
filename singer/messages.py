@@ -1,4 +1,6 @@
 import sys
+import subprocess
+import tempfile
 
 import dateutil.parser
 import pytz
@@ -276,3 +278,26 @@ def write_version(stream_name, version):
     write_version(stream, version)
     """
     write_message(ActivateVersionMessage(stream_name, version))
+
+
+def read_tap(name, config, **kwargs):
+    """Start a tap and read messages from it.
+
+    Arguments:
+
+        * name (string) - name of the tap, must be installed and executable via 'tap-<name>'
+        * config (dict) - the tap configuration
+        * **kwargs - forwarded to the tap subprocess.Popen command.
+
+    $ pip install tap-exchangeratesapi
+    >>> tap = singer.read_tap('exchangeratesapi', {"base": "ILS", "start_date": "2018-10-01"})
+    >>> for message in tap:
+    >>>     print(message)  # Message object
+    """
+    with tempfile.NamedTemporaryFile(mode='w') as temp_config_file:
+        json.dump(config, temp_config_file)
+        temp_config_file.flush()
+        tap = subprocess.Popen('tap-{} --config {}'.format(name, temp_config_file.name),
+                               shell=True, stdout=subprocess.PIPE, **kwargs)
+        for line in tap.stdout:
+            yield parse_message(line)

@@ -9,4 +9,4 @@ install: check_prereqs
 
 test: install
 	pylint singer -d missing-docstring,broad-except,bare-except,too-many-return-statements,too-many-branches,too-many-arguments,no-else-return,too-few-public-methods,fixme,protected-access
-	nosetests --with-doctest -v
+	PATH="`pwd`/tests/bin:${PATH}" nosetests --with-doctest -v

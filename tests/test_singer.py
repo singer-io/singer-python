@@ -2,6 +2,7 @@ import singer
 import unittest
 import datetime
 import dateutil
+import os
 
 class TestSinger(unittest.TestCase):
     def test_parse_message_record_good(self):
@@ -123,6 +124,20 @@ class TestSinger(unittest.TestCase):
 
     def test_write_state(self):
         singer.write_state({"foo": 1})
+
+    def test_read_tap(self):
+        tap = singer.read_tap('mockexchangerates', {"base": "ILS", "start_date": "2018-10-01"})
+        schema = next(tap)
+        self.assertEqual(schema.schema, {'additionalProperties': True,
+                                         'properties': {'date': {'format': 'date-time', 'type': 'string'}},
+                                         'type': 'object'})
+
+        records = (message.record for message in tap if isinstance(message, singer.RecordMessage))
+        records = ({'PHP': record['PHP'], 'RUB': record['RUB'],
+                    'date': record['date']} for record in records)
+        self.assertListEqual(list(records),
+                             [{'PHP': 14.6828896251, 'RUB': 17.933074338, 'date': '2018-10-19T00:00:00Z'},
+                              {'PHP': 14.7107379038, 'RUB': 17.8511584757, 'date': '2018-10-22T00:00:00Z'}])
 
 if __name__ == '__main__':
     unittest.main()
