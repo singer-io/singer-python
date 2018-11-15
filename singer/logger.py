@@ -8,6 +8,7 @@ _INIT_LOGGER = True
 
 def init_logger():
     """Initialize the Logger instance."""
+    # pylint: disable=W0603
     global _INIT_LOGGER
 
     this_dir, _ = os.path.split(__file__)
