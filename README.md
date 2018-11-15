@@ -29,9 +29,10 @@ library:
 import singer
 
 singer.write_schema('my_table',
-                {'properties':{'id': {'type': 'string', 'key': True}}})
+	            {'properties':{'id': {'type': 'string', 'key': True}}},
+		    ['id'])
 singer.write_records('my_table',
-                 [{'id': 'b'}, {'id':'d'}])
+                     [{'id': 'b'}, {'id':'d'}])
 singer.write_state({'my_table': 'd'})
 ```
 
