@@ -177,10 +177,10 @@ class Transformer:
         result = {}
         successes = []
         for key, value in data.items():
-            pattern_schemas = []
-            for pattern, pschema in (pattern_properties or {}).items():
-                if re.match(pattern, key):
-                    pattern_schemas.append(pschema)
+            # patternProperties are a map of {"pattern": { schema...}}
+            pattern_schemas = [s for p, s
+                               in (pattern_properties or {}).items()
+                               if re.match(p, key)]
             if key in schema or pattern_schemas:
                 sub_schema = schema[key] if not pattern_schemas else {'anyOf': pattern_schemas}
                 success, subdata = self.transform_recur(value, sub_schema, path + [key])
