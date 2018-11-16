@@ -52,7 +52,6 @@ class SchemaKey:
     items = "items"
     properties = "properties"
     pattern_properties = "patternProperties"
-    additional_properties = "additionalProperties"
 
 class Error:
     def __init__(self, path, data, schema=None):
@@ -164,7 +163,7 @@ class Transformer:
             self.errors.append(Error(path, data, schema))
             return False, None
 
-    def _transform_object(self, data, schema, path, pattern_properties, additional_properties):
+    def _transform_object(self, data, schema, path, pattern_properties):
         # We do not necessarily have a dict to transform here. The schema's
         # type could contain multiple possible values. Eg:
         #     ["null", "object", "string"]
@@ -178,12 +177,12 @@ class Transformer:
         result = {}
         successes = []
         for key, value in data.items():
-            patternSchemas = []
+            pattern_schemas = []
             for pattern, pschema in (pattern_properties or {}).items():
                 if re.match(pattern, key):
-                    patternSchemas.append(pschema)
-            if key in schema or additional_properties is True or patternSchemas:
-                sub_schema = schema[key] if not patternSchemas else {'anyOf': patternSchemas}
+                    pattern_schemas.append(pschema)
+            if key in schema or pattern_schemas:
+                sub_schema = schema[key] if not pattern_schemas else {'anyOf': pattern_schemas}
                 success, subdata = self.transform_recur(value, sub_schema, path + [key])
                 successes.append(success)
                 result[key] = subdata
@@ -248,8 +247,7 @@ class Transformer:
             return self._transform_object(data,
                                           schema.get("properties", {}),
                                           path,
-                                          schema.get(SchemaKey.pattern_properties),
-                                          schema.get(SchemaKey.additional_properties))
+                                          schema.get(SchemaKey.pattern_properties))
 
         elif typ == "array":
             return self._transform_array(data, schema["items"], path)
