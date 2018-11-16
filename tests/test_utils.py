@@ -3,7 +3,7 @@ from datetime import datetime as dt
 import pytz
 import logging
 import singer.utils as u
-
+import json
 
 class TestFormat(unittest.TestCase):
     def test_small_years(self):
