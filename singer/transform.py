@@ -1,4 +1,5 @@
 import datetime
+import re
 from jsonschema import RefResolver
 
 import singer.metadata
@@ -162,7 +163,7 @@ class Transformer:
             self.errors.append(Error(path, data, schema))
             return False, None
 
-    def _transform_object(self, data, schema, path):
+    def _transform_object(self, data, schema, path, pattern_properties):
         # We do not necessarily have a dict to transform here. The schema's
         # type could contain multiple possible values. Eg:
         #     ["null", "object", "string"]
@@ -170,14 +171,19 @@ class Transformer:
             return False, data
 
         # Don't touch an empty schema
-        if schema == {}:
+        if schema == {} and not pattern_properties:
             return True, data
 
         result = {}
         successes = []
         for key, value in data.items():
-            if key in schema:
-                success, subdata = self.transform_recur(value, schema[key], path + [key])
+            # patternProperties are a map of {"pattern": { schema...}}
+            pattern_schemas = [schema for pattern, schema
+                               in (pattern_properties or {}).items()
+                               if re.match(pattern, key)]
+            if key in schema or pattern_schemas:
+                sub_schema = schema.get(key, {'anyOf': pattern_schemas})
+                success, subdata = self.transform_recur(value, sub_schema, path + [key])
                 successes.append(success)
                 result[key] = subdata
             else:
@@ -238,7 +244,10 @@ class Transformer:
 
         elif typ == "object":
             # Objects do not necessarily specify properties
-            return self._transform_object(data, schema.get("properties", {}), path)
+            return self._transform_object(data,
+                                          schema.get("properties", {}),
+                                          path,
+                                          schema.get(SchemaKey.pattern_properties))
 
         elif typ == "array":
             return self._transform_array(data, schema["items"], path)

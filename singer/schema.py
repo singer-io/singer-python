@@ -19,6 +19,7 @@ STANDARD_KEYS = [
     'type',
     'additionalProperties',
     'anyOf',
+    'patternProperties',
 ]
 
 
@@ -35,7 +36,7 @@ class Schema():  # pylint: disable=too-many-instance-attributes
                  selected=None, inclusion=None, description=None, minimum=None,
                  maximum=None, exclusiveMinimum=None, exclusiveMaximum=None,
                  multipleOf=None, maxLength=None, minLength=None, additionalProperties=None,
-                 anyOf=None):
+                 anyOf=None, patternProperties=None):
 
         self.type = type
         self.properties = properties
@@ -53,6 +54,7 @@ class Schema():  # pylint: disable=too-many-instance-attributes
         self.anyOf = anyOf
         self.format = format
         self.additionalProperties = additionalProperties
+        self.patternProperties = patternProperties
 
     def __str__(self):
         return json.dumps(self.to_dict())
@@ -79,8 +81,9 @@ class Schema():  # pylint: disable=too-many-instance-attributes
 
         if self.items is not None:
             result['items'] = self.items.to_dict()  # pylint: disable=no-member
+
         for key in STANDARD_KEYS:
-            if self.__dict__[key] is not None:
+            if self.__dict__.get(key) is not None:
                 result[key] = self.__dict__[key]
 
         return result

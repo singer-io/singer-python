@@ -360,3 +360,19 @@ class TestResolveSchemaReferences(unittest.TestCase):
         result = resolve_schema_references(schema, refs)
         self.assertEqual(result['properties']['name']['type'], "string")
         self.assertEqual(result['properties']['name']['still_here'], "yep")
+
+class TestPatternProperties(unittest.TestCase):
+    def test_pattern_properties_match(self):
+        schema = {"type": "object",
+                  "patternProperties": { ".+": {"type": "string"}}}
+        dict_value = {"name": "chicken", "unit_cost": '1.45', "SKU": '123456'}
+        expected = dict(dict_value)
+        self.assertEqual(expected, transform(dict_value, schema))
+
+    def test_pattern_properties_match_multiple(self):
+        schema = {"type": "object",
+                  "patternProperties": { ".+?cost": {"type": "number"},
+                                         ".+(?<!cost)$": {"type": "string"}}}
+        dict_value = {"name": "chicken", "unit_cost": 1.45, "SKU": '123456'}
+        expected = dict(dict_value)
+        self.assertEqual(expected, transform(dict_value, schema))
