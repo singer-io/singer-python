@@ -181,7 +181,7 @@ class Transformer:
             pattern_schemas = [schema for pattern, schema
                                in (pattern_properties or {}).items()
                                if re.match(pattern, key)]
-            if key in schema or any(pattern_schemas):
+            if key in schema or pattern_schemas:
                 sub_schema = schema.get(key, {'anyOf': pattern_schemas})
                 success, subdata = self.transform_recur(value, sub_schema, path + [key])
                 successes.append(success)
