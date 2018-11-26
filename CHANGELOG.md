@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.4.0
+  * Support for schema objects that contain `patternProperties` [#92](https://github.com/singer-io/singer-python/pull/92)
+
 ## 5.2.2
   * Transform now treats empty object schemas as *all* properties [#77](https://github.com/singer-io/singer-python/pull/77)
 
