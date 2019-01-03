@@ -52,6 +52,7 @@ class SchemaKey:
     items = "items"
     properties = "properties"
     pattern_properties = "patternProperties"
+    any_of = 'anyOf'
 
 class Error:
     def __init__(self, path, data, schema=None):
@@ -355,5 +356,9 @@ def _resolve_schema_references(schema, resolver):
 
     if SchemaKey.items in schema:
         schema[SchemaKey.items] = _resolve_schema_references(schema[SchemaKey.items], resolver)
+
+    if SchemaKey.any_of in schema:
+        for i, element in enumerate(schema[SchemaKey.any_of]):
+            schema[SchemaKey.any_of][i] = _resolve_schema_references(element, resolver)
 
     return schema
