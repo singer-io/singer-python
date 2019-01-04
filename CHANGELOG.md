@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.4.1
+  * Resolve JSON Schema refs when the schema contains an `anyOf` element [#93](https://github.com/singer-io/singer-python/pull/93)
+
 ## 5.4.0
   * Support for schema objects that contain `patternProperties` [#92](https://github.com/singer-io/singer-python/pull/92)
 
