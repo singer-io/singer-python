@@ -113,7 +113,7 @@ class Transformer:
 
     def filter_data_by_metadata(self, data, metadata, parent=()):
         if isinstance(data, dict) and metadata:
-            for field_name, field_data in data.items():
+            for field_name in list(data.keys()):
                 breadcrumb = parent + ('properties', field_name)
                 selected = singer.metadata.get(metadata, breadcrumb, 'selected')
                 inclusion = singer.metadata.get(metadata, breadcrumb, 'inclusion')
@@ -121,10 +121,10 @@ class Transformer:
                     continue
 
                 if (selected is False) or (inclusion == 'unsupported'):
-                    data[field_name] = None
+                    data.pop(field_name, None)
                     self.filtered.add(breadcrumb_path(breadcrumb))
-
-                data[field_name] = self.filter_data_by_metadata(field_data, metadata, breadcrumb)
+                else:
+                    data[field_name] = self.filter_data_by_metadata(data[field_name], metadata, breadcrumb)
 
         if isinstance(data, list) and metadata:
             breadcrumb = parent + ('items',)
