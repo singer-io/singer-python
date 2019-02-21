@@ -35,6 +35,13 @@ def unix_seconds_to_datetime(value):
     return strftime(datetime.datetime.fromtimestamp(int(value), datetime.timezone.utc))
 
 
+def breadcrumb_path(breadcrumb):
+    name = ".".join(breadcrumb)
+    name = name.replace('properties.', '')
+    name = name.replace('.items', '[]')
+    return name
+
+
 class SchemaMismatch(Exception):
     def __init__(self, errors):
         if not errors:
@@ -101,21 +108,23 @@ class Transformer:
     def __exit__(self, *args):
         self.log_warning()
 
-    def filter_data_by_metadata(self, data, metadata):
+    def filter_data_by_metadata(self, data, metadata, parent=()):
         if isinstance(data, dict) and metadata:
-            for field_name in list(data.keys()):
-                selected = singer.metadata.get(metadata, ('properties', field_name), 'selected')
-                inclusion = singer.metadata.get(metadata, ('properties', field_name), 'inclusion')
+            for field_name, field_data in data.items():
+                breadcrumb = parent + ('properties', field_name)
+                selected = singer.metadata.get(metadata, breadcrumb, 'selected')
+                inclusion = singer.metadata.get(metadata, breadcrumb, 'inclusion')
                 if inclusion == 'automatic':
                     continue
 
-                if selected is False:
-                    data.pop(field_name, None)
-                    self.filtered.add(field_name)
+                if (selected is False) or (inclusion == 'unsupported'):
+                    data[field_name] = None
+                    self.filtered.add(breadcrumb_path(breadcrumb))
 
-                if inclusion == 'unsupported':
-                    data.pop(field_name, None)
-                    self.filtered.add(field_name)
+                data[field_name] = self.filter_data_by_metadata(field_data, metadata, breadcrumb)
+
+        if isinstance(data, list) and metadata:
+            data = [self.filter_data_by_metadata(d, metadata, parent) for d in data]
 
         return data
 
