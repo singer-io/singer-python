@@ -36,6 +36,9 @@ def unix_seconds_to_datetime(value):
 
 
 def breadcrumb_path(breadcrumb):
+    """
+    Transform breadcrumb into familiar object dot-notation
+    """
     name = ".".join(breadcrumb)
     name = name.replace('properties.', '')
     name = name.replace('.items', '[]')
