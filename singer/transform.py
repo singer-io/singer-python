@@ -124,8 +124,8 @@ class Transformer:
                 data[field_name] = self.filter_data_by_metadata(field_data, metadata, breadcrumb)
 
         if isinstance(data, list) and metadata:
-            breadcrumb = parent + ('items', field_name)
-            data = [self.filter_data_by_metadata(d, metadata, breadcrumb) for d in data]
+            breadcrumb = parent + ('items',)
+            data = [self.filter_data_by_metadata(d, metadata, parent + ('items', )) for d in data]
 
         return data
 
