@@ -124,7 +124,8 @@ class Transformer:
                     data.pop(field_name, None)
                     self.filtered.add(breadcrumb_path(breadcrumb))
                 else:
-                    data[field_name] = self.filter_data_by_metadata(data[field_name], metadata, breadcrumb)
+                    data[field_name] = self.filter_data_by_metadata(
+                        data[field_name], metadata, breadcrumb)
 
         if isinstance(data, list) and metadata:
             breadcrumb = parent + ('items',)
