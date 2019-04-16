@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.5.0
+  * Add the ability to specify a default value when getting a bookmark [#95](https://github.com/singer-io/singer-python/pull/95)
+
 ## 5.4.1
   * Resolve JSON Schema refs when the schema contains an `anyOf` element [#93](https://github.com/singer-io/singer-python/pull/93)
 
