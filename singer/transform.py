@@ -80,20 +80,20 @@ class Transformer:
 
     def log_warning(self):
         if self.filtered:
-            LOGGER.info("Filtered %s paths during transforms "
-                        "as they were unsupported or not selected:\n\t%s",
-                        len(self.filtered),
-                        "\n\t".join(sorted(self.filtered)))
+            LOGGER.debug("Filtered %s paths during transforms "
+                         "as they were unsupported or not selected:\n\t%s",
+                         len(self.filtered),
+                         "\n\t".join(sorted(self.filtered)))
             # Output list format to parse for reporting
-            LOGGER.info("Filtered paths list: %s",
-                        sorted(self.filtered))
+            LOGGER.debug("Filtered paths list: %s",
+                         sorted(self.filtered))
 
         if self.removed:
-            LOGGER.warning("Removed %s paths during transforms:\n\t%s",
-                           len(self.removed),
-                           "\n\t".join(sorted(self.removed)))
+            LOGGER.debug("Removed %s paths during transforms:\n\t%s",
+                         len(self.removed),
+                         "\n\t".join(sorted(self.removed)))
             # Output list format to parse for reporting
-            LOGGER.warning("Removed paths list: %s", sorted(self.removed))
+            LOGGER.debug("Removed paths list: %s", sorted(self.removed))
 
     def __enter__(self):
         return self
@@ -111,10 +111,14 @@ class Transformer:
 
                 if selected is False:
                     data.pop(field_name, None)
+                    # Track that a field was filtered because the customer
+                    # didn't select it.
                     self.filtered.add(field_name)
 
                 if inclusion == 'unsupported':
                     data.pop(field_name, None)
+                    # Track that the field was filtered because the tap
+                    # declared it as unsupported.
                     self.filtered.add(field_name)
 
         return data
@@ -188,7 +192,11 @@ class Transformer:
                 successes.append(success)
                 result[key] = subdata
             else:
-                # track that field has been removed
+                # track that field has been removed because it wasn't
+                # found in the schema. This likely indicates some problem
+                # with discovery but rather than failing the run because
+                # new data was added we'd rather continue the sync and
+                # allow customers to indicate that they want the new data.
                 self.removed.add(".".join(map(str, path + [key])))
 
         return all(successes), result
