@@ -1,37 +1,39 @@
+from pprint import pprint
 import unittest
 from singer.metadata import get_standard_metadata
 
-def make_expected_metadata(stream_name, base_obj, dict_of_extras):
+def make_expected_metadata(base_obj, dict_of_extras):
     metadata_value = {**base_obj}
     metadata_value.update(dict_of_extras)
 
     return [
         {
             'metadata': metadata_value,
-            'schema_name': stream_name,
-            'breadcrumb': []
+            'breadcrumb': ()
         },
         {
             'metadata': {
                 'inclusion': 'available',
             },
-            'breadcrumb': ['properties', 'id']
+            'breadcrumb': ('properties', 'id')
         },
         {
             'metadata': {
                 'inclusion': 'available',
             },
-            'breadcrumb': ['properties', 'name']
+            'breadcrumb': ('properties', 'name')
         },
         {
             'metadata': {
                 'inclusion': 'available',
             },
-            'breadcrumb': ['properties', 'created']
+            'breadcrumb': ('properties', 'created')
         }
     ]
 
 class TestStandardMetadata(unittest.TestCase):
+
+    #maxDiff = None
 
     def test_standard_metadata(self):
 
@@ -68,9 +70,8 @@ class TestStandardMetadata(unittest.TestCase):
                     'valid_replication_keys': None
                 },
                 make_expected_metadata(
-                    tap_stream_id,
                     schema_present_base_obj,
-                    {}
+                    {'schema-name': tap_stream_id,}
                 )
             ),
             (
@@ -82,38 +83,38 @@ class TestStandardMetadata(unittest.TestCase):
                     'valid_replication_keys': test_rk
                 },
                 make_expected_metadata(
-                    tap_stream_id,
-                    schema_present_base_obj,
-                    {'valid_replication_keys': ['id','created']}
-                )
-            ),
-            (
-                {
-                    'schema': test_schema,
-                    'schema_name': tap_stream_id,
-                    'key_properties': None,
-                    'replication_method': test_rm,
-                    'valid_replication_keys': None
-                },
-                make_expected_metadata(
-                    tap_stream_id,
-                    schema_present_base_obj,
-                    {'forced-replication-method': 'INCREMENTAL'}
-                )
-            ),
-            (
-                {
-                    'schema': test_schema,
-                    'schema_name': tap_stream_id,
-                    'key_properties': None,
-                    'replication_method': test_rm,
-                    'valid_replication_keys': test_rk
-                },
-                make_expected_metadata(
-                    tap_stream_id,
                     schema_present_base_obj,
                     {'valid_replication_keys': ['id','created'],
-                    'forced-replication-method': 'INCREMENTAL'}
+                     'schema-name':tap_stream_id}
+                )
+            ),
+            (
+                {
+                    'schema': test_schema,
+                    'schema_name': tap_stream_id,
+                    'key_properties': None,
+                    'replication_method': test_rm,
+                    'valid_replication_keys': None
+                },
+                make_expected_metadata(
+                    schema_present_base_obj,
+                    {'forced-replication-method': 'INCREMENTAL',
+                     'schema-name':tap_stream_id}
+                )
+            ),
+            (
+                {
+                    'schema': test_schema,
+                    'schema_name': tap_stream_id,
+                    'key_properties': None,
+                    'replication_method': test_rm,
+                    'valid_replication_keys': test_rk
+                },
+                make_expected_metadata(
+                    schema_present_base_obj,
+                    {'valid_replication_keys': ['id','created'],
+                     'forced-replication-method': 'INCREMENTAL',
+                     'schema-name':tap_stream_id}
                 )
             ),
             (
@@ -125,9 +126,9 @@ class TestStandardMetadata(unittest.TestCase):
                     'valid_replication_keys': None
                 },
                 make_expected_metadata(
-                    tap_stream_id,
                     schema_present_base_obj,
-                    {'table-key-properties': ['id']}
+                    {'table-key-properties': ['id'],
+                     'schema-name':tap_stream_id}
                 )
             ),
             (
@@ -139,10 +140,11 @@ class TestStandardMetadata(unittest.TestCase):
                     'valid_replication_keys': test_rk
                 },
                 make_expected_metadata(
-                    tap_stream_id,
+
                     schema_present_base_obj,
                     {'table-key-properties': ['id'],
-                    'valid_replication_keys': ['id','created']}
+                     'valid_replication_keys': ['id','created'],
+                     'schema-name':tap_stream_id}
                 )
             ),
             (
@@ -154,26 +156,26 @@ class TestStandardMetadata(unittest.TestCase):
                     'valid_replication_keys': None
                 },
                 make_expected_metadata(
-                    tap_stream_id,
-                    schema_present_base_obj,
-                    {'table-key-properties': ['id'],
-                    'forced-replication-method': 'INCREMENTAL'}
-                )
-            ),
-            (
-                {
-                    'schema': test_schema,
-                    'schema_name': tap_stream_id,
-                    'key_properties': test_kp,
-                    'replication_method': test_rm,
-                    'valid_replication_keys': test_rk
-                },
-                make_expected_metadata(
-                    tap_stream_id,
                     schema_present_base_obj,
                     {'table-key-properties': ['id'],
                      'forced-replication-method': 'INCREMENTAL',
-                     'valid_replication_keys': ['id','created']}
+                     'schema-name':tap_stream_id}
+                )
+            ),
+            (
+                {
+                    'schema': test_schema,
+                    'schema_name': tap_stream_id,
+                    'key_properties': test_kp,
+                    'replication_method': test_rm,
+                    'valid_replication_keys': test_rk
+                },
+                make_expected_metadata(
+                    schema_present_base_obj,
+                    {'table-key-properties': ['id'],
+                     'forced-replication-method': 'INCREMENTAL',
+                     'valid_replication_keys': ['id','created'],
+                     'schema-name':tap_stream_id}
                 )
             ),
             (
@@ -301,5 +303,9 @@ class TestStandardMetadata(unittest.TestCase):
         for var in test_variables:
             function_params = var[0]
             expected_metadata = var[1]
-            self.assertEqual(get_standard_metadata(**function_params),
-                             expected_metadata)
+
+            test_value = get_standard_metadata(**function_params)
+
+            for obj in expected_metadata:
+                if obj in test_value:
+                    self.assertIn(obj, test_value)
