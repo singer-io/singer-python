@@ -309,3 +309,19 @@ class TestStandardMetadata(unittest.TestCase):
             for obj in expected_metadata:
                 if obj in test_value:
                     self.assertIn(obj, test_value)
+
+        # Test one function call where the parameters are not splat in
+        test_value = get_standard_metadata(test_schema,
+                                           tap_stream_id,
+                                           test_kp,
+                                           test_rk,
+                                           test_rm)
+
+        expected_metadata = make_expected_metadata(schema_present_base_obj,
+                                                   {'table-key-properties': ['id'],
+                                                    'forced-replication-method': 'INCREMENTAL',
+                                                    'valid_replication_keys': ['id','created'],
+                                                    'schema-name':tap_stream_id})
+        for obj in expected_metadata:
+            if obj in test_value:
+                self.assertIn(obj, test_value)
