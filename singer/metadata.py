@@ -21,3 +21,26 @@ def write(compiled_metadata, breadcrumb, k, val):
 
 def get(compiled_metadata, breadcrumb, k):
     return compiled_metadata.get(breadcrumb, {}).get(k)
+
+def get_standard_metadata(schema=None, schema_name=None, key_properties=None,
+                          valid_replication_keys=None, replication_method=None):
+    mdata = {}
+
+    if key_properties:
+        mdata = write(mdata, (), 'table-key-properties', key_properties)
+    if replication_method:
+        mdata = write(mdata, (), 'forced-replication-method', replication_method)
+    if valid_replication_keys:
+        mdata = write(mdata, (), 'valid-replication-keys', valid_replication_keys)
+    if schema:
+        mdata = write(mdata, (), 'inclusion', 'available')
+
+        if schema_name:
+            mdata = write(mdata, (), 'schema-name', schema_name)
+        for field_name in schema['properties'].keys():
+            if key_properties and field_name in key_properties:
+                mdata = write(mdata, ('properties', field_name), 'inclusion', 'automatic')
+            else:
+                mdata = write(mdata, ('properties', field_name), 'inclusion', 'available')
+
+    return to_list(mdata)
