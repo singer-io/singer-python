@@ -209,8 +209,10 @@ def parse_message(msg):
         return None
 
 
-def format_message(message):
-    return json.dumps(message.asdict(), use_decimal=True)
+def format_message(message, **kwargs):
+    return json.dumps(message.asdict(),
+                      use_decimal=kwargs.pop('use_decimal', True),
+                      **kwargs)
 
 
 def write_message(message):
