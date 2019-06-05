@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.6.1
+  * Retain argument paths in `parse_args` [#88](https://github.com/singer-io/singer-python/pull/88)
+
 ## 5.5.0
   * Add the ability to specify a default value when getting a bookmark [#95](https://github.com/singer-io/singer-python/pull/95)
 
