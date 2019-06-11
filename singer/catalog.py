@@ -4,6 +4,7 @@ import json
 import sys
 
 from singer.schema import Schema
+from jsonschema import Draft4Validator, FormatChecker
 
 # pylint: disable=too-many-instance-attributes
 class CatalogEntry():
@@ -116,3 +117,30 @@ class Catalog():
             if stream.tap_stream_id == tap_stream_id:
                 return stream
         return None
+
+
+CATALOG_SCHEMA = {
+    'type': 'object',
+    'required': ['streams'],
+    'properties': {
+        'streams' : {
+            'type': 'array',
+            'items': {
+                'type': 'object',
+                'required': ['stream', 'tap_stream_id', 'schema'],
+                'properties': {
+                    'stream': {'type': 'string'},
+                    'tap_stream_id': {'type': 'string'},
+                    'schema': {'type': 'object'}
+                }
+            }
+        }
+    }
+}
+
+CATALOG_VALIDATOR = Draft4Validator(CATALOG_SCHEMA,
+                                    format_checker=FormatChecker())
+
+def write_catalog(streams):
+    CATALOG_VALIDATOR.validate(streams)
+    json.dump(streams, sys.stdout, indent=2)

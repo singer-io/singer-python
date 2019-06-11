@@ -1,11 +1,10 @@
 import unittest
+import singer.catalog 
 
 from singer.schema import Schema
 from singer.catalog import Catalog, CatalogEntry
 
-class TestToDictAndFromDict(unittest.TestCase):
-
-    dict_form = {
+dict_form = {
         'streams': [
             {
                 'stream': 'users',
@@ -50,7 +49,7 @@ class TestToDictAndFromDict(unittest.TestCase):
             ]
         }
 
-    obj_form = Catalog(streams=[
+obj_form = Catalog(streams=[
         CatalogEntry(
             stream='users',
             tap_stream_id='prod_users',
@@ -84,11 +83,15 @@ class TestToDictAndFromDict(unittest.TestCase):
                     'id': Schema(type='integer', selected=True),
                     'amount': Schema(type='number', selected=True)}))])
 
+
+
+
+class TestToDictAndFromDict(unittest.TestCase):
     def test_from_dict(self):
-        self.assertEqual(self.obj_form, Catalog.from_dict(self.dict_form))
+        self.assertEqual(obj_form, Catalog.from_dict(dict_form))
 
     def test_to_dict(self):
-        self.assertEqual(self.dict_form, self.obj_form.to_dict())
+        self.assertEqual(dict_form, obj_form.to_dict())
         
 
 class TestGetStream(unittest.TestCase):
@@ -99,3 +102,7 @@ class TestGetStream(unittest.TestCase):
              CatalogEntry(tap_stream_id='c')])
         entry = catalog.get_stream('b')
         self.assertEquals('b', entry.tap_stream_id)
+
+class TestWriteCatalog(unittest.TestCase):
+    def test(self):
+        singer.catalog.write_catalog(dict_form)
