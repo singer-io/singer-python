@@ -55,7 +55,10 @@ from singer.transform import (
     resolve_schema_references
 )
 
-from singer.catalog import Catalog
+from singer.catalog import (
+    get_selected_streams,
+    Catalog
+)
 from singer.schema import Schema
 
 from singer.bookmarks import (
