@@ -1,7 +1,7 @@
 import unittest
 
 from singer.schema import Schema
-from singer.catalog import Catalog, CatalogEntry, get_selected_streams
+from singer.catalog import Catalog, CatalogEntry
 
 class TestGetSelectedStreams(unittest.TestCase):
     def test_one_selected_stream(self):
@@ -15,7 +15,7 @@ class TestGetSelectedStreams(unittest.TestCase):
              CatalogEntry(tap_stream_id='b',schema=Schema(),metadata=[]),
              CatalogEntry(tap_stream_id='c',schema=Schema(),metadata=[])])
         state = {}
-        selected_streams = get_selected_streams(catalog, state)
+        selected_streams = catalog.get_selected_streams(state)
         self.assertEquals([e for e in selected_streams],[selected_entry])
 
     def test_resumes_currently_syncing_stream(self):
@@ -34,7 +34,7 @@ class TestGetSelectedStreams(unittest.TestCase):
              CatalogEntry(tap_stream_id='b',schema=Schema(),metadata=[]),
              selected_entry_c])
         state = {'currently_syncing': 'c'}
-        selected_streams = get_selected_streams(catalog, state)
+        selected_streams = catalog.get_selected_streams(state)
         self.assertEquals([e for e in selected_streams][0],selected_entry_c)
 
 class TestToDictAndFromDict(unittest.TestCase):

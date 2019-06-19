@@ -56,8 +56,8 @@ from singer.transform import (
 )
 
 from singer.catalog import (
-    get_selected_streams,
-    Catalog
+    Catalog,
+    CatalogEntry
 )
 from singer.schema import Schema
 

@@ -1,37 +1,13 @@
 '''Provides an object model for a Singer Catalog.'''
-from . import metadata
-
 import json
 import sys
 
-from singer.bookmarks import get_currently_syncing
-from singer.logger import get_logger
-from singer.schema import Schema
+from . import metadata as metadata_module
+from .bookmarks import get_currently_syncing
+from .logger import get_logger
+from .schema import Schema
 
 LOGGER = get_logger()
-
-def _shuffle_streams(catalog, state):
-    currently_syncing = get_currently_syncing(state)
-
-    if currently_syncing is None:
-        return catalog.streams
-
-    matching_index = 0
-    for i, catalog_entry in enumerate(catalog.streams):
-        if catalog_entry.tap_stream_id == currently_syncing:
-            matching_index = i
-    top_half = catalog.streams[matching_index:]
-    bottom_half = catalog.streams[:matching_index]
-    return top_half + bottom_half
-
-
-def get_selected_streams(catalog, state):
-    for stream in _shuffle_streams(catalog, state):
-        if not stream.is_selected():
-            LOGGER.info('Skipping stream: %s', stream.tap_stream_id)
-            continue
-
-        yield stream
 
 
 # pylint: disable=too-many-instance-attributes
@@ -62,9 +38,9 @@ class CatalogEntry():
         return self.__dict__ == other.__dict__
 
     def is_selected(self):
-        mdata = metadata.to_map(self.metadata)
+        mdata = metadata_module.to_map(self.metadata)
         # pylint: disable=no-member
-        return self.schema.selected or metadata.get(mdata, (), 'selected')
+        return self.schema.selected or metadata_module.get(mdata, (), 'selected')
 
     def to_dict(self):
         result = {}
@@ -147,3 +123,27 @@ class Catalog():
             if stream.tap_stream_id == tap_stream_id:
                 return stream
         return None
+
+    def _shuffle_streams(self, state):
+        currently_syncing = get_currently_syncing(state)
+
+        if currently_syncing is None:
+            return self.streams
+
+        matching_index = 0
+        for i, catalog_entry in enumerate(self.streams):
+            if catalog_entry.tap_stream_id == currently_syncing:
+                matching_index = i
+                break
+        top_half = self.streams[matching_index:]
+        bottom_half = self.streams[:matching_index]
+        return top_half + bottom_half
+
+
+    def get_selected_streams(self, state):
+        for stream in self._shuffle_streams(state):
+            if not stream.is_selected():
+                LOGGER.info('Skipping stream: %s', stream.tap_stream_id)
+                continue
+
+            yield stream
