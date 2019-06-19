@@ -3,6 +3,40 @@ import unittest
 from singer.schema import Schema
 from singer.catalog import Catalog, CatalogEntry
 
+class TestGetSelectedStreams(unittest.TestCase):
+    def test_one_selected_stream(self):
+        selected_entry = CatalogEntry(tap_stream_id='a',
+                                      schema=Schema(),
+                                      metadata=[{'metadata':
+                                                 {'selected': True},
+                                                 'breadcrumb': []}])
+        catalog = Catalog(
+            [selected_entry,
+             CatalogEntry(tap_stream_id='b',schema=Schema(),metadata=[]),
+             CatalogEntry(tap_stream_id='c',schema=Schema(),metadata=[])])
+        state = {}
+        selected_streams = catalog.get_selected_streams(state)
+        self.assertEquals([e for e in selected_streams],[selected_entry])
+
+    def test_resumes_currently_syncing_stream(self):
+        selected_entry_a = CatalogEntry(tap_stream_id='a',
+                                      schema=Schema(),
+                                      metadata=[{'metadata':
+                                                 {'selected': True},
+                                                 'breadcrumb': []}])
+        selected_entry_c = CatalogEntry(tap_stream_id='c',
+                                        schema=Schema(),
+                                        metadata=[{'metadata':
+                                                   {'selected': True},
+                                                   'breadcrumb': []}])
+        catalog = Catalog(
+            [selected_entry_a,
+             CatalogEntry(tap_stream_id='b',schema=Schema(),metadata=[]),
+             selected_entry_c])
+        state = {'currently_syncing': 'c'}
+        selected_streams = catalog.get_selected_streams(state)
+        self.assertEquals([e for e in selected_streams][0],selected_entry_c)
+
 class TestToDictAndFromDict(unittest.TestCase):
 
     dict_form = {
@@ -89,7 +123,7 @@ class TestToDictAndFromDict(unittest.TestCase):
 
     def test_to_dict(self):
         self.assertEqual(self.dict_form, self.obj_form.to_dict())
-        
+
 
 class TestGetStream(unittest.TestCase):
     def test(self):
