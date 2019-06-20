@@ -10,6 +10,13 @@ from .schema import Schema
 LOGGER = get_logger()
 
 
+def write_catalog(catalog):
+    # If the catalog has no streams, log a warning
+    if not catalog.streams:
+        LOGGER.warning("Catalog being written with no streams.")
+
+    json.dump(catalog.to_dict(), sys.stdout, indent=2)
+
 # pylint: disable=too-many-instance-attributes
 class CatalogEntry():
 

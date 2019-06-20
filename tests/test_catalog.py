@@ -1,7 +1,16 @@
 import unittest
 
 from singer.schema import Schema
-from singer.catalog import Catalog, CatalogEntry
+from singer.catalog import Catalog, CatalogEntry, write_catalog
+
+class TestWriteCatalog(unittest.TestCase):
+    def test_write_empty_catalog(self):
+        catalog = Catalog([])
+        write_catalog(catalog)
+
+    def test_write_catalog_with_streams(self):
+        catalog = Catalog([CatalogEntry(tap_stream_id='a',schema=Schema(),metadata=[])])
+        write_catalog(catalog)
 
 class TestGetSelectedStreams(unittest.TestCase):
     def test_one_selected_stream(self):
