@@ -14,7 +14,7 @@ setup(name="singer-python",
           'jsonschema==2.6.0',
           'simplejson==3.11.1',
           'python-dateutil>=2.6.0',
-          'backoff==1.3.2',
+          'backoff==1.8.0',
       ],
       extras_require={
           'dev': [
