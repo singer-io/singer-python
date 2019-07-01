@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.7.0
+  * Bumping backoff dependency to 1.8.0 for aiohttp support
+  * Added `get_selected_streams` to the `Catalog` class that orders streams returned with `currently_syncing` from state (if present) at the front of the list. [#100](https://github.com/singer-io/singer-python/pull/100)
+  * Added helper called `write_catalog` for use in discovery mode [#101](https://github.com/singer-io/singer-python/pull/101)
+
 ## 5.6.1
   * Retain argument paths in `parse_args` [#88](https://github.com/singer-io/singer-python/pull/88)
 
@@ -31,6 +36,3 @@
 
 ## 5.0.5
   * Sets the default format for dates to use %04Y so dates < 1000 are formatted with leading zeroes [#65](https://github.com/singer-io/singer-python/pull/65)
-
-## 5.7.0
-  * Bumping backoff dependency to 1.8.0 for aiohttp support
