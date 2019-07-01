@@ -10,7 +10,7 @@ setup(name="singer-python",
       classifiers=['Programming Language :: Python :: 3 :: Only'],
       url="http://singer.io",
       install_requires=[
-          'pytz==2018.4',
+          'pytz>=2019.1',
           'jsonschema>=2.6.0',
           'simplejson>=3.16.0',
           'python-dateutil>=2.6.0',
