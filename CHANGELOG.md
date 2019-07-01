@@ -31,3 +31,6 @@
 
 ## 5.0.5
   * Sets the default format for dates to use %04Y so dates < 1000 are formatted with leading zeroes [#65](https://github.com/singer-io/singer-python/pull/65)
+
+## 5.7.0
+  * Bumping backoff dependency to 1.8.0 for aiohttp support
