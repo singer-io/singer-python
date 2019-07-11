@@ -159,6 +159,27 @@ class TestParsingNumbers(unittest.TestCase):
         value = self.create_record(value_str)
         self.assertEqual(int(value_str), value)
         self.assertEqual(int, type(value))
-        
+
+    def test_parse_bulk_decs(self):
+        value_strs = [
+            '-9999999999999999.9999999999999999999999',
+            '0',
+            '9999999999999999.9999999999999999999999',
+            '-7187498962233394.3739812942138415666763',
+            '9273972760690975.2044306442955715221042',
+            '29515565286974.1188802122612813004366',
+            '9176089101347578.2596296292040288441238',
+            '-8416853039392703.306423225471199148379',
+            '1285266411314091.3002668125515694162268',
+            '6051872750342125.3812886238958681227336',
+            '-1132031605459408.5571559429308939781468',
+            '-6387836755056303.0038029604189860431045',
+            '4526059300505414'
+        ]
+        for value_str in value_strs:
+            value = self.create_record(value_str)
+            self.assertEqual(Decimal(value_str), value)
+
+
 if __name__ == '__main__':
     unittest.main()
