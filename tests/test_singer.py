@@ -2,6 +2,8 @@ import singer
 import unittest
 import datetime
 import dateutil
+from decimal import Decimal
+
 
 class TestSinger(unittest.TestCase):
     def test_parse_message_record_good(self):
@@ -89,7 +91,6 @@ class TestSinger(unittest.TestCase):
             singer.parse_message('{"type": "STATE"}')
 
     def test_round_trip(self):
-
         record_message = singer.RecordMessage(
             record={'name': 'foo'},
             stream='users')
@@ -102,7 +103,7 @@ class TestSinger(unittest.TestCase):
                         'name': {'type': 'string'}}})
 
         state_message = singer.StateMessage(value={'seq': 1})
-        
+
         self.assertEqual(record_message,
                          singer.parse_message(singer.format_message(record_message)))
         self.assertEqual(schema_message,
@@ -123,6 +124,61 @@ class TestSinger(unittest.TestCase):
 
     def test_write_state(self):
         singer.write_state({"foo": 1})
+
+class TestParsingNumbers(unittest.TestCase):
+    def create_record(self, value):
+        raw = '{"type": "RECORD", "stream": "test", "record": {"value": ' + value + '}}'
+        parsed = singer.parse_message(raw)
+        return parsed.record['value']
+
+    def test_parse_int_zero(self):
+        value = self.create_record('0')
+        self.assertEqual(type(value), int)
+        self.assertEqual(value, 0)
+
+    def test_parse_regular_decimal(self):
+        value = self.create_record('3.14')
+        self.assertEqual(Decimal('3.14'), value)
+
+    def test_parse_large_decimal(self):
+        value = self.create_record('9999999999999999.9999')
+        self.assertEqual(Decimal('9999999999999999.9999'), value)
+
+    def test_parse_small_decimal(self):
+        value = self.create_record('-9999999999999999.9999')
+        self.assertEqual(Decimal('-9999999999999999.9999'), value)
+
+    def test_parse_absurdly_large_decimal(self):
+        value_str = '9' * 1024 + '.' + '9' * 1024
+        value = self.create_record(value_str)
+        self.assertEqual(Decimal(value_str), value)
+
+    def test_parse_absurdly_large_int(self):
+        value_str = '9' * 1024
+        value = self.create_record(value_str)
+        self.assertEqual(int(value_str), value)
+        self.assertEqual(int, type(value))
+
+    def test_parse_bulk_decs(self):
+        value_strs = [
+            '-9999999999999999.9999999999999999999999',
+            '0',
+            '9999999999999999.9999999999999999999999',
+            '-7187498962233394.3739812942138415666763',
+            '9273972760690975.2044306442955715221042',
+            '29515565286974.1188802122612813004366',
+            '9176089101347578.2596296292040288441238',
+            '-8416853039392703.306423225471199148379',
+            '1285266411314091.3002668125515694162268',
+            '6051872750342125.3812886238958681227336',
+            '-1132031605459408.5571559429308939781468',
+            '-6387836755056303.0038029604189860431045',
+            '4526059300505414'
+        ]
+        for value_str in value_strs:
+            value = self.create_record(value_str)
+            self.assertEqual(Decimal(value_str), value)
+
 
 if __name__ == '__main__':
     unittest.main()
