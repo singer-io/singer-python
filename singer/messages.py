@@ -5,6 +5,9 @@ import pytz
 import simplejson as json
 
 import singer.utils as u
+import ciso8601
+from .logger import get_logger
+LOGGER = get_logger()
 
 class Message():
     '''Base class for messages.'''
@@ -180,13 +183,20 @@ def parse_message(msg):
     # lossy conversions.  However, this will affect
     # very few data points and we have chosen to
     # leave conversion as is for now.
-    obj = json.loads(msg)
+    obj = json.loads(msg,  use_decimal=True)
     msg_type = _required_key(obj, 'type')
 
     if msg_type == 'RECORD':
         time_extracted = obj.get('time_extracted')
         if time_extracted:
-            time_extracted = dateutil.parser.parse(time_extracted)
+            try:
+                time_extracted = ciso8601.parse_datetime(time_extracted)
+            except:
+                LOGGER.warning("unable to parse time_extracted with ciso8601 library")
+                time_extracted = None
+
+
+            # time_extracted = dateutil.parser.parse(time_extracted)
         return RecordMessage(stream=_required_key(obj, 'stream'),
                              record=_required_key(obj, 'record'),
                              version=obj.get('version'),
