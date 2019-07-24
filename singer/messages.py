@@ -1,11 +1,10 @@
 import sys
 
-import dateutil.parser
 import pytz
 import simplejson as json
+import ciso8601
 
 import singer.utils as u
-import ciso8601
 from .logger import get_logger
 LOGGER = get_logger()
 
@@ -183,7 +182,7 @@ def parse_message(msg):
     # lossy conversions.  However, this will affect
     # very few data points and we have chosen to
     # leave conversion as is for now.
-    obj = json.loads(msg,  use_decimal=True)
+    obj = json.loads(msg, use_decimal=True)
     msg_type = _required_key(obj, 'type')
 
     if msg_type == 'RECORD':
