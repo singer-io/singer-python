@@ -26,11 +26,11 @@ def get_standard_metadata(schema=None, schema_name=None, key_properties=None,
                           valid_replication_keys=None, replication_method=None):
     mdata = {}
 
-    if key_properties:
+    if key_properties is not None:
         mdata = write(mdata, (), 'table-key-properties', key_properties)
     if replication_method:
         mdata = write(mdata, (), 'forced-replication-method', replication_method)
-    if valid_replication_keys:
+    if valid_replication_keys is not None:
         mdata = write(mdata, (), 'valid-replication-keys', valid_replication_keys)
     if schema:
         mdata = write(mdata, (), 'inclusion', 'available')

@@ -325,3 +325,11 @@ class TestStandardMetadata(unittest.TestCase):
         for obj in expected_metadata:
             if obj in test_value:
                 self.assertIn(obj, test_value)
+
+    def test_empty_key_properties_are_written(self):
+        mdata = get_standard_metadata(key_properties=[])
+        self.assertEqual(mdata, [{'breadcrumb': (), 'metadata': {'table-key-properties': []}}])
+
+    def test_empty_valid_replication_keys_are_written(self):
+        mdata = get_standard_metadata(valid_replication_keys=[])
+        self.assertEqual(mdata, [{'breadcrumb': (), 'metadata': {'valid-replication-keys': []}}])
