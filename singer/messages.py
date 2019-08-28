@@ -227,14 +227,15 @@ def write_message(message):
     sys.stdout.flush()
 
 
-def write_record(stream_name, record, stream_alias=None, time_extracted=None):
+def write_record(stream_name, record, stream_alias=None, time_extracted=None, version=None):
     """Write a single record for the given stream.
 
     write_record("users", {"id": 2, "email": "mike@stitchdata.com"})
     """
     write_message(RecordMessage(stream=(stream_alias or stream_name),
                                 record=record,
-                                time_extracted=time_extracted))
+                                time_extracted=time_extracted,
+                                version=version))
 
 
 def write_records(stream_name, records):
