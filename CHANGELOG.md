@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.8.1
+  * Allow empty lists for `key-properties` and `valid-replication-keys` in `get_standard_metadata` [#106](https://github.com/singer-io/singer-python/pull/106)
+
 ## 5.7.0
   * Bumping backoff dependency to 1.8.0 for aiohttp support
   * Added `get_selected_streams` to the `Catalog` class that orders streams returned with `currently_syncing` from state (if present) at the front of the list. [#100](https://github.com/singer-io/singer-python/pull/100)
