@@ -104,9 +104,13 @@ def chunk(array, num):
         yield array[i:i + num]
 
 
-def load_json(path):
-    with open(path) as fil:
-        return json.load(fil)
+def load_json(path_or_json):
+  try:
+    inline_config = json.loads(path_or_json)
+  except ValueError as e:
+    with open(path_or_json) as fil:
+      return json.load(fil)
+  return inline_config
 
 
 def update_state(state, entity, dtime):

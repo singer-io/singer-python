@@ -2,6 +2,8 @@ import unittest
 from datetime import datetime as dt
 import pytz
 import logging
+import json
+import tempfile
 import singer.utils as u
 
 
@@ -33,3 +35,28 @@ class TestHandleException(unittest.TestCase):
         def foo():
             raise RuntimeError("foo")
         self.assertRaises(RuntimeError, foo)
+
+class TestLoadJson(unittest.TestCase):
+    def setUp(self):
+        self.expected_json = """
+            {
+                "key1": false,
+                "key2": [
+                    {"field1": 366, "field2": "2018-01-01T00:00:00+00:00"}
+                ]
+            }
+        """
+
+    def test_inline(self):
+        inline = u.load_json(self.expected_json)
+        self.assertEqual(inline, json.loads(self.expected_json))
+
+    def test_path(self):
+        # from valid path
+        with tempfile.NamedTemporaryFile() as fil:
+            fil.write(self.expected_json.encode())
+            fil.seek(0)
+            from_path = u.load_json(fil.name)
+            self.assertEqual(from_path, json.loads(self.expected_json))
+        # from invalid path
+        self.assertRaises(FileNotFoundError, u.load_json, 'does_not_exist.json')
