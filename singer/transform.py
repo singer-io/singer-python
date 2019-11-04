@@ -69,10 +69,10 @@ class Error:
         else:
             msg = "not in schema"
         if self.logging_level >= logging.INFO:
-            f = "{}: data {}".format(path, msg)
+            output = "{}: data {}".format(path, msg)
         else:
-            f = "{}: {} {}".format(path, self.data, msg)
-        return f
+            output = "{}: {} {}".format(path, self.data, msg)
+        return output
 
 
 class Transformer:
