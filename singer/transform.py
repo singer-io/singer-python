@@ -1,4 +1,5 @@
 import datetime
+import logging
 import re
 from jsonschema import RefResolver
 
@@ -55,19 +56,27 @@ class SchemaKey:
     any_of = 'anyOf'
 
 class Error:
-    def __init__(self, path, data, schema=None):
+    def __init__(self, path, data, schema=None, logging_level=logging.INFO):
         self.path = path
         self.data = data
         self.schema = schema
+        self.logging_level = logging_level
 
     def tostr(self):
         path = ".".join(map(str, self.path))
         if self.schema:
-            msg = "does not match {}".format(self.schema)
+            if self.logging_level >= logging.INFO:
+                msg = "data does not match {}".format(self.schema)
+            else:
+                msg = "does not match {}".format(self.schema)
         else:
             msg = "not in schema"
 
-        return "{}: {} {}".format(path, self.data, msg)
+        if self.logging_level >= logging.INFO:
+            output = "{}: {}".format(path, msg)
+        else:
+            output = "{}: {} {}".format(path, self.data, msg)
+        return output
 
 
 class Transformer:
@@ -154,7 +163,7 @@ class Transformer:
                 return success, transformed_data
         else: # pylint: disable=useless-else-on-loop
             # exhaused all types and didn't return, so we failed :-(
-            self.errors.append(Error(path, data, schema))
+            self.errors.append(Error(path, data, schema, logging_level=LOGGER.level))
             return False, None
 
     def _transform_anyof(self, data, schema, path):
@@ -165,7 +174,7 @@ class Transformer:
                 return success, transformed_data
         else: # pylint: disable=useless-else-on-loop
             # exhaused all schemas and didn't return, so we failed :-(
-            self.errors.append(Error(path, data, schema))
+            self.errors.append(Error(path, data, schema, logging_level=LOGGER.level))
             return False, None
 
     def _transform_object(self, data, schema, path, pattern_properties):

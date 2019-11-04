@@ -46,8 +46,8 @@ def diff(oldstate, newstate):
 
     # Convert oldstate and newstate from a deeply nested dict into a
     # single-level dict, mapping a path to a value.
-    olddict = {k: v for (k, v) in paths(oldstate)}
-    newdict = {k: v for (k, v) in paths(newstate)}
+    olddict = dict(paths(oldstate))
+    newdict = dict(paths(newstate))
 
     # Build the list of all paths in both oldstate and newstate to iterate
     # over.
