@@ -65,11 +65,15 @@ class Error:
     def tostr(self):
         path = ".".join(map(str, self.path))
         if self.schema:
-            msg = "does not match {}".format(self.schema)
+            if self.logging_level >= logging.INFO:
+                msg = "data does not match {}".format(self.schema)
+            else:
+                msg = "does not match {}".format(self.schema)
         else:
             msg = "not in schema"
+
         if self.logging_level >= logging.INFO:
-            output = "{}: data {}".format(path, msg)
+            output = "{}: {}".format(path, msg)
         else:
             output = "{}: {} {}".format(path, self.data, msg)
         return output
