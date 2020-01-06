@@ -10,16 +10,7 @@ from singer.utils import (
     should_sync_field,
 )
 
-from singer.logger import (
-    get_logger,
-    log_debug,
-    log_info,
-    log_warning,
-    log_error,
-    log_critical,
-    log_fatal,
-    log_exception,
-)
+from singer.logger import Logger
 
 from singer.metrics import (
     Counter,
