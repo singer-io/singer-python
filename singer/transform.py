@@ -48,12 +48,14 @@ class SchemaMismatch(Exception):
 
         super(SchemaMismatch, self).__init__(msg)
 
+
 class SchemaKey:
     ref = "$ref"
     items = "items"
     properties = "properties"
     pattern_properties = "patternProperties"
     any_of = 'anyOf'
+
 
 class Error:
     def __init__(self, path, data, schema=None, logging_level=logging.INFO):
@@ -90,17 +92,17 @@ class Transformer:
     def log_warning(self):
         if self.filtered:
             LOGGER.log_debug("Filtered %s paths during transforms "
-                         "as they were unsupported or not selected:\n\t%s",
-                         len(self.filtered),
-                         "\n\t".join(sorted(self.filtered)))
+                             "as they were unsupported or not selected:\n\t%s",
+                             len(self.filtered),
+                             "\n\t".join(sorted(self.filtered)))
             # Output list format to parse for reporting
             LOGGER.log_debug("Filtered paths list: %s",
-                         sorted(self.filtered))
+                             sorted(self.filtered))
 
         if self.removed:
             LOGGER.log_debug("Removed %s paths during transforms:\n\t%s",
-                         len(self.removed),
-                         "\n\t".join(sorted(self.removed)))
+                             len(self.removed),
+                             "\n\t".join(sorted(self.removed)))
             # Output list format to parse for reporting
             LOGGER.log_debug("Removed paths list: %s", sorted(self.removed))
 
@@ -161,7 +163,7 @@ class Transformer:
             success, transformed_data = self._transform(data, typ, schema, path)
             if success:
                 return success, transformed_data
-        else: # pylint: disable=useless-else-on-loop
+        else:  # pylint: disable=useless-else-on-loop
             # exhaused all types and didn't return, so we failed :-(
             self.errors.append(Error(path, data, schema, logging_level=LOGGER.get_level()))
             return False, None
@@ -172,7 +174,7 @@ class Transformer:
             success, transformed_data = self.transform_recur(data, subschema, path)
             if success:
                 return success, transformed_data
-        else: # pylint: disable=useless-else-on-loop
+        else:  # pylint: disable=useless-else-on-loop
             # exhaused all schemas and didn't return, so we failed :-(
             self.errors.append(Error(path, data, schema, logging_level=LOGGER.get_level()))
             return False, None
@@ -227,7 +229,7 @@ class Transformer:
 
     def _transform_datetime(self, value):
         if value is None or value == "":
-            return None # Short circuit in the case of null or empty string
+            return None  # Short circuit in the case of null or empty string
 
         if self.integer_datetime_fmt not in VALID_DATETIME_FORMATS:
             raise Exception("Invalid integer datetime parsing option")
@@ -332,9 +334,11 @@ def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING,
     transformer = Transformer(integer_datetime_fmt, pre_hook)
     return transformer.transform(data, schema, metadata=metadata)
 
+
 def _transform_datetime(value, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING):
     transformer = Transformer(integer_datetime_fmt)
     return transformer._transform_datetime(value)
+
 
 def resolve_schema_references(schema, refs=None):
     '''Resolves and replaces json-schema $refs with the appropriate dict.
@@ -355,6 +359,7 @@ def resolve_schema_references(schema, refs=None):
     '''
     refs = refs or {}
     return _resolve_schema_references(schema, RefResolver("", schema, store=refs))
+
 
 def _resolve_schema_references(schema, resolver):
     if SchemaKey.ref in schema:

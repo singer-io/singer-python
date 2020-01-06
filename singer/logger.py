@@ -4,7 +4,7 @@ import os
 from typing import Optional
 
 
-class Logger(object):
+class Logger:
 
     def __init__(self, config_file_path: Optional[str] = None, logger_name: Optional[str] = None):
         """
