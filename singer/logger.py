@@ -12,11 +12,15 @@ class Logger:
         :param config_file_path: path to a custom logging file
         :param logger_name: custom name for logger
         """
-
-        # fallback to singer's logging.conf if no file is given
         if not config_file_path:
-            this_dir, _ = os.path.split(__file__)
-            config_file_path = os.path.join(this_dir, 'logging.conf')
+            # look for the path in the os environment
+            if os.environ.get('LOGGER_CONFIG_PATH'):
+                config_file_path = os.environ.get('LOGGER_CONFIG_PATH')
+
+            # fallback to singer's logging.conf
+            else:
+                this_dir, _ = os.path.split(__file__)
+                config_file_path = os.path.join(this_dir, 'logging.conf')
 
         # See
         # https://docs.python.org/3.5/library/logging.config.html#logging.config.fileConfig
@@ -54,3 +58,7 @@ class Logger:
 
     def get_level(self):
         return self.__logger.level
+
+    @property
+    def logger(self):
+        return self.__logger
