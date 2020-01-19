@@ -39,7 +39,7 @@ class State:
         )
 
     def to_dict(self) -> Dict:
-        state: Dict[str, Any] = {"bookmarks": self.bookmarks}
+        state = {"bookmarks": self.bookmarks}  # type: Dict[str, Any]
         if self.get_currently_syncing():
             state["currently_syncing"] = self.get_currently_syncing()
         return state
