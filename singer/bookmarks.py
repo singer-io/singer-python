@@ -6,12 +6,14 @@ from .logger import get_logger
 
 LOGGER = get_logger()
 
+
 def write_state(state):
     json.dump(state.to_dict(), sys.stdout, indent=2)
 
+
 class State:
     def __init__(
-        self, bookmarks: Optional[Dict] = None, currently_syncing: Optional[str] = None
+        self, bookmarks: Optional[Dict] = None, currently_syncing: Optional[str] = None  # pylint: disable=bad-continuation
     ) -> None:
         self._bookmarks = bookmarks or {}
         self._currently_syncing = currently_syncing
@@ -71,7 +73,7 @@ class State:
         return self.bookmarks.get(tap_stream_id, {}).get(key, default)
 
     def set_offset(
-        self, tap_stream_id: str, offset_key: str, offset_value: Any
+        self, tap_stream_id: str, offset_key: str, offset_value: Any  # pylint: disable=bad-continuation
     ) -> None:
         self._ensure_bookmark_path((tap_stream_id, "offset", offset_key))
         self.bookmarks[tap_stream_id]["offset"][offset_key] = offset_value
@@ -81,7 +83,7 @@ class State:
         self.bookmarks[tap_stream_id]["offset"] = {}
 
     def get_offset(
-        self, tap_stream_id: str, offset_key: str, default: Any = None
+        self, tap_stream_id: str, offset_key: str, default: Any = None  # pylint: disable=bad-continuation
     ) -> Any:
         return (
             self.bookmarks.get(tap_stream_id, {})
