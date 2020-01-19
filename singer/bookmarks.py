@@ -1,14 +1,8 @@
-import json
-import sys
 from typing import Any, Dict, Optional, Sequence, Union
 from .logger import get_logger
 
 
 LOGGER = get_logger()
-
-
-def write_state(state):
-    json.dump(state.to_dict(), sys.stdout, indent=2)
 
 
 class State:
@@ -29,11 +23,6 @@ class State:
         return self._bookmarks
 
     @classmethod
-    def load(cls, filename: str) -> "State":
-        with open(filename) as fp:  # pylint: disable=invalid-name
-            return State.from_dict(json.load(fp))
-
-    @classmethod
     def from_dict(cls, data: Dict) -> "State":
         return State(
             bookmarks=data.get("bookmarks"),
@@ -45,9 +34,6 @@ class State:
         if self.get_currently_syncing():
             state["currently_syncing"] = self.get_currently_syncing()
         return state
-
-    def dump(self) -> None:
-        json.dump(self.to_dict(), sys.stdout, indent=2)
 
     def _ensure_bookmark_path(self, path: Sequence) -> None:
         submap = self.bookmarks

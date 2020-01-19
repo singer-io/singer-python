@@ -1,29 +1,6 @@
 from copy import copy
 import unittest
-from singer.bookmarks import State, write_state
-
-
-class TestWriteState(unittest.TestCase):
-    def test_write_empty_state(self):
-        state = State()
-        write_state(state)
-
-    def test_write_state_with_bookmarks(self):
-        stream_id_1 = "customers"
-        bookmark_key_1 = "datetime"
-        bookmark_val_1 = 123456789
-        offset_key = "key"
-        offset_val = "fizzy water"
-
-        bookmarks = {
-            stream_id_1: {
-                bookmark_key_1: bookmark_val_1,
-                "offset": {offset_key: offset_val},
-            }
-        }
-
-        state = State(bookmarks=bookmarks, currently_syncing="customers")
-        write_state(state)
+from singer.bookmarks import State
 
 
 class TestGetBookmark(unittest.TestCase):
