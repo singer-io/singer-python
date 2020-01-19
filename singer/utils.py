@@ -10,6 +10,7 @@ import dateutil.parser
 import pytz
 import backoff as backoff_module
 
+from singer.bookmarks import State
 from singer.catalog import Catalog
 
 DATETIME_PARSE = "%Y-%m-%dT%H:%M:%SZ"
@@ -169,9 +170,9 @@ def parse_args(required_config_keys):
         args.config = load_json(args.config)
     if args.state:
         setattr(args, 'state_path', args.state)
-        args.state = load_json(args.state)
+        args.state = State.from_dict(load_json(args.state))
     else:
-        args.state = {}
+        args.state = State()
     if args.properties:
         setattr(args, 'properties_path', args.properties)
         args.properties = load_json(args.properties)
