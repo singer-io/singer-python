@@ -110,26 +110,32 @@ class Transformer:
     def __exit__(self, *args):
         self.log_warning()
 
+    def _filter_field(self, data, field_name):
+        data.pop(field_name, None)
+        # Track that the field was filtered because the tap
+        # declared it as unsupported.
+        self.filtered.add(field_name)
+
     def filter_data_by_metadata(self, data, metadata):
         if isinstance(data, dict) and metadata:
             for field_name in list(data.keys()):
                 selected = singer.metadata.get(metadata, ('properties', field_name), 'selected')
+                selected_by_default = singer.metadata.get(
+                    metadata, ('properties', field_name), 'selected-by-default'
+                )
                 inclusion = singer.metadata.get(metadata, ('properties', field_name), 'inclusion')
                 if inclusion == 'automatic':
                     continue
 
-                if selected is False:
-                    data.pop(field_name, None)
-                    # Track that a field was filtered because the customer
-                    # didn't select it.
-                    self.filtered.add(field_name)
+                if not selected and not selected_by_default:
+                    # Covers both the case of missing metadata
+                    # as well as metadata explicitly false metadata
+                    self._filter_field(data, field_name)
+                elif selected is False:
+                    self._filter_field(data, field_name)
 
                 if inclusion == 'unsupported':
-                    data.pop(field_name, None)
-                    # Track that the field was filtered because the tap
-                    # declared it as unsupported.
-                    self.filtered.add(field_name)
-
+                    self._filter_field(data, field_name)
         return data
 
     def transform(self, data, schema, metadata=None):

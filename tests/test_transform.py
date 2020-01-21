@@ -1,5 +1,5 @@
 import unittest
-from singer import transform
+
 from singer.transform import *
 
 
@@ -260,13 +260,6 @@ class TestTransformsWithMetadata(unittest.TestCase):
         string_value = "hello"
         self.assertEqual(string_value, transform(string_value, schema, NO_INTEGER_DATETIME_PARSING, metadata=metadata))
 
-    def test_keeps_selected_data_from_dicts(self):
-        schema = {"type": "object",
-                  "properties": { "name": {"type": "string"}}}
-        metadata = {('properties','name'): {"selected": True}}
-        dict_value = {"name": "chicken"}
-        self.assertEqual({"name": "chicken"}, transform(dict_value, schema, NO_INTEGER_DATETIME_PARSING, metadata=metadata))
-
     def test_keeps_automatic_data_from_dicts(self):
         schema = {"type": "object",
                   "properties": { "name": {"type": "string"}}}
@@ -274,17 +267,38 @@ class TestTransformsWithMetadata(unittest.TestCase):
         dict_value = {"name": "chicken"}
         self.assertEqual({"name": "chicken"}, transform(dict_value, schema, NO_INTEGER_DATETIME_PARSING, metadata=metadata))
 
-    def test_keeps_fields_without_metadata(self):
+    def test_keeps_selected_data_from_dicts(self):
+        schema = {"type": "object",
+                  "properties": { "name": {"type": "string"}}}
+        metadata = {('properties','name'): {"selected": True}}
+        dict_value = {"name": "chicken"}
+        self.assertEqual({"name": "chicken"}, transform(dict_value, schema, NO_INTEGER_DATETIME_PARSING, metadata=metadata))
+
+    def test_keeps_selected_by_default_data_from_dicts(self):
+        schema = {"type": "object",
+                  "properties": { "name": {"type": "string"}}}
+        metadata = {('properties','name'): {"selected-by-default": True}}
+        dict_value = {"name": "chicken"}
+        self.assertEqual({"name": "chicken"}, transform(dict_value, schema, NO_INTEGER_DATETIME_PARSING, metadata=metadata))
+
+    def test_drops_fields_without_selected_or_selected_by_default_metadata(self):
         schema = {"type": "object",
                   "properties": { "name": {"type": "string"}}}
         metadata = {('properties','age'): {"inclusion": "automatic"}}
         dict_value = {"name": "chicken"}
-        self.assertEqual({"name": "chicken"}, transform(dict_value, schema, NO_INTEGER_DATETIME_PARSING, metadata=metadata))
+        self.assertEqual({}, transform(dict_value, schema, NO_INTEGER_DATETIME_PARSING, metadata=metadata))
 
     def test_drops_fields_which_are_unselected(self):
         schema = {"type": "object",
                   "properties": { "name": {"type": "string"}}}
         metadata = {('properties','name'): {"selected": False}}
+        dict_value = {"name": "chicken"}
+        self.assertEqual({}, transform(dict_value, schema, NO_INTEGER_DATETIME_PARSING, metadata=metadata))
+
+    def test_drops_fields_with_selected_by_default_true_but_selected_explicitly_false(self):
+        schema = {"type": "object",
+                  "properties": {"name": {"type": "string"}}}
+        metadata = {('properties', 'name'): {"selected": False, "selected-by-default": True}}
         dict_value = {"name": "chicken"}
         self.assertEqual({}, transform(dict_value, schema, NO_INTEGER_DATETIME_PARSING, metadata=metadata))
 
