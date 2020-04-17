@@ -265,7 +265,7 @@ class Transformer:
 
             if type(data) in (str, float, int):
                 try:
-                    return True, decimal.Decimal(str(data)).normalize()
+                    return True, str(decimal.Decimal(str(data)).normalize())
                 except:
                     return False, None
             elif isinstance(data, decimal.Decimal):
@@ -273,9 +273,9 @@ class Transformer:
                 if data.is_nan() or data.is_snan() or data.is_qnan():
                     return True, None
                 else:
-                    return True, data.normalize()
+                    return True, str(data.normalize())
 
-            return success, result
+            return False, None
         elif typ == "object":
             # Objects do not necessarily specify properties
             return self._transform_object(data,
