@@ -259,7 +259,23 @@ class Transformer:
                 return False, None
 
             return True, data
+        elif schema.get("format") == "decimal":
+            if data is None:
+                return False, None
 
+            if type(data) in (str, float, int):
+                try:
+                    return True, decimal.Decimal(str(data)).normalize()
+                except:
+                    return False, None
+            elif isinstance(data, decimal.Decimal):
+                # NB: This treats all NaN values as "null"
+                if data.is_nan() or data.is_snan() or data.is_qnan():
+                    return True, None
+                else:
+                    return True, data.normalize()
+
+            return success, result
         elif typ == "object":
             # Objects do not necessarily specify properties
             return self._transform_object(data,
