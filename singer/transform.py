@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import logging
 import re
 from jsonschema import RefResolver
@@ -263,7 +264,7 @@ class Transformer:
             if data is None:
                 return False, None
 
-            if type(data) in (str, float, int):
+            if isinstance(data, (str, float, int)):
                 try:
                     return True, str(decimal.Decimal(str(data)).normalize())
                 except:
