@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.9.1
+  * Add nested schema support to Transformer's `filter_data_by_metadata` function [#130](https://github.com/singer-io/singer-python/pull/130)
+
 ## 5.8.1
   * Allow empty lists for `key-properties` and `valid-replication-keys` in `get_standard_metadata` [#106](https://github.com/singer-io/singer-python/pull/106)
 
