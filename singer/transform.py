@@ -56,7 +56,7 @@ class SchemaMismatch(Exception):
             msg = "Errors during transform\n\t{}".format("\n\t".join(estrs))
             msg += "\n\n\nErrors during transform: [{}]".format(", ".join(estrs))
 
-        super(SchemaMismatch, self).__init__(msg)
+        super().__init__(msg)
 
 class SchemaKey:
     ref = "$ref"
