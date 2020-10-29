@@ -22,6 +22,37 @@ def write(compiled_metadata, breadcrumb, k, val):
 def get(compiled_metadata, breadcrumb, k):
     return compiled_metadata.get(breadcrumb, {}).get(k)
 
+def get_properties_metadata(schema, key_properties, parent=()):
+    mdata = {}
+    if 'object' in schema['type']:
+        for field_name, field_props in schema['properties'].items():
+            breadcrumb = parent + ('properties', field_name)
+            if key_properties and field_name in key_properties:
+                inclusion = 'automatic'
+            else:
+                inclusion = 'available'
+
+
+            mdata = write(mdata, breadcrumb, 'inclusion', inclusion)
+            mdata.update(
+                get_properties_metadata(
+                    field_props,
+                    key_properties,
+                    parent=breadcrumb
+                )
+            )
+    elif 'array' in schema['type']:
+        breadcrumb = parent + ('items',)
+        mdata.update(
+            get_properties_metadata(
+                schema['items'],
+                key_properties,
+                parent=breadcrumb
+            )
+        )
+
+    return mdata
+
 def get_standard_metadata(schema=None, schema_name=None, key_properties=None,
                           valid_replication_keys=None, replication_method=None):
     mdata = {(): {}}
@@ -37,10 +68,6 @@ def get_standard_metadata(schema=None, schema_name=None, key_properties=None,
 
         if schema_name:
             mdata = write(mdata, (), 'schema-name', schema_name)
-        for field_name in schema['properties'].keys():
-            if key_properties and field_name in key_properties:
-                mdata = write(mdata, ('properties', field_name), 'inclusion', 'automatic')
-            else:
-                mdata = write(mdata, ('properties', field_name), 'inclusion', 'available')
+        mdata.update(get_properties_metadata(schema, key_properties))
 
     return to_list(mdata)
