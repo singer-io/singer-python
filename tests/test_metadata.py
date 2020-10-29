@@ -27,6 +27,36 @@ def make_expected_metadata(base_obj, dict_of_extras, test_kp=False):
             'metadata': {
                 'inclusion': 'available',
             },
+            'breadcrumb': ('properties', 'location')
+        },
+        {
+            'metadata': {
+                'inclusion': 'available',
+            },
+            'breadcrumb': ('properties', 'location', 'properties', 'country')
+        },
+        {
+            'metadata': {
+                'inclusion': 'available',
+            },
+            'breadcrumb': ('properties', 'amounts')
+        },
+        {
+            'metadata': {
+                'inclusion': 'available',
+            },
+            'breadcrumb': ('properties', 'amounts', 'items', 'properties', 'value')
+        },
+        {
+            'metadata': {
+                'inclusion': 'available',
+            },
+            'breadcrumb': ('properties', 'ratings')
+        },
+        {
+            'metadata': {
+                'inclusion': 'available',
+            },
             'breadcrumb': ('properties', 'created')
         }
     ]
@@ -52,6 +82,30 @@ class TestStandardMetadata(unittest.TestCase):
             'properties': {
                 'id': {'type': ['null', 'string']},
                 'name': {'type': ['null', 'string']},
+                # test nested object
+                'location': {
+                    'type': ['null', 'object'],
+                    'properties': {
+                        'country': {'type': ['null', 'string']}
+                    }
+                },
+                # test array of objects
+                'amounts' : {
+                    'type': ['null', 'array'],
+                    'items': {
+                        'type': ['null', 'object'],
+                        'properties': {
+                            'value': {'type': ['null', 'number']},
+                        }
+                    }
+                },
+                # test array of simple types
+                'ratings': {
+                    'type': ['null', 'array'],
+                    'items': {
+                        'type': ['null', 'number'],
+                    }
+                },
                 'created': {'type': ['null', 'string'],
                             'format': 'date-time'},
             }
