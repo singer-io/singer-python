@@ -2,7 +2,7 @@ from pprint import pprint
 import unittest
 from singer.metadata import get_standard_metadata
 
-def make_expected_metadata(base_obj, dict_of_extras):
+def make_expected_metadata(base_obj, dict_of_extras, test_kp=False):
     metadata_value = {**base_obj}
     metadata_value.update(dict_of_extras)
 
@@ -13,7 +13,7 @@ def make_expected_metadata(base_obj, dict_of_extras):
         },
         {
             'metadata': {
-                'inclusion': 'available',
+                'inclusion': 'available' if test_kp is False else 'automatic',
             },
             'breadcrumb': ('properties', 'id')
         },
@@ -44,7 +44,7 @@ class TestStandardMetadata(unittest.TestCase):
         test_rk = ['id', 'created']
         metadata_kp = {'table-key-properties': ['id']}
         metadata_rm = {'forced-replication-method': 'INCREMENTAL'}
-        metadata_rk = {'valid_replication_keys': ['id','created']}
+        metadata_rk = {'valid-replication-keys': ['id','created']}
         schema_present_base_obj = {'inclusion': 'available'}
         test_schema = {
             'type': ['null', 'object'],
@@ -84,7 +84,7 @@ class TestStandardMetadata(unittest.TestCase):
                 },
                 make_expected_metadata(
                     schema_present_base_obj,
-                    {'valid_replication_keys': ['id','created'],
+                    {'valid-replication-keys': ['id','created'],
                      'schema-name':tap_stream_id}
                 )
             ),
@@ -112,7 +112,7 @@ class TestStandardMetadata(unittest.TestCase):
                 },
                 make_expected_metadata(
                     schema_present_base_obj,
-                    {'valid_replication_keys': ['id','created'],
+                    {'valid-replication-keys': ['id','created'],
                      'forced-replication-method': 'INCREMENTAL',
                      'schema-name':tap_stream_id}
                 )
@@ -128,7 +128,8 @@ class TestStandardMetadata(unittest.TestCase):
                 make_expected_metadata(
                     schema_present_base_obj,
                     {'table-key-properties': ['id'],
-                     'schema-name':tap_stream_id}
+                     'schema-name':tap_stream_id},
+                    test_kp=True
                 )
             ),
             (
@@ -143,8 +144,9 @@ class TestStandardMetadata(unittest.TestCase):
 
                     schema_present_base_obj,
                     {'table-key-properties': ['id'],
-                     'valid_replication_keys': ['id','created'],
-                     'schema-name':tap_stream_id}
+                     'valid-replication-keys': ['id','created'],
+                     'schema-name':tap_stream_id},
+                    test_kp=True
                 )
             ),
             (
@@ -159,7 +161,8 @@ class TestStandardMetadata(unittest.TestCase):
                     schema_present_base_obj,
                     {'table-key-properties': ['id'],
                      'forced-replication-method': 'INCREMENTAL',
-                     'schema-name':tap_stream_id}
+                     'schema-name':tap_stream_id},
+                    test_kp=True
                 )
             ),
             (
@@ -174,8 +177,9 @@ class TestStandardMetadata(unittest.TestCase):
                     schema_present_base_obj,
                     {'table-key-properties': ['id'],
                      'forced-replication-method': 'INCREMENTAL',
-                     'valid_replication_keys': ['id','created'],
-                     'schema-name':tap_stream_id}
+                     'valid-replication-keys': ['id','created'],
+                     'schema-name':tap_stream_id},
+                    test_kp=True
                 )
             ),
             (
@@ -188,7 +192,7 @@ class TestStandardMetadata(unittest.TestCase):
                 [
                     {
                         'metadata': {},
-                        'breadcrumb': []
+                        'breadcrumb': ()
                     }
                 ]
             ),
@@ -202,10 +206,9 @@ class TestStandardMetadata(unittest.TestCase):
                 [
                     {
                         'metadata': {
-                            'inclusion': 'available',
-                            'valid_replication_keys': ['id','created']
+                            'valid-replication-keys': ['id','created']
                         },
-                        'breadcrumb': []
+                        'breadcrumb': ()
                     }
                 ]
             ),
@@ -219,10 +222,9 @@ class TestStandardMetadata(unittest.TestCase):
                 [
                     {
                         'metadata': {
-                            'inclusion': 'available',
                             'forced-replication-method': 'INCREMENTAL'
                         },
-                        'breadcrumb': []
+                        'breadcrumb': ()
                     }
                 ]
             ),
@@ -236,11 +238,10 @@ class TestStandardMetadata(unittest.TestCase):
                 [
                     {
                         'metadata': {
-                            'inclusion': 'available',
                             'forced-replication-method': 'INCREMENTAL',
-                            'valid_replication_keys': ['id','created']
+                            'valid-replication-keys': ['id','created']
                         },
-                        'breadcrumb': []
+                        'breadcrumb': ()
                     }
                 ]
             ),
@@ -254,10 +255,9 @@ class TestStandardMetadata(unittest.TestCase):
                 [
                     {
                         'metadata': {
-                            'inclusion': 'available',
                             'table-key-properties': ['id'],
                         },
-                        'breadcrumb': []
+                        'breadcrumb': ()
                     }
                 ]
             ),
@@ -271,11 +271,10 @@ class TestStandardMetadata(unittest.TestCase):
                 [
                     {
                         'metadata': {
-                            'inclusion': 'available',
                             'table-key-properties': ['id'],
-                            'valid_replication_keys': ['id','created']
+                            'valid-replication-keys': ['id','created']
                         },
-                        'breadcrumb': []
+                        'breadcrumb': ()
                     }
                 ]
             ),
@@ -289,12 +288,11 @@ class TestStandardMetadata(unittest.TestCase):
                 [
                     {
                         'metadata': {
-                            'inclusion': 'available',
                             'table-key-properties': ['id'],
                             'forced-replication-method': 'INCREMENTAL',
-                            'valid_replication_keys': ['id','created']
+                            'valid-replication-keys': ['id','created']
                         },
-                        'breadcrumb': []
+                        'breadcrumb': ()
                     }
                 ]
             )
@@ -307,8 +305,7 @@ class TestStandardMetadata(unittest.TestCase):
             test_value = get_standard_metadata(**function_params)
 
             for obj in expected_metadata:
-                if obj in test_value:
-                    self.assertIn(obj, test_value)
+                self.assertIn(obj, test_value)
 
         # Test one function call where the parameters are not splat in
         test_value = get_standard_metadata(test_schema,
@@ -320,11 +317,11 @@ class TestStandardMetadata(unittest.TestCase):
         expected_metadata = make_expected_metadata(schema_present_base_obj,
                                                    {'table-key-properties': ['id'],
                                                     'forced-replication-method': 'INCREMENTAL',
-                                                    'valid_replication_keys': ['id','created'],
-                                                    'schema-name':tap_stream_id})
+                                                    'valid-replication-keys': ['id','created'],
+                                                    'schema-name':tap_stream_id},
+                                                    test_kp=True)
         for obj in expected_metadata:
-            if obj in test_value:
-                self.assertIn(obj, test_value)
+            self.assertIn(obj, test_value)
 
     def test_empty_key_properties_are_written(self):
         mdata = get_standard_metadata(key_properties=[])
