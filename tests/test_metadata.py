@@ -1,6 +1,6 @@
 from pprint import pprint
 import unittest
-from singer.metadata import get_standard_metadata
+from singer.metadata import get_standard_metadata, to_map
 
 def make_expected_metadata(base_obj, dict_of_extras, test_kp=False):
     metadata_value = {**base_obj}
