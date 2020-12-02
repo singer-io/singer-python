@@ -33,9 +33,8 @@ def make_expected_metadata(base_obj, dict_of_extras, test_kp=False):
 
 class TestStandardMetadata(unittest.TestCase):
 
-    #maxDiff = None
-
     def test_standard_metadata(self):
+        self.maxDiff = None
 
         # Some contants shared by a number of expected metadata objects
         tap_stream_id = 'employees'
