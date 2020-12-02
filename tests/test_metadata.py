@@ -218,7 +218,7 @@ class TestStandardMetadata(unittest.TestCase):
                         'metadata': {
                             'valid-replication-keys': ['id','created']
                         },
-                        'breadcrumb': ()
+                        'breadcrumb': []
                     }
                 ]
             ),
@@ -234,7 +234,7 @@ class TestStandardMetadata(unittest.TestCase):
                         'metadata': {
                             'forced-replication-method': 'INCREMENTAL'
                         },
-                        'breadcrumb': ()
+                        'breadcrumb': []
                     }
                 ]
             ),
@@ -251,7 +251,7 @@ class TestStandardMetadata(unittest.TestCase):
                             'forced-replication-method': 'INCREMENTAL',
                             'valid-replication-keys': ['id','created']
                         },
-                        'breadcrumb': ()
+                        'breadcrumb': []
                     }
                 ]
             ),
@@ -267,7 +267,7 @@ class TestStandardMetadata(unittest.TestCase):
                         'metadata': {
                             'table-key-properties': ['id'],
                         },
-                        'breadcrumb': ()
+                        'breadcrumb': []
                     }
                 ]
             ),
@@ -284,7 +284,7 @@ class TestStandardMetadata(unittest.TestCase):
                             'table-key-properties': ['id'],
                             'valid-replication-keys': ['id','created']
                         },
-                        'breadcrumb': ()
+                        'breadcrumb': []
                     }
                 ]
             ),
@@ -302,7 +302,7 @@ class TestStandardMetadata(unittest.TestCase):
                             'forced-replication-method': 'INCREMENTAL',
                             'valid-replication-keys': ['id','created']
                         },
-                        'breadcrumb': ()
+                        'breadcrumb': []
                     }
                 ]
             )
