@@ -34,6 +34,17 @@ def make_expected_metadata(base_obj, dict_of_extras, test_kp=False):
 class TestStandardMetadata(unittest.TestCase):
 
     def test_standard_metadata(self):
+        """
+        There's four inputs we want to test: schema, key_properties, replication_method, valid_replication_keys.
+
+        When `schema` is a non-null input, we expect `"inclusion": "available"` metadata for the `()` breadcrumb.
+
+        When `key_properties` is a non-null input, we expect `table-key-properties` metadata for the `()` breadcrumb.
+
+        When `replication_method` is a non-null input, we expect `forced-replication-method` metadata for the `()` breadcrumb.
+
+        When `valid_replication_keys` is a non-null input, we expect `valid-replication-keys` metadata for the `()` breadcrumb.
+        """
         self.maxDiff = None
 
         # Some contants shared by a number of expected metadata objects
