@@ -308,14 +308,16 @@ class TestStandardMetadata(unittest.TestCase):
             )
         ]
 
-        for var in test_variables:
-            function_params = var[0]
-            expected_metadata = var[1]
+        for i, var in enumerate(test_variables):
+            with self.subTest(test_number=i):
+                function_params = var[0]
+                expected_metadata = var[1]
 
-            test_value = get_standard_metadata(**function_params)
+                test_value = get_standard_metadata(**function_params)
 
-            for obj in expected_metadata:
-                self.assertIn(obj, test_value)
+                expected_value = to_map(expected_metadata)
+                actual_value = to_map(test_value)
+                self.assertDictEqual(expected_value, actual_value)
 
         # Test one function call where the parameters are not splat in
         test_value = get_standard_metadata(test_schema,
@@ -330,8 +332,10 @@ class TestStandardMetadata(unittest.TestCase):
                                                     'valid-replication-keys': ['id','created'],
                                                     'schema-name':tap_stream_id},
                                                     test_kp=True)
-        for obj in expected_metadata:
-            self.assertIn(obj, test_value)
+        self.assertDictEqual(
+            to_map(expected_metadata),
+            to_map(test_value)
+        )
 
     def test_empty_key_properties_are_written(self):
         mdata = get_standard_metadata(key_properties=[])
