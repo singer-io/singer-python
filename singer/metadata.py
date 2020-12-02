@@ -24,7 +24,7 @@ def get(compiled_metadata, breadcrumb, k):
 
 def get_standard_metadata(schema=None, schema_name=None, key_properties=None,
                           valid_replication_keys=None, replication_method=None):
-    mdata = {(): {}}
+    mdata = {}
 
     if key_properties is not None:
         mdata = write(mdata, (), 'table-key-properties', key_properties)
