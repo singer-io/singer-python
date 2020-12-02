@@ -2,7 +2,7 @@ from pprint import pprint
 import unittest
 from singer.metadata import get_standard_metadata, to_map
 
-def make_expected_metadata(base_obj, dict_of_extras, test_kp=False):
+def make_expected_metadata(base_obj, dict_of_extras, has_pk=False):
     metadata_value = {**base_obj}
     metadata_value.update(dict_of_extras)
 
@@ -13,7 +13,7 @@ def make_expected_metadata(base_obj, dict_of_extras, test_kp=False):
         },
         {
             'metadata': {
-                'inclusion': 'available' if test_kp is False else 'automatic',
+                'inclusion': 'automatic' if has_pk else 'available',
             },
             'breadcrumb': ('properties', 'id')
         },
@@ -139,7 +139,7 @@ class TestStandardMetadata(unittest.TestCase):
                     schema_present_base_obj,
                     {'table-key-properties': ['id'],
                      'schema-name':tap_stream_id},
-                    test_kp=True
+                    has_pk=True
                 )
             ),
             (
@@ -151,12 +151,11 @@ class TestStandardMetadata(unittest.TestCase):
                     'valid_replication_keys': test_rk
                 },
                 make_expected_metadata(
-
                     schema_present_base_obj,
                     {'table-key-properties': ['id'],
                      'valid-replication-keys': ['id','created'],
                      'schema-name':tap_stream_id},
-                    test_kp=True
+                    has_pk=True
                 )
             ),
             (
@@ -172,7 +171,7 @@ class TestStandardMetadata(unittest.TestCase):
                     {'table-key-properties': ['id'],
                      'forced-replication-method': 'INCREMENTAL',
                      'schema-name':tap_stream_id},
-                    test_kp=True
+                    has_pk=True
                 )
             ),
             (
@@ -189,7 +188,7 @@ class TestStandardMetadata(unittest.TestCase):
                      'forced-replication-method': 'INCREMENTAL',
                      'valid-replication-keys': ['id','created'],
                      'schema-name':tap_stream_id},
-                    test_kp=True
+                    has_pk=True
                 )
             ),
             (
@@ -331,7 +330,7 @@ class TestStandardMetadata(unittest.TestCase):
                                                     'forced-replication-method': 'INCREMENTAL',
                                                     'valid-replication-keys': ['id','created'],
                                                     'schema-name':tap_stream_id},
-                                                    test_kp=True)
+                                                   has_pk=True)
         self.assertDictEqual(
             to_map(expected_metadata),
             to_map(test_value)
