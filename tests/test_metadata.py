@@ -71,7 +71,7 @@ class TestStandardMetadata(unittest.TestCase):
         # dictionary of parameters for `get_standard_metadata()` and the
         # second element is the expected metadata
         test_variables = [
-            (
+            ( # test_number=0
                 {
                     'schema': test_schema,
                     'schema_name': tap_stream_id,
@@ -84,7 +84,7 @@ class TestStandardMetadata(unittest.TestCase):
                     {'schema-name': tap_stream_id,}
                 )
             ),
-            (
+            ( # test_number=1
                 {
                     'schema': test_schema,
                     'schema_name': tap_stream_id,
@@ -98,7 +98,7 @@ class TestStandardMetadata(unittest.TestCase):
                      'schema-name':tap_stream_id}
                 )
             ),
-            (
+            ( # test_number=2
                 {
                     'schema': test_schema,
                     'schema_name': tap_stream_id,
@@ -112,7 +112,7 @@ class TestStandardMetadata(unittest.TestCase):
                      'schema-name':tap_stream_id}
                 )
             ),
-            (
+            ( # test_number=3
                 {
                     'schema': test_schema,
                     'schema_name': tap_stream_id,
@@ -127,7 +127,7 @@ class TestStandardMetadata(unittest.TestCase):
                      'schema-name':tap_stream_id}
                 )
             ),
-            (
+            ( # test_number=4
                 {
                     'schema': test_schema,
                     'schema_name': tap_stream_id,
@@ -142,7 +142,7 @@ class TestStandardMetadata(unittest.TestCase):
                     has_pk=True
                 )
             ),
-            (
+            ( # test_number=5
                 {
                     'schema': test_schema,
                     'schema_name': tap_stream_id,
@@ -158,7 +158,7 @@ class TestStandardMetadata(unittest.TestCase):
                     has_pk=True
                 )
             ),
-            (
+            ( # test_number=6
                 {
                     'schema': test_schema,
                     'schema_name': tap_stream_id,
@@ -174,7 +174,7 @@ class TestStandardMetadata(unittest.TestCase):
                     has_pk=True
                 )
             ),
-            (
+            ( # test_number=7
                 {
                     'schema': test_schema,
                     'schema_name': tap_stream_id,
@@ -191,7 +191,7 @@ class TestStandardMetadata(unittest.TestCase):
                     has_pk=True
                 )
             ),
-            (
+            ( # test_number=8
                 {
                     'schema': None,
                     'key_properties': None,
@@ -205,7 +205,7 @@ class TestStandardMetadata(unittest.TestCase):
                     }
                 ]
             ),
-            (
+            ( # test_number=9
                 {
                     'schema': None,
                     'key_properties': None,
@@ -221,7 +221,7 @@ class TestStandardMetadata(unittest.TestCase):
                     }
                 ]
             ),
-            (
+            ( # test_number=10
                 {
                     'schema': None,
                     'key_properties': None,
@@ -237,7 +237,7 @@ class TestStandardMetadata(unittest.TestCase):
                     }
                 ]
             ),
-            (
+            ( # test_number=11
                 {
                     'schema': None,
                     'key_properties': None,
@@ -254,7 +254,7 @@ class TestStandardMetadata(unittest.TestCase):
                     }
                 ]
             ),
-            (
+            ( # test_number=12
                 {
                     'schema': None,
                     'key_properties': test_kp,
@@ -270,7 +270,7 @@ class TestStandardMetadata(unittest.TestCase):
                     }
                 ]
             ),
-            (
+            ( # test_number=13
                 {
                     'schema': None,
                     'key_properties': test_kp,
@@ -287,7 +287,7 @@ class TestStandardMetadata(unittest.TestCase):
                     }
                 ]
             ),
-            (
+            ( # test_number=15
                 {
                     'schema': None,
                     'key_properties': test_kp,
