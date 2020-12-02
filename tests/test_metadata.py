@@ -287,6 +287,23 @@ class TestStandardMetadata(unittest.TestCase):
                     }
                 ]
             ),
+            ( # test_number=14
+                {
+                    'schema': None,
+                    'key_properties': test_kp,
+                    'replication_method': test_rm,
+                    'valid_replication_keys': None
+                },
+                [
+                    {
+                        'metadata': {
+                            'table-key-properties': ['id'],
+                            'forced-replication-method': 'INCREMENTAL',
+                        },
+                        'breadcrumb': []
+                    }
+                ]
+            ),
             ( # test_number=15
                 {
                     'schema': None,
