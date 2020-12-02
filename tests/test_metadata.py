@@ -198,12 +198,7 @@ class TestStandardMetadata(unittest.TestCase):
                     'replication_method': None,
                     'valid_replication_keys': None
                 },
-                [
-                    {
-                        'metadata': {},
-                        'breadcrumb': ()
-                    }
-                ]
+                []
             ),
             ( # test_number=9
                 {
