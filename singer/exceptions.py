@@ -16,19 +16,15 @@ class SingerError(Exception):
 
 class SingerConfigurationError(SingerError):
     """The base class of errors encountered before discovery and before sync mode"""
-    pass
 
 
 class SingerDiscoveryError(SingerError):
     """The base class of errors encountered in discovery mode"""
-    pass
 
 
 class SingerSyncError(SingerError):
     """The base class of errors encountered in sync mode"""
-    pass
 
 
 class SingerRetryableRequestError(SingerError):
     """This error is meant to be thrown when a tap encounters a retryable request"""
-    pass
