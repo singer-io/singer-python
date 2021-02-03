@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.10.0
+  * Add exception classes [#138](https://github.com/singer-io/singer-python/pull/138)
+
 ## 5.9.1
   * Add nested schema support to Transformer's `filter_data_by_metadata` function [#130](https://github.com/singer-io/singer-python/pull/130)
 
