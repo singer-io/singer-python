@@ -229,7 +229,7 @@ def handle_top_exception(logger):
                 return fnc(*args, **kwargs)
             except Exception as exc:
                 for line in str(exc).splitlines():
-                    LOGGER.critical(line)
+                    logger.critical(line)
                 raise
         return wrapped
     return decorator
