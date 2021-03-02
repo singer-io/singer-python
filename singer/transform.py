@@ -251,6 +251,8 @@ class Transformer:
         if typ == "null":
             if data is None or data == "":
                 return True, None
+            elif isinstance(data, decimal.Decimal) and data.is_nan():
+                return True, None
             else:
                 return False, None
 
@@ -260,7 +262,7 @@ class Transformer:
                 return False, None
 
             return True, data
-        elif schema.get("format") == "decimal":
+        elif schema.get("format") == "singer.decimal":
             if data is None:
                 return False, None
 
