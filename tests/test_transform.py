@@ -268,7 +268,7 @@ class TestTransform(unittest.TestCase):
         self.assertEquals(negative_inf, transform(negative_inf, schema))
         self.assertEquals({'percentage': '1.4142135623730951'}, transform(root2, schema))
         self.assertEquals({'percentage': 'NaN'}, transform(nan, schema))
-        self.assertEquals({'percentage': 'sNaN'}, transform(snan, schema))
+        self.assertEquals({'percentage': 'NaN'}, transform(snan, schema))
 
 
         str1 = {'percentage':'0.1'}
