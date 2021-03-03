@@ -1,5 +1,4 @@
 import unittest
-import math
 import decimal
 from singer import transform
 from singer.transform import *
@@ -51,7 +50,6 @@ class TestTransform(unittest.TestCase):
         self.assertEqual(None, transform(None, {'type': [ 'string', 'null']}))
         self.assertEqual(None, transform('', {'type': ['null']}))
         self.assertEqual(None, transform(None, {'type': ['null']}))
-        self.assertEqual(None, transform(decimal.Decimal('NaN'), {'type': ['null']}))
 
     def test_datetime_transform(self):
         schema = {"type": "string", "format": "date-time"}
@@ -257,21 +255,21 @@ class TestTransform(unittest.TestCase):
 
     def test_decimal_types_transform(self):
         schema =  {"type": "object",
-                   "properties": {"percentage": {"type": ["null", "string"],
+                   "properties": {"percentage": {"type": ["string"],
                                                  "format": "singer.decimal"}}}
 
         inf = {'percentage': 'Infinity'}
         negative_inf = {'percentage': '-Infinity'}
-        root2  = {'percentage': math.sqrt(2)}
+        root2  = {'percentage': 1.4142135623730951}
         nan = {'percentage': decimal.Decimal('NaN')}
         snan = {'percentage': decimal.Decimal('sNaN')}
-        null = {'percentage': None}
+
         self.assertEquals(inf, transform(inf, schema))
         self.assertEquals(negative_inf, transform(negative_inf, schema))
-        self.assertEquals({'percentage': str(math.sqrt(2))}, transform(root2, schema))
-        self.assertEquals({'percentage': None}, transform(nan, schema))
-        self.assertEquals({'percentage': None}, transform(snan, schema))
-        self.assertEquals({'percentage':None}, transform(null, schema))
+        self.assertEquals({'percentage': '1.4142135623730951'}, transform(root2, schema))
+        self.assertEquals({'percentage': 'NaN'}, transform(nan, schema))
+        self.assertEquals({'percentage': 'sNaN'}, transform(snan, schema))
+
 
         str1 = {'percentage':'0.1'}
         str2 = {'percentage': '0.0000000000001'}
@@ -313,6 +311,9 @@ class TestTransform(unittest.TestCase):
         with self.assertRaises(SchemaMismatch):
             transform(bad1, schema)
 
+        badnull = {'percentage': None}
+        with self.assertRaises(SchemaMismatch):
+            self.assertEquals({'percentage':None}, transform(badnull, schema))
 
 class TestTransformsWithMetadata(unittest.TestCase):
 

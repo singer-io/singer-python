@@ -251,8 +251,6 @@ class Transformer:
         if typ == "null":
             if data is None or data == "":
                 return True, None
-            elif isinstance(data, decimal.Decimal) and data.is_nan():
-                return True, None
             else:
                 return False, None
 
@@ -272,11 +270,13 @@ class Transformer:
                 except:
                     return False, None
             elif isinstance(data, decimal.Decimal):
-                # NB: This treats all NaN values as "null"
-                if data.is_nan() or data.is_snan() or data.is_qnan():
-                    return True, None
-                else:
-                    return True, str(data.normalize())
+                try:
+                    if data.is_snan():
+                        return True, str(data)
+                    else:
+                        return True, str(data.normalize())
+                except:
+                    return False, None
 
             return False, None
         elif typ == "object":
