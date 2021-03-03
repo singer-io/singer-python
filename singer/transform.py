@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import logging
 import re
 from jsonschema import RefResolver
@@ -271,7 +272,25 @@ class Transformer:
                 return False, None
 
             return True, data
+        elif schema.get("format") == "singer.decimal":
+            if data is None:
+                return False, None
 
+            if isinstance(data, (str, float, int)):
+                try:
+                    return True, str(decimal.Decimal(str(data)).normalize())
+                except:
+                    return False, None
+            elif isinstance(data, decimal.Decimal):
+                try:
+                    if data.is_snan():
+                        return True, 'NaN'
+                    else:
+                        return True, str(data.normalize())
+                except:
+                    return False, None
+
+            return False, None
         elif typ == "object":
             # Objects do not necessarily specify properties
             return self._transform_object(data,
