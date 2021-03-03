@@ -73,6 +73,14 @@ from singer.bookmarks import (
     get_currently_syncing,
 )
 
+from singer.exceptions import (
+    SingerConfigurationError,
+    SingerDiscoveryError,
+    SingerError,
+    SingerRetryableRequestError,
+    SingerSyncError,
+)
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod()

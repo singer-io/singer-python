@@ -1,5 +1,14 @@
 # Changelog
 
+## 5.11.0
+  * Make `utils.handle_top_exception()` critically log each line of the exception separately so each line is prepended with `CRITICAL` [#141](https://github.com/singer-io/singer-python/pull/141)
+
+## 5.10.0
+  * Add exception classes [#138](https://github.com/singer-io/singer-python/pull/138)
+
+## 5.9.1
+  * Add nested schema support to Transformer's `filter_data_by_metadata` function [#130](https://github.com/singer-io/singer-python/pull/130)
+
 ## 5.8.1
   * Allow empty lists for `key-properties` and `valid-replication-keys` in `get_standard_metadata` [#106](https://github.com/singer-io/singer-python/pull/106)
 
