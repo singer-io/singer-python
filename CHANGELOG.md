@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.12.0
+  * Added support for `singer.decimal` types to transformer [#125](https://github.com/singer-io/singer-python/pull/125)
+
 ## 5.11.0
   * Make `utils.handle_top_exception()` critically log each line of the exception separately so each line is prepended with `CRITICAL` [#141](https://github.com/singer-io/singer-python/pull/141)
 
