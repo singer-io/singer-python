@@ -228,7 +228,8 @@ def handle_top_exception(logger):
             try:
                 return fnc(*args, **kwargs)
             except Exception as exc:
-                logger.critical(exc)
+                for line in str(exc).splitlines():
+                    logger.critical(line)
                 raise
         return wrapped
     return decorator

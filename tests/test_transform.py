@@ -357,6 +357,49 @@ class TestTransformsWithMetadata(unittest.TestCase):
         dict_value = {"name": "chicken"}
         self.assertEqual({}, transform(dict_value, schema, NO_INTEGER_DATETIME_PARSING, metadata=metadata))
 
+    def test_drops_nested_object_fields_which_are_unselected(self):
+        schema = {"type": "object",
+                   "properties": {"addr": {"type": "object",
+                                            "properties": {"addr1": {"type": "string"},
+                                                           "city": {"type": "string"},
+                                                           "state": {"type": "string"},
+                                                           'amount': {'type': 'integer'}}}}}
+        metadata = {
+            ('properties','addr'): {"selected": True},
+            ('properties','addr', 'properties','amount'): {"selected": False}
+        }
+        data = {'addr':
+            {'addr1': 'address_1', 'city': 'city_1', 'state': 'state_1', 'amount': '123'}
+        }
+        expected = {'addr':
+            {'addr1': 'address_1', 'city': 'city_1', 'state': 'state_1'},
+        }
+        self.assertDictEqual(expected, transform(data, schema, NO_INTEGER_DATETIME_PARSING, metadata=metadata))
+
+    def test_drops_nested_array_fields_which_are_unselected(self):
+        schema = {"type": "object",
+                   "properties": {"addrs": {"type": "array",
+                                            "items": {"type": "object",
+                                                      "properties": {"addr1": {"type": "string"},
+                                                                     "city": {"type": "string"},
+                                                                     "state": {"type": "string"},
+                                                                     'amount': {'type': 'integer'}}}}}}
+        metadata = {
+            ('properties','addrs'): {"selected": True},
+            ('properties','addrs','items','properties','amount'): {"selected": False}
+        }
+        data = {'addrs': [
+                {'addr1': 'address_1', 'city': 'city_1', 'state': 'state_1', 'amount': '123'},
+                {'addr1': 'address_2', 'city': 'city_2', 'state': 'state_2', 'amount': '456'}
+            ]
+        }
+        expected = {'addrs': [
+                {'addr1': 'address_1', 'city': 'city_1', 'state': 'state_1'},
+                {'addr1': 'address_2', 'city': 'city_2', 'state': 'state_2'}
+            ]
+        }
+        self.assertDictEqual(expected, transform(data, schema, NO_INTEGER_DATETIME_PARSING, metadata=metadata))
+
 class TestResolveSchemaReferences(unittest.TestCase):
     def test_internal_refs_resolve(self):
         schema =  {"type": "object",
