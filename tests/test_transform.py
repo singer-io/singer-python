@@ -279,24 +279,28 @@ class TestTransform(unittest.TestCase):
         self.assertEquals(str1, transform(str1, schema))
         self.assertEquals({'percentage': '1E-13'}, transform(str2, schema))
         self.assertEquals({'percentage': '1E+13'}, transform(str3, schema))
-        self.assertEquals({'percentage': '1E+2'}, transform(str4, schema))
-        self.assertEquals({'percentage': '-1E+2'}, transform(str5, schema))
+        self.assertEquals({'percentage': '100'}, transform(str4, schema))
+        self.assertEquals({'percentage': '-100'}, transform(str5, schema))
 
         float1 = {'percentage': 12.0000000000000000000000000001234556}
         float2 = {'percentage': 0.0123}
         float3 = {'percentage': 100.0123}
         float4 = {'percentage': -100.0123}
-        self.assertEquals({'percentage':'12'}, transform(float1, schema))
+        float5 = {'percentage': 0.000001}
+        float6 = {'percentage': 0.0000001}
+        self.assertEquals({'percentage':'12.0'}, transform(float1, schema))
         self.assertEquals({'percentage':'0.0123'}, transform(float2, schema))
         self.assertEquals({'percentage':'100.0123'}, transform(float3, schema))
         self.assertEquals({'percentage':'-100.0123'}, transform(float4, schema))
+        self.assertEquals({'percentage':'0.000001'}, transform(float5, schema))
+        self.assertEquals({'percentage':'1E-7'}, transform(float6, schema))
 
         int1 = {'percentage': 123}
         int2 = {'percentage': 0}
         int3 = {'percentage': -1000}
         self.assertEquals({'percentage':'123'}, transform(int1, schema))
         self.assertEquals({'percentage':'0'}, transform(int2, schema))
-        self.assertEquals({'percentage':'-1E+3'}, transform(int3, schema))
+        self.assertEquals({'percentage':'-1000'}, transform(int3, schema))
 
         dec1 = {'percentage': decimal.Decimal('1.1010101')}
         dec2 = {'percentage': decimal.Decimal('.111111111111111111111111')}
@@ -305,7 +309,7 @@ class TestTransform(unittest.TestCase):
         self.assertEquals({'percentage':'1.1010101'}, transform(dec1, schema))
         self.assertEquals({'percentage':'0.111111111111111111111111'}, transform(dec2, schema))
         self.assertEquals({'percentage':'-0.111111111111111111111111'}, transform(dec3, schema))
-        self.assertEquals({'percentage':'1E+2'}, transform(dec4, schema))
+        self.assertEquals({'percentage':'100'}, transform(dec4, schema))
 
         bad1 = {'percentage': 'fsdkjl'}
         with self.assertRaises(SchemaMismatch):
