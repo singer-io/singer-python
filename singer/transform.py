@@ -278,7 +278,7 @@ class Transformer:
 
             if isinstance(data, (str, float, int)):
                 try:
-                    return True, str(decimal.Decimal(str(data)).normalize())
+                    return True, str(decimal.Decimal(str(data)))
                 except:
                     return False, None
             elif isinstance(data, decimal.Decimal):
@@ -286,7 +286,7 @@ class Transformer:
                     if data.is_snan():
                         return True, 'NaN'
                     else:
-                        return True, str(data.normalize())
+                        return True, str(data)
                 except:
                     return False, None
 
