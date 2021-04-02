@@ -1,4 +1,7 @@
 # Changelog
+## 5.12.2
+  * Update dependencies versions
+
 ## 5.12.1
   * Removes normalize function from `singer.decimal` to avoid scientific notation [#146](https://github.com/singer-io/singer-python/pull/146)
 
