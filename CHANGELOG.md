@@ -1,7 +1,7 @@
 # Changelog
 
 ## 5.12.2
-  * Removes pinned `pytz` version [#150](https://github.com/singer-io/singer-python/pull/150)
+  * Removes pinned `pytz` version [#152](https://github.com/singer-io/singer-python/pull/152)
 
 ## 5.12.1
   * Removes normalize function from `singer.decimal` to avoid scientific notation [#146](https://github.com/singer-io/singer-python/pull/146)
