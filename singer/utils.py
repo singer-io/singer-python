@@ -134,6 +134,7 @@ def parse_args(required_config_keys):
     -d,--discover   Run in discover mode
     -p,--properties Properties file: DEPRECATED, please use --catalog instead
     --catalog       Catalog file
+    -dev, --dev     Runs the tap in dev mode
 
     Returns the parsed args object from argparse. For each argument that
     point to JSON files (config, state, properties), we will automatically
@@ -162,6 +163,11 @@ def parse_args(required_config_keys):
         '-d', '--discover',
         action='store_true',
         help='Do schema discovery')
+
+    parser.add_argument(
+        '-dev', '--dev',
+        action='store_true',
+        help='Runs tap in dev mode')
 
     args = parser.parse_args()
     if args.config:
