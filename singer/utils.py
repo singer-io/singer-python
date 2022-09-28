@@ -165,7 +165,7 @@ def parse_args(required_config_keys):
         help='Do schema discovery')
 
     parser.add_argument(
-        '-dev', '--dev',
+        '-D', '--dev',
         action='store_true',
         help='Runs tap in dev mode')
 
