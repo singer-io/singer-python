@@ -1,3 +1,6 @@
+#THIS IS THE UTILS CLASS FROM THE SINGER REPOSITORY!! THE CODE IS CHANGED TO DECRYPT THE API KEY OR PASSWORDS THAT ARE PASSED
+#TO THIS CLASS SO THAT WE DONT HAVE TO KEEP THE PLAIN PASSWORDS IN OUR CONFIG FILES
+
 import argparse
 import collections
 import datetime
@@ -5,6 +8,9 @@ import functools
 import json
 import time
 from warnings import warn
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP
+import base64
 
 import dateutil.parser
 import pytz
@@ -167,6 +173,7 @@ def parse_args(required_config_keys):
     if args.config:
         setattr(args, 'config_path', args.config)
         args.config = load_json(args.config)
+
     if args.state:
         setattr(args, 'state_path', args.state)
         args.state = load_json(args.state)
@@ -175,11 +182,20 @@ def parse_args(required_config_keys):
     if args.properties:
         setattr(args, 'properties_path', args.properties)
         args.properties = load_json(args.properties)
+
     if args.catalog:
         setattr(args, 'catalog_path', args.catalog)
         args.catalog = Catalog.load(args.catalog)
 
     check_config(args.config, required_config_keys)
+    
+    for key, value in args.config.items():
+        if isinstance(value, str):
+            if len(value) >= 344 and value[-2:] == "==":
+                privateKey = RSA.importKey(open("/etc/private.pem","rb").read())
+                cipher_rsa = PKCS1_OAEP.new(privateKey)
+                decryptedPassword = cipher_rsa.decrypt(base64.b64decode(value)).decode()
+                args.config[key] = decryptedPassword 
 
     return args
 
