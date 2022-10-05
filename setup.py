@@ -15,6 +15,8 @@ setup(name="singer-python",
           'simplejson==3.11.1',
           'python-dateutil>=2.6.0',
           'backoff==1.8.0',
+          'pycryptodome',
+          'pycryptodomex',
 	  'ciso8601',
       ],
       extras_require={
