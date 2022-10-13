@@ -40,7 +40,7 @@ def strptime(dtime):
       ...
     ValueError: time data '2018-01-01T00:00:00' does not match format '%Y-%m-%dT%H:%M:%SZ'
 
-    Can't parse non-UTC DTsx
+    Can't parse non-UTC DTs
     >>> strptime("2018-01-01T00:00:00-04:00")
     Traceback (most recent call last):
       ...
@@ -134,7 +134,7 @@ def parse_args(required_config_keys):
     -d,--discover   Run in discover mode
     -p,--properties Properties file: DEPRECATED, please use --catalog instead
     --catalog       Catalog file
-    -D, --dev     Runs the tap in dev mode
+    --dev     Runs the tap in dev mode
 
     Returns the parsed args object from argparse. For each argument that
     point to JSON files (config, state, properties), we will automatically
@@ -165,7 +165,7 @@ def parse_args(required_config_keys):
         help='Do schema discovery')
 
     parser.add_argument(
-        '-D', '--dev',
+        '--dev',
         action='store_true',
         help='Runs tap in dev mode')
 
