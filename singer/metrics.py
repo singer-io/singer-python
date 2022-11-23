@@ -44,10 +44,10 @@ import json
 import re
 import time
 from collections import namedtuple
-from singer.logger import get_logger
+from singer.logger import Logger
 
 DEFAULT_LOG_INTERVAL = 60
-
+LOGGER = Logger()
 
 class Status:
     '''Constants for status codes'''
@@ -84,7 +84,7 @@ def log(logger, point):
         'value': point.value,
         'tags': point.tags
     }
-    logger.info('METRIC: %s', json.dumps(result))
+    logger.log_info('METRIC: %s', json.dumps(result))
 
 
 class Counter():
@@ -118,7 +118,7 @@ class Counter():
         self.value = 0
         self.tags = tags if tags else {}
         self.log_interval = log_interval
-        self.logger = get_logger()
+        self.logger = Logger()
         self.last_log_time = time.time()
 
     def __enter__(self):
@@ -173,7 +173,7 @@ class Timer():  # pylint: disable=too-few-public-methods
     def __init__(self, metric, tags):
         self.metric = metric
         self.tags = tags if tags else {}
-        self.logger = get_logger()
+        self.logger = Logger()
         self.start_time = None
 
     def __enter__(self):
@@ -244,5 +244,5 @@ def parse(line):
                 value=raw.get('value'),
                 tags=raw.get('tags'))
         except Exception as exc:  # pylint: disable=broad-except
-            get_logger().warning('Error parsing metric: %s', exc)
+            LOGGER.log_warning('Error parsing metric: %s', exc)
     return None

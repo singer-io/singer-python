@@ -5,8 +5,8 @@ import simplejson as json
 import ciso8601
 
 import singer.utils as u
-from .logger import get_logger
-LOGGER = get_logger()
+from .logger import Logger
+LOGGER = Logger()
 
 class Message():
     '''Base class for messages.'''
@@ -191,7 +191,7 @@ def parse_message(msg):
             try:
                 time_extracted = ciso8601.parse_datetime(time_extracted)
             except:
-                LOGGER.warning("unable to parse time_extracted with ciso8601 library")
+                LOGGER.log_warning("unable to parse time_extracted with ciso8601 library")
                 time_extracted = None
 
 

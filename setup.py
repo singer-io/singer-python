@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 from setuptools import setup, find_packages
-import subprocess
 
 setup(name="singer-python",
       version='5.13.0',
@@ -15,7 +14,7 @@ setup(name="singer-python",
           'simplejson==3.11.1',
           'python-dateutil>=2.6.0',
           'backoff==1.8.0',
-	  'ciso8601',
+          'ciso8601',
       ],
       extras_require={
           'dev': [
