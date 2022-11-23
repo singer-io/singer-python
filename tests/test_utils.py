@@ -3,7 +3,7 @@ from datetime import datetime as dt
 import pytz
 import logging
 import singer.utils as u
-
+import json
 
 class TestFormat(unittest.TestCase):
     def test_small_years(self):
@@ -33,3 +33,22 @@ class TestHandleException(unittest.TestCase):
         def foo():
             raise RuntimeError("foo")
         self.assertRaises(RuntimeError, foo)
+
+class TestUpdateConfig(unittest.TestCase):
+    def test_file_changed(self):
+        original_config = {'key_a': 'val_a'}
+
+        with open('config.json', 'w') as file:
+            file.write(json.dumps(original_config))
+
+        changed_config = {'key_b': 'val_b'}
+
+        u.update_config_file('config.json', changed_config)
+
+        read_config = u.load_json('config.json')
+
+        self.assertEqual(changed_config.get('key_b'), read_config.get('key_b'))
+
+    def tearDown(self):
+        import os
+        os.remove('config.json')
