@@ -1,5 +1,6 @@
 import unittest
 
+from singer.bookmarks import State
 from singer.schema import Schema
 from singer.catalog import Catalog, CatalogEntry, write_catalog
 
@@ -23,7 +24,7 @@ class TestGetSelectedStreams(unittest.TestCase):
             [selected_entry,
              CatalogEntry(tap_stream_id='b',schema=Schema(),metadata=[]),
              CatalogEntry(tap_stream_id='c',schema=Schema(),metadata=[])])
-        state = {}
+        state = State()
         selected_streams = catalog.get_selected_streams(state)
         self.assertEquals([e for e in selected_streams],[selected_entry])
 
@@ -42,7 +43,7 @@ class TestGetSelectedStreams(unittest.TestCase):
             [selected_entry_a,
              CatalogEntry(tap_stream_id='b',schema=Schema(),metadata=[]),
              selected_entry_c])
-        state = {'currently_syncing': 'c'}
+        state = State(currently_syncing='c')
         selected_streams = catalog.get_selected_streams(state)
         self.assertEquals([e for e in selected_streams][0],selected_entry_c)
 

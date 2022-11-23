@@ -3,7 +3,6 @@ import json
 import sys
 
 from . import metadata as metadata_module
-from .bookmarks import get_currently_syncing
 from .logger import get_logger
 from .schema import Schema
 
@@ -132,7 +131,7 @@ class Catalog():
         return None
 
     def _shuffle_streams(self, state):
-        currently_syncing = get_currently_syncing(state)
+        currently_syncing = state.get_currently_syncing()
 
         if currently_syncing is None:
             return self.streams
