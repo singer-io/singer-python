@@ -145,11 +145,11 @@ class Transformer:
 
         return data
 
-    def transform(self, data, schema, metadata=None):
+    def transform(self, data, schema, metadata=None, ignoreErrors=False):
         data = self.filter_data_by_metadata(data, metadata)
 
         success, transformed_data = self.transform_recur(data, schema, [])
-        if not success:
+        if not success and not ignoreErrors:
             raise SchemaMismatch(self.errors)
 
         return transformed_data
@@ -342,7 +342,7 @@ class Transformer:
 
 
 def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING,
-              pre_hook=None, metadata=None):
+              pre_hook=None, metadata=None, ignoreErrors=False):
     """
     Applies schema (and integer_datetime_fmt, if supplied) to data, transforming
     each field in data to the type specified in schema. If no type matches a
@@ -361,7 +361,7 @@ def transform(data, schema, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING,
     returns the transformed data to be fed into the _transform function.
     """
     transformer = Transformer(integer_datetime_fmt, pre_hook)
-    return transformer.transform(data, schema, metadata=metadata)
+    return transformer.transform(data, schema, metadata=metadata, ignoreErrors=ignoreErrors)
 
 def _transform_datetime(value, integer_datetime_fmt=NO_INTEGER_DATETIME_PARSING):
     transformer = Transformer(integer_datetime_fmt)
