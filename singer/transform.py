@@ -177,7 +177,9 @@ class Transformer:
         else: # pylint: disable=useless-else-on-loop
             # exhaused all types and didn't return, so we failed :-(
             self.errors.append(Error(path, data, schema, logging_level=LOGGER.level))
-            return False, None
+            if not transformed_data:
+                transformed_data = None
+            return False, transformed_data
 
     def _transform_anyof(self, data, schema, path):
         subschemas = schema['anyOf']
