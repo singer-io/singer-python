@@ -177,6 +177,9 @@ class Transformer:
         else: # pylint: disable=useless-else-on-loop
             # exhaused all types and didn't return, so we failed :-(
             self.errors.append(Error(path, data, schema, logging_level=LOGGER.level))
+            # Peliqan update: even when transform partially failed we want to return the transformed_data.
+            # E.g. transform of one value failed inside an entire object (row): _transform > _transform_object will still return the transformed data.
+            # Otherwise an entire row would not be transformed if one value would fail. Assuming ignoreErrors=True is used.
             if not transformed_data:
                 transformed_data = None
             return False, transformed_data
