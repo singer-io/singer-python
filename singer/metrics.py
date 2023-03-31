@@ -113,12 +113,12 @@ class Counter():
 
     '''
 
-    def __init__(self, metric, tags=None, log_interval=DEFAULT_LOG_INTERVAL):
+    def __init__(self, metric, tags=None, log_interval=DEFAULT_LOG_INTERVAL, is_target=False):
         self.metric = metric
         self.value = 0
         self.tags = tags if tags else {}
         self.log_interval = log_interval
-        self.logger = get_logger()
+        self.logger = get_logger(is_target=is_target)
         self.last_log_time = time.time()
 
     def __enter__(self):
@@ -170,10 +170,10 @@ class Timer():  # pylint: disable=too-few-public-methods
     },
 
     '''
-    def __init__(self, metric, tags):
+    def __init__(self, metric, tags, is_target=False):
         self.metric = metric
         self.tags = tags if tags else {}
-        self.logger = get_logger()
+        self.logger = get_logger(is_target=is_target)
         self.start_time = None
 
     def __enter__(self):
@@ -193,7 +193,7 @@ class Timer():  # pylint: disable=too-few-public-methods
         log(self.logger, Point('timer', self.metric, self.elapsed(), self.tags))
 
 
-def record_counter(endpoint=None, log_interval=DEFAULT_LOG_INTERVAL):
+def record_counter(endpoint=None, log_interval=DEFAULT_LOG_INTERVAL, is_target=False):
     '''Use for counting records retrieved from the source.
 
     with singer.metrics.record_counter(endpoint="users") as counter:
@@ -204,10 +204,10 @@ def record_counter(endpoint=None, log_interval=DEFAULT_LOG_INTERVAL):
     tags = {}
     if endpoint:
         tags[Tag.endpoint] = endpoint
-    return Counter(Metric.record_count, tags, log_interval=log_interval)
+    return Counter(Metric.record_count, tags, log_interval=log_interval, is_target=is_target)
 
 
-def http_request_timer(endpoint):
+def http_request_timer(endpoint, is_target=False):
     '''Use for timing HTTP requests to an endpoint
 
     with singer.metrics.http_request_timer("users") as timer:
@@ -216,10 +216,10 @@ def http_request_timer(endpoint):
     tags = {}
     if endpoint:
         tags[Tag.endpoint] = endpoint
-    return Timer(Metric.http_request_duration, tags)
+    return Timer(Metric.http_request_duration, tags, is_target=is_target)
 
 
-def job_timer(job_type=None):
+def job_timer(job_type=None, is_target=False):
     '''Use for timing asynchronous jobs
 
     with singer.metrics.job_timer(job_type="users") as timer:
@@ -228,10 +228,10 @@ def job_timer(job_type=None):
     tags = {}
     if job_type:
         tags[Tag.job_type] = job_type
-    return Timer(Metric.job_duration, tags)
+    return Timer(Metric.job_duration, tags, is_target=is_target)
 
 
-def parse(line):
+def parse(line, is_target=False):
     '''Parse a Point from a log line and return it, or None if no data point.'''
     match = re.match(r'^INFO METRIC: (.*)$', line)
     if match:
@@ -244,5 +244,5 @@ def parse(line):
                 value=raw.get('value'),
                 tags=raw.get('tags'))
         except Exception as exc:  # pylint: disable=broad-except
-            get_logger().warning('Error parsing metric: %s', exc)
+            get_logger(is_target=is_target).warning('Error parsing metric: %s', exc)
     return None
