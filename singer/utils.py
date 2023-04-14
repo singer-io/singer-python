@@ -190,7 +190,9 @@ def parse_args(required_config_keys):
     check_config(args.config, required_config_keys)
     
     for key, value in args.config.items():
-        if isinstance(value, str) and key == 'password':
+        # if isinstance(value, str) and key == 'password':
+        # 16mb rsa key will generate a 2732 character encrypted string with '=' at the end
+        if len(value) >= 2732 and value[-1:] == "=":
             privateKey = RSA.importKey(open("/etc/oauth_keys/private.pem", "rb").read())
             cipher_rsa = PKCS1_OAEP.new(privateKey)
             decryptedPassword = cipher_rsa.decrypt(base64.b64decode(value)).decode()
