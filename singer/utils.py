@@ -195,6 +195,7 @@ def parse_args(required_config_keys):
             privateKey = RSA.importKey(open("/etc/oauth_keys/private.pem", "rb").read())
             cipher_rsa = PKCS1_OAEP.new(privateKey)
             decryptedPassword = cipher_rsa.decrypt(base64.b64decode(value)).decode()
+            args.config['encrypted_password'] = value
             args.config[key] = decryptedPassword
 
     return args
