@@ -1,5 +1,4 @@
-#THIS IS THE UTILS CLASS FROM THE SINGER REPOSITORY!! THE CODE IS CHANGED TO DECRYPT THE API KEY OR PASSWORDS THAT ARE PASSED
-#TO THIS CLASS SO THAT WE DONT HAVE TO KEEP THE PLAIN PASSWORDS IN OUR CONFIG FILES
+
 
 import argparse
 import collections
@@ -189,14 +188,13 @@ def parse_args(required_config_keys):
 
     check_config(args.config, required_config_keys)
 
-    password = args.config.get('password', None)
     # 16mb rsa key will generate a 2732 character encrypted string with '=' at the end
-    if type(password) == str and len(password) >= 2732 and password[-1:] == "=":
-        privateKey = RSA.importKey(open("/etc/oauth_keys/private.pem", "rb").read())
-        cipher_rsa = PKCS1_OAEP.new(privateKey)
-        decryptedPassword = cipher_rsa.decrypt(base64.b64decode(password)).decode()
-        args.config['encrypted_password'] = password
-        args.config['password'] = decryptedPassword
+    for key, value in args.config.items():
+        if type(value) == str and len(value) >= 2732 and value[-1:] == "=":
+            privateKey = RSA.importKey(open("/etc/oauth_keys/private.pem", "rb").read())
+            cipher_rsa = PKCS1_OAEP.new(privateKey)
+            decrypted = cipher_rsa.decrypt(base64.b64decode(value)).decode()
+            args.config[key] = decrypted
 
     return args
 
