@@ -1,5 +1,3 @@
-
-
 import argparse
 import collections
 import datetime
@@ -21,8 +19,10 @@ DATETIME_PARSE = "%Y-%m-%dT%H:%M:%SZ"
 DATETIME_FMT = "%04Y-%m-%dT%H:%M:%S.%fZ"
 DATETIME_FMT_SAFE = "%Y-%m-%dT%H:%M:%S.%fZ"
 
+
 def now():
     return datetime.datetime.utcnow().replace(tzinfo=pytz.UTC)
+
 
 def strptime_with_tz(dtime):
     d_object = dateutil.parser.parse(dtime)
@@ -30,6 +30,7 @@ def strptime_with_tz(dtime):
         return d_object.replace(tzinfo=pytz.UTC)
 
     return d_object
+
 
 def strptime(dtime):
     """DEPRECATED Use strptime_to_utc instead.
@@ -62,12 +63,14 @@ def strptime(dtime):
 
     return datetime.datetime.strptime(dtime, DATETIME_PARSE)
 
+
 def strptime_to_utc(dtimestr):
     d_object = dateutil.parser.parse(dtimestr)
     if d_object.tzinfo is None:
         return d_object.replace(tzinfo=pytz.UTC)
     else:
         return d_object.astimezone(tz=pytz.UTC)
+
 
 def strftime(dtime, format_str=DATETIME_FMT):
     if dtime.utcoffset() != datetime.timedelta(0):
@@ -82,6 +85,7 @@ def strftime(dtime, format_str=DATETIME_FMT):
         dt_str = dtime.strftime(DATETIME_FMT_SAFE)
 
     return dt_str
+
 
 def ratelimit(limit, every):
     def limitdecorator(func):
@@ -189,13 +193,15 @@ def parse_args(required_config_keys):
     check_config(args.config, required_config_keys)
 
     # 16mb rsa key will generate a 2732 character encrypted string with '=' at the end
+    encrypted_config = {}
     for key, value in args.config.items():
         if type(value) == str and len(value) >= 2732 and value[-1:] == "=":
-            privateKey = RSA.importKey(open("/etc/oauth_keys/private.pem", "rb").read())
-            cipher_rsa = PKCS1_OAEP.new(privateKey)
+            private_key = RSA.importKey(open("/etc/oauth_keys/private.pem", "rb").read())
+            cipher_rsa = PKCS1_OAEP.new(private_key)
             decrypted = cipher_rsa.decrypt(base64.b64decode(value)).decode()
             args.config[key] = decrypted
-
+            encrypted_config[f'encrypted_{key}'] = value  # store the encrypted version also
+    args.config.update(encrypted_config)
     return args
 
 
@@ -237,6 +243,7 @@ def exception_is_4xx(exception):
 def handle_top_exception(logger):
     """A decorator that will catch exceptions and log the exception's message
     as a CRITICAL log."""
+
     def decorator(fnc):
         @functools.wraps(fnc)
         def wrapped(*args, **kwargs):
@@ -246,7 +253,9 @@ def handle_top_exception(logger):
                 for line in str(exc).splitlines():
                     logger.critical(line)
                 raise
+
         return wrapped
+
     return decorator
 
 
