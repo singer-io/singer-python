@@ -7,7 +7,7 @@ def get_logger(is_target=False):
     """Return a Logger instance appropriate for using in a Tap or a Target."""
     this_dir, _ = os.path.split(__file__)
     path = os.path.join(this_dir, 'logging.conf')
-    name = 'TARGET' if is_target else None
+    name = 'TARGET' if is_target else 'SOURCE'
     # See
     # https://docs.python.org/3.5/library/logging.config.html#logging.config.fileConfig
     # for a discussion of why or why not to set disable_existing_loggers
