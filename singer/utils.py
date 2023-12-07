@@ -214,7 +214,6 @@ def parse_args(required_config_keys):
 
     check_config(args.config, required_config_keys)
 
-    # 16mb rsa key will generate a 2732 character encrypted string with '=' at the end
     encrypted_config = {}
     aes_secret_key = os.environ['AES_SECRET_KEY']  # must fail if the env variable is not set
 
