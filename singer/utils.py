@@ -3,10 +3,11 @@ import collections
 import datetime
 import functools
 import json
+import os
+import re
 import time
 from warnings import warn
-from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_OAEP
+from Crypto.Cipher import AES
 import base64
 
 import dateutil.parser
@@ -132,6 +133,27 @@ def update_state(state, entity, dtime):
         state[entity] = dtime
 
 
+def decrypt_string_with_aes(string_to_decrypt, aes_key):
+    """
+    Decrypt using a 128-bit key (AES).
+    The encrypted string has the form <nonce>$<cipher_text>$<mac_tag>
+    """
+    nonce, ciphertext, mac_tag = string_to_decrypt.split("$", maxsplit=2)
+
+    nonce = base64.urlsafe_b64decode(nonce)
+
+    aes_key = bytes(aes_key, 'utf-8')
+    cipher = AES.new(aes_key, AES.MODE_EAX, nonce=nonce)
+
+    mac_tag = base64.urlsafe_b64decode(mac_tag)
+
+    ciphertext = base64.urlsafe_b64decode(ciphertext)
+    plaintext = cipher.decrypt(ciphertext)
+
+    cipher.verify(mac_tag)  # verify must be done after decrypt
+    return plaintext.decode()
+
+
 def parse_args(required_config_keys):
     '''Parse standard command-line args.
 
@@ -194,13 +216,19 @@ def parse_args(required_config_keys):
 
     # 16mb rsa key will generate a 2732 character encrypted string with '=' at the end
     encrypted_config = {}
+    aes_secret_key = os.environ['AES_SECRET_KEY']  # must fail if the env variable is not set
+
     for key, value in args.config.items():
-        if type(value) == str and len(value) >= 2732 and value[-1:] == "=":
-            private_key = RSA.importKey(open("/etc/oauth_keys/private.pem", "rb").read())
-            cipher_rsa = PKCS1_OAEP.new(private_key)
-            decrypted = cipher_rsa.decrypt(base64.b64decode(value)).decode()
-            args.config[key] = decrypted
-            encrypted_config[f'encrypted_{key}'] = value  # store the encrypted version also
+        pattern = re.compile("(.*\$){2}.*==")  # AES value will be in the format <nonce>$<ciphertext>$<mac_tag>
+
+        if type(value) == str and re.match(pattern, value):
+            try:
+                decrypted = decrypt_string_with_aes(value, aes_secret_key)
+                args.config[key] = decrypted
+                encrypted_config[f'encrypted_{key}'] = value  # store the encrypted version also
+            except Exception:
+                pass
+
     args.config.update(encrypted_config)
     return args
 
