@@ -15,7 +15,8 @@ setup(name="singer-python",
           'simplejson==3.11.1',
           'python-dateutil>=2.6.0',
           'backoff==1.8.0',
-	  'ciso8601',
+          'ciso8601',
+          'importlib-resources>=1.3; python_version<"3.9"',
       ],
       extras_require={
           'dev': [
