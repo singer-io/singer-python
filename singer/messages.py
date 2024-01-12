@@ -169,7 +169,7 @@ class ActivateVersionMessage(Message):
 
 def _required_key(msg, k):
     if k not in msg:
-        raise Exception(f"Message is missing required key '{k}': {msg}"
+        raise Exception(f"Message is missing required key '{k}': {msg}")
 
     return msg[k]
 
