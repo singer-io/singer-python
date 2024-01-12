@@ -105,7 +105,7 @@ def chunk(array, num):
 
 
 def load_json(path):
-    with open(path) as fil:
+    with open(path, encoding="utf-8") as fil:
         return json.load(fil)
 
 
@@ -193,7 +193,7 @@ def parse_args(required_config_keys):
 def check_config(config, required_keys):
     missing_keys = [key for key in required_keys if key not in config]
     if missing_keys:
-        raise Exception("Config is missing required keys: {}".format(missing_keys))
+        raise Exception(f"Config is missing required keys: {missing_keys}"
 
 
 def backoff(exceptions, giveup):

@@ -11,7 +11,7 @@ class SingerError(Exception):
         The first line is the error's class name. The subsequent lines are
         the message that class was created with.
         """
-        super().__init__('{}\n{}'.format(self.__class__.__name__, message))
+        super().__init__(f'{(self.__class__.__name__}\n{message}')
 
 
 class SingerConfigurationError(SingerError):
