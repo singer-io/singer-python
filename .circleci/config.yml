@@ -1,19 +1,22 @@
-version: 2
+version: 2.1
+
+workflows:
+  build:
+    jobs:
+      - build:
+          context:
+            - circleci-user
+
 jobs:
   build:
     docker:
-      - image: ubuntu:16.04
+      - image: 218546966473.dkr.ecr.us-east-1.amazonaws.com/sources-python:1.1.0
     steps:
       - checkout
       - run:
-          name: 'Install python 3.5.2'
-          command: |
-            apt update
-            apt install --yes python3 python3-pip python3-venv
-      - run:
           name: 'Setup virtualenv'
           command: |
-            mkdir -p ~/.virtualenvs
+            pyenv global 3.11.7
             python3 -m venv ~/.virtualenvs/singer-python
             source ~/.virtualenvs/singer-python/bin/activate
             pip install -U 'pip<20.3.4' 'setuptools<51.0.0'
@@ -21,6 +24,5 @@ jobs:
       - run:
           name: 'Run tests'
           command: |
-            # Need to re-activate the virtualenv
             source ~/.virtualenvs/singer-python/bin/activate
             make test
