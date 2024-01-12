@@ -54,8 +54,8 @@ class SchemaMismatch(Exception):
 
         else:
             estrs = [e.tostr() for e in errors]
-            msg = f"Errors during transform\n\t{"\n\t".join(estrs)}"
-            msg += f"\n\n\nErrors during transform: [{", ".join(estrs)}]"
+            msg = "Errors during transform\n\t{}".format("\n\t".join(estrs))
+            msg += "\n\n\nErrors during transform: [{}]".format(", ".join(estrs))
 
         super().__init__(msg)
 
