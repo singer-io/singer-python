@@ -92,7 +92,7 @@ class Catalog():
 
     @classmethod
     def load(cls, filename):
-        with open(filename) as fp:  # pylint: disable=invalid-name
+        with open(filename, encoding="utf-8") as fp:
             return Catalog.from_dict(json.load(fp))
 
     @classmethod

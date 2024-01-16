@@ -1,26 +1,35 @@
-version: 2
+version: 2.1
+
+workflows:
+  build:
+    jobs:
+      - build:
+          context:
+            - circleci-user
+
 jobs:
   build:
     docker:
-      - image: ubuntu:16.04
+      - image: 218546966473.dkr.ecr.us-east-1.amazonaws.com/sources-python:1.1.0
     steps:
       - checkout
       - run:
-          name: 'Install python 3.5.2'
-          command: |
-            apt update
-            apt install --yes python3 python3-pip python3-venv
-      - run:
           name: 'Setup virtualenv'
           command: |
-            mkdir -p ~/.virtualenvs
+            pyenv global 3.11.7
             python3 -m venv ~/.virtualenvs/singer-python
             source ~/.virtualenvs/singer-python/bin/activate
-            pip install -U 'pip<19.2' 'setuptools<51.0.0'
-            make install
+            pip install -U 'pip==20.3.4' 'setuptools<51.0.0'
+            pip install .[dev]
       - run:
-          name: 'Run tests'
+          name: 'Pylint'
           command: |
-            # Need to re-activate the virtualenv
             source ~/.virtualenvs/singer-python/bin/activate
-            make test
+            pip install pylint
+            pylint singer --extension-pkg-whitelist=ciso8601 -d missing-docstring,broad-exception-raised,broad-exception-caught,bare-except,too-many-return-statements,too-many-branches,too-many-arguments,no-else-return,too-few-public-methods,fixme,protected-access,consider-using-f-string
+      - run:
+          name: 'Run Tests'
+          command: |
+            source ~/.virtualenvs/singer-python/bin/activate
+            pip install nose2
+            nose2 -v -s tests

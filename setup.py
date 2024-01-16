@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 import subprocess
 
 setup(name="singer-python",
-      version='5.13.0',
+      version='6.0.0',
       description="Singer.io utility library",
       author="Stitch",
       classifiers=['Programming Language :: Python :: 3 :: Only'],
@@ -14,7 +14,7 @@ setup(name="singer-python",
           'jsonschema==2.6.0',
           'simplejson==3.11.1',
           'python-dateutil>=2.6.0',
-          'backoff==1.8.0',
+          'backoff==2.2.1',
 	  'ciso8601',
       ],
       extras_require={
