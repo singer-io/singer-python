@@ -1,7 +1,7 @@
 singer-python
 ===================
 
-Writes the Singer format from Python
+Writes the Singer format from Python.
 
 Use
 ---
