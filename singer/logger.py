@@ -6,7 +6,7 @@ import os
 def get_logger():
     """Return a Logger instance appropriate for using in a Tap or a Target."""
     this_dir, _ = os.path.split(__file__)
-    path = os.path.join(this_dir, 'logging.conf')
+    path = os.environ.get('SINGER_LOGGING_CONF') or os.path.join(this_dir, 'logging.conf')
     # See
     # https://docs.python.org/3.5/library/logging.config.html#logging.config.fileConfig
     # for a discussion of why or why not to set disable_existing_loggers
