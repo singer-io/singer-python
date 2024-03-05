@@ -220,9 +220,15 @@ def parse_args(required_config_keys):
     for key, value in args.config.items():
         pattern = re.compile("(.*\$){2}.*==")  # AES value will be in the format <nonce>$<ciphertext>$<mac_tag>
 
-        if type(value) == str and re.match(pattern, value):
+        if isinstance(value, str) and re.match(pattern, value):
             try:
                 decrypted = decrypt_string_with_aes(value, aes_secret_key)
+                try:
+                    # handle case where string value is actually stringified json
+                    decrypted = json.loads(decrypted)
+                except Exception:
+                    pass
+
                 args.config[key] = decrypted
                 encrypted_config[f'encrypted_{key}'] = value  # store the encrypted version also
             except Exception:
