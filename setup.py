@@ -11,10 +11,10 @@ setup(name="singer-python",
       url="http://singer.io",
       install_requires=[
           'pytz>=2018.4',
-          'jsonschema>=2.6.0',
-          'simplejson>=3.19.2',
+          'jsonschema==2.6.0',
+          'simplejson==3.*',
           'python-dateutil>=2.6.0',
-          'backoff>=2.2.1',
+          'backoff==2.*',
           'ciso8601',
       ],
       extras_require={
