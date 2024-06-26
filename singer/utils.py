@@ -193,6 +193,14 @@ def parse_args(required_config_keys):
         '-d', '--discover',
         action='store_true',
         help='Do schema discovery')
+    
+    parser.add_argument(
+        '--category',
+        help='Single category to sync')
+    
+    parser.add_argument(
+        '--streams',
+        help='Selected streams to sync')
 
     args = parser.parse_args()
     if args.config:
