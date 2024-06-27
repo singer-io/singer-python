@@ -195,8 +195,8 @@ def parse_args(required_config_keys):
         help='Do schema discovery')
     
     parser.add_argument(
-        '--category',
-        help='Single category to sync')
+        '--categories',
+        help='Comma separated categories to sync')
     
     parser.add_argument(
         '--streams',
