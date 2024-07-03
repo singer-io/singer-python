@@ -11,16 +11,16 @@ LOGGER = get_logger()
 class Message():
     '''Base class for messages.'''
 
-    def asdict(self):  # pylint: disable=no-self-use
+    def asdict(self):
         raise Exception('Not implemented')
 
     def __eq__(self, other):
         return isinstance(other, Message) and self.asdict() == other.asdict()
 
     def __repr__(self):
-        pairs = ["{}={}".format(k, v) for k, v in self.asdict().items()]
+        pairs = [f"{k}={v}" for k, v in self.asdict().items()]
         attrstr = ", ".join(pairs)
-        return "{}({})".format(self.__class__.__name__, attrstr)
+        return f"{self.__class__.__name__}({attrstr})"
 
     def __str__(self):
         return str(self.asdict())
@@ -169,7 +169,7 @@ class ActivateVersionMessage(Message):
 
 def _required_key(msg, k):
     if k not in msg:
-        raise Exception("Message is missing required key '{}': {}".format(k, msg))
+        raise Exception(f"Message is missing required key '{k}': {msg}")
 
     return msg[k]
 

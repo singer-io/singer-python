@@ -77,16 +77,16 @@ class Error:
         path = ".".join(map(str, self.path))
         if self.schema:
             if self.logging_level >= logging.INFO:
-                msg = "data does not match {}".format(self.schema)
+                msg = f"data does not match {self.schema}"
             else:
-                msg = "does not match {}".format(self.schema)
+                msg = f"does not match {self.schema}"
         else:
             msg = "not in schema"
 
         if self.logging_level >= logging.INFO:
-            output = "{}: {}".format(path, msg)
+            output = f"{path}: {msg}"
         else:
-            output = "{}: {} {}".format(path, self.data, msg)
+            output = f"{path}: {self.data} {msg}"
         return output
 
 

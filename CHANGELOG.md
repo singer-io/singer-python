@@ -1,5 +1,11 @@
 # Changelog
 
+## 6.0.1
+  * Pin backoff and simplejson to any version greater than or equal to the previously allowed version, up to the next major version [#167](https://github.com/singer-io/singer-python/pull/167)
+
+## 6.0.0
+  * Bump backoff version to 2.2.1. This version drops support for python 3.5, but adds it for 3.10 [#165](https://github.com/singer-io/singer-python/pull/165)
+
 ## 5.13.0
   * Add support for dev mode argument parsing [#158](https://github.com/singer-io/singer-python/pull/158)
 
