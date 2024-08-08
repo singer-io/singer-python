@@ -1,5 +1,8 @@
 # Changelog
 
+## 6.1.0
+  * Make ensure_ascii Dynamic with Default Set to True in JSON Serialization. Required to handle the special characters [#168](https://github.com/singer-io/singer-python/pull/168)
+
 ## 6.0.1
   * Pin backoff and simplejson to any version greater than or equal to the previously allowed version, up to the next major version [#167](https://github.com/singer-io/singer-python/pull/167)
 
