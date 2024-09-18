@@ -175,32 +175,69 @@ def parse_args(required_config_keys):
     parser.add_argument(
         '-c', '--config',
         help='Config file',
-        required=True)
+        required=True
+    )
 
     parser.add_argument(
         '-s', '--state',
-        help='State file')
+        help='State file'
+    )
 
     parser.add_argument(
         '-p', '--properties',
-        help='Property selections: DEPRECATED, Please use --catalog instead')
+        help='Property selections: DEPRECATED, Please use --catalog instead'
+    )
 
     parser.add_argument(
         '--catalog',
-        help='Catalog file')
+        help='Catalog file'
+    )
 
     parser.add_argument(
         '-d', '--discover',
         action='store_true',
-        help='Do schema discovery')
+        help='Do schema discovery'
+    )
     
     parser.add_argument(
         '--categories',
-        help='Comma separated categories to sync')
-    
+        help='Comma separated categories to sync'
+    )
+
+    parser.add_argument(
+        '--param1',
+        help='Attribute from a Peliqan server instance'
+    )
+
+    parser.add_argument(
+        '--param2',
+        help='Attribute from a Peliqan server instance'
+    )
+
+    parser.add_argument(
+        '--param3',
+        help='Attribute from a Peliqan server instance'
+    )
+
+    parser.add_argument(
+        '--param4',
+        help='Attribute from a Peliqan server instance'
+    )
+
+    parser.add_argument(
+        '--param5',
+        help='Attribute from a Peliqan server instance'
+    )
+
+    parser.add_argument(
+        '--param6',
+        help='Attribute from a Peliqan server instance'
+    )
+
     parser.add_argument(
         '--streams',
-        help='Selected streams to sync')
+        help='Selected streams to sync'
+    )
 
     args = parser.parse_args()
     if args.config:
