@@ -20,6 +20,7 @@ def write_catalog(catalog):
 # pylint: disable=too-many-instance-attributes
 class CatalogEntry():
 
+    # pylint: disable=too-many-positional-arguments
     def __init__(self, tap_stream_id=None, stream=None,
                  key_properties=None, schema=None, replication_key=None,
                  is_view=None, database=None, table=None, row_count=None,
