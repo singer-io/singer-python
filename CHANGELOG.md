@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.13.1
+  * Switch `setup.cfg` to use underscore instead of dash because setuptools has deprecated anything other than lower_snake_case. See [setuptools issue](https://github.com/pypa/setuptools/issues/4910) for more context.
+
 ## 5.13.0
   * Add support for dev mode argument parsing [#158](https://github.com/singer-io/singer-python/pull/158)
 
