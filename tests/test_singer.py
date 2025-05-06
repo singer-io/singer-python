@@ -1,5 +1,6 @@
 import singer
 import unittest
+from unittest.mock import patch
 import datetime
 import dateutil
 from decimal import Decimal
@@ -179,6 +180,31 @@ class TestParsingNumbers(unittest.TestCase):
             value = self.create_record(value_str)
             self.assertEqual(Decimal(value_str), value)
 
+    @patch('sys.stdout')
+    def test_ensure_ascii_false(self, mock_stdout):
+        """
+        Setting ensure_ascii=False will preserve special characters like é 
+        in their original form.
+        """
+        rec = {"name": "José"}
+        expected_output = '{"type": "RECORD", "stream": "test_stream", "record": {"name": "José"}}\n'
+        rec_message = singer.RecordMessage(stream="test_stream", record=rec)
+        result = singer.write_message(rec_message, ensure_ascii=False)
+        mock_stdout.write.assert_called_once_with(expected_output)
+        mock_stdout.flush.assert_called_once()
+
+    @patch('sys.stdout')
+    def test_ensure_ascii_true(self, mock_stdout):
+        """
+        ensure_ascii defaults to True, special characters like é are 
+        escaped into their ASCII representation (e.g., \u00e9)
+        """
+        rec = {"name": "José"}
+        expected_output = '{"type": "RECORD", "stream": "test_stream", "record": {"name": "Jos\\u00e9"}}\n'
+        rec_message = singer.RecordMessage(stream="test_stream", record=rec)
+        result = singer.write_message(rec_message)
+        mock_stdout.write.assert_called_once_with(expected_output)
+        mock_stdout.flush.assert_called_once()
 
 if __name__ == '__main__':
     unittest.main()
