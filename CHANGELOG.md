@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.13.2
+  * Bump backoff version to 1.10.0
+
 ## 5.13.1
   * Switch `setup.cfg` to use underscore instead of dash because setuptools has deprecated anything other than lower_snake_case. See [setuptools issue](https://github.com/pypa/setuptools/issues/4910) for more context.
 
