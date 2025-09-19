@@ -1,7 +1,7 @@
 # Changelog
 
 ## 5.14.0
-  * Adds json schema generation [#172](https://github.com/singer-io/singer-python/pull/172)
+  * Adds json schema generation [#174](https://github.com/singer-io/singer-python/pull/174)
 
 ## 5.13.2
   * Bump backoff version to 1.10.0
