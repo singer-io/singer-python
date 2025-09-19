@@ -25,7 +25,7 @@ class TestGetSelectedStreams(unittest.TestCase):
              CatalogEntry(tap_stream_id='c',schema=Schema(),metadata=[])])
         state = {}
         selected_streams = catalog.get_selected_streams(state)
-        self.assertEquals([e for e in selected_streams],[selected_entry])
+        self.assertEqual([e for e in selected_streams],[selected_entry])
 
     def test_resumes_currently_syncing_stream(self):
         selected_entry_a = CatalogEntry(tap_stream_id='a',
@@ -44,7 +44,7 @@ class TestGetSelectedStreams(unittest.TestCase):
              selected_entry_c])
         state = {'currently_syncing': 'c'}
         selected_streams = catalog.get_selected_streams(state)
-        self.assertEquals([e for e in selected_streams][0],selected_entry_c)
+        self.assertEqual([e for e in selected_streams][0],selected_entry_c)
 
 class TestToDictAndFromDict(unittest.TestCase):
 
@@ -141,4 +141,4 @@ class TestGetStream(unittest.TestCase):
              CatalogEntry(tap_stream_id='b'),
              CatalogEntry(tap_stream_id='c')])
         entry = catalog.get_stream('b')
-        self.assertEquals('b', entry.tap_stream_id)
+        self.assertEqual('b', entry.tap_stream_id)
