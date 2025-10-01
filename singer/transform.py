@@ -146,6 +146,8 @@ class Transformer:
         return data
 
     def transform(self, data, schema, metadata=None):
+        import ipdb; ipdb.set_trace()
+        1+1
         data = self.filter_data_by_metadata(data, metadata)
 
         success, transformed_data = self.transform_recur(data, schema, [])
@@ -266,13 +268,13 @@ class Transformer:
             else:
                 return False, None
 
-        elif schema.get("format") == "date-time":
+        elif typ == "string" and schema.get("format") == "date-time":
             data = self._transform_datetime(data)
             if data is None:
                 return False, None
 
             return True, data
-        elif schema.get("format") == "singer.decimal":
+        elif typ == "string" and schema.get("format") == "singer.decimal":
             if data is None:
                 return False, None
 
