@@ -146,8 +146,6 @@ class Transformer:
         return data
 
     def transform(self, data, schema, metadata=None):
-        import ipdb; ipdb.set_trace()
-        1+1
         data = self.filter_data_by_metadata(data, metadata)
 
         success, transformed_data = self.transform_recur(data, schema, [])
