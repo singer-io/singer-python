@@ -1,5 +1,11 @@
 # Changelog
 
+## 6.2.1
+  * Fixes json schema generation to not treat numbers as dates
+  * Fixes json schema generation to handle empty arrays
+  * Fixes record transformation to handle fields that could be either formatted string or nested data structure
+  * [#177](https://github.com/singer-io/singer-python/pull/177)
+
 ## 6.2.0
   * Adds json schema generation [#175](https://github.com/singer-io/singer-python/pull/175)
 
