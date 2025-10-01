@@ -36,6 +36,7 @@ def add_observations(acc, path, data):
             add_observation(acc, path + ["number"])
             return acc
         except (ValueError, TypeError):
+            pass
         try:
             # If the string parses as a date, add an observation that it's a date
             dateutil.parser.parse(data)
