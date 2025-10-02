@@ -18,19 +18,33 @@ def add_observations(acc, path, data):
         for key in data:
             add_observations(acc, path + ["object", key], data[key])
     elif isinstance(data, list):
+        if len(data) == 0:
+            add_observations(acc, path + ["array"], None)
         for item in data:
             add_observations(acc, path + ["array"], item)
     elif isinstance(data, str):
-        # If the string parses as a date, add an observation that its a date
         try:
-            data = dateutil.parser.parse(data)
-        except (dateutil.parser.ParserError, OverflowError):
-            data = None
-        if data:
+            # If the string parses as a int, add an observation that it's a integer
+            int(data)
+            add_observation(acc, path + ["integer"])
+            return acc
+        except (ValueError, TypeError):
+            pass
+        try:
+            # If the string parses as a float, add an observation that it's a number
+            float(data)
+            add_observation(acc, path + ["number"])
+            return acc
+        except (ValueError, TypeError):
+            pass
+        try:
+            # If the string parses as a date, add an observation that it's a date
+            dateutil.parser.parse(data)
             add_observation(acc, path + ["date"])
-        else:
-            add_observation(acc, path + ["string"])
-
+            return acc
+        except (dateutil.parser.ParserError, OverflowError):
+            pass
+        add_observation(acc, path + ["string"])
     elif isinstance(data, bool):
         add_observation(acc, path + ["boolean"])
     elif isinstance(data, int):
