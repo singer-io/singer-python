@@ -25,7 +25,7 @@ class TestTransform(unittest.TestCase):
 
     def test_multi_type_object_transform(self):
         schema =  {"type": ["null", "object", "string"],
-                   "properties": {"whatever": {"type": "date-time",
+                   "properties": {"whatever": {"type": "string",
                                                "format": "date-time"}}}
         data = {"whatever": "2017-01-01"}
         expected = {"whatever": "2017-01-01T00:00:00.000000Z"}
@@ -36,7 +36,7 @@ class TestTransform(unittest.TestCase):
 
     def test_multi_type_array_transform(self):
         schema =  {"type": ["null", "array", "integer"],
-                   "items": {"type": "date-time", "format": "date-time"}}
+                   "items": {"type": "string", "format": "date-time"}}
         data = ["2017-01-01"]
         expected = ["2017-01-01T00:00:00.000000Z"]
         self.assertEqual(expected, transform(data, schema))
