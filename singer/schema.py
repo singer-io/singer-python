@@ -20,6 +20,7 @@ STANDARD_KEYS = [
     'additionalProperties',
     'anyOf',
     'patternProperties',
+    'definitions',
 ]
 
 
@@ -36,7 +37,7 @@ class Schema():  # pylint: disable=too-many-instance-attributes
                  selected=None, inclusion=None, description=None, minimum=None,
                  maximum=None, exclusiveMinimum=None, exclusiveMaximum=None,
                  multipleOf=None, maxLength=None, minLength=None, additionalProperties=None,
-                 anyOf=None, patternProperties=None):
+                 anyOf=None, patternProperties=None, definitions=None, ref=None):
 
         self.type = type
         self.properties = properties
@@ -55,6 +56,8 @@ class Schema():  # pylint: disable=too-many-instance-attributes
         self.format = format
         self.additionalProperties = additionalProperties
         self.patternProperties = patternProperties
+        self.definitions = definitions
+        self.ref = ref
 
     def __str__(self):
         return json.dumps(self.to_dict())
@@ -70,6 +73,9 @@ class Schema():  # pylint: disable=too-many-instance-attributes
     def to_dict(self):
         '''Return the raw JSON Schema as a (possibly nested) dict.'''
         result = {}
+
+        if self.ref is not None:
+            result['$ref'] = self.ref
 
         if self.properties is not None:
             result['properties'] = {
@@ -97,6 +103,10 @@ class Schema():  # pylint: disable=too-many-instance-attributes
         kwargs = schema_defaults.copy()
         properties = data.get('properties')
         items = data.get('items')
+        ref = data.get('$ref')
+
+        if ref is not None:
+            kwargs['ref'] = ref
 
         if properties is not None:
             kwargs['properties'] = {
@@ -105,6 +115,7 @@ class Schema():  # pylint: disable=too-many-instance-attributes
             }
         if items is not None:
             kwargs['items'] = Schema.from_dict(items, **schema_defaults)
+
         for key in STANDARD_KEYS:
             if key in data:
                 kwargs[key] = data[key]
