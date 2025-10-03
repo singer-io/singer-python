@@ -195,6 +195,9 @@ def check_config(config, required_keys):
     if missing_keys:
         raise Exception(f"Config is missing required keys: {missing_keys}")
 
+def update_config_file(config_path, new_config):
+    with open(config_path, 'w') as output:
+        output.write(json.dumps(new_config, indent=2))
 
 def backoff(exceptions, giveup):
     """Decorates a function to retry up to 5 times using an exponential backoff
