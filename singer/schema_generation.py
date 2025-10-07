@@ -59,9 +59,10 @@ def add_observations(acc, path, data):
     return acc
 
 def to_json_schema(obs):
-    result = {'type': ['null']}
-
+    types = []
     for key in obs:
+
+        result = {'type': ['null']}
 
         if key == 'object':
             result['type'] += ['object']
@@ -77,6 +78,7 @@ def to_json_schema(obs):
         elif key == 'date':
             result['type'] += ['string']
             result['format'] = 'date-time'
+
         elif key == 'string':
             result['type'] += ['string']
 
@@ -97,7 +99,15 @@ def to_json_schema(obs):
         else:
             raise Exception("Unexpected data type " + key)
 
-    return result
+        types.append(result)
+
+    if len(types) == 0:
+        return {'type': ['null', 'string']}
+
+    if len(types) == 1:
+        return types[0]
+
+    return {'anyOf': types}
 
 def generate_schema(records):
     obs = {}
