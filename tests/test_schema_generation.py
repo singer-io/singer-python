@@ -10,7 +10,7 @@ class TestSchemaGeneration(unittest.TestCase):
                 'a': {'type': ['null', 'integer']},
                 'b': {'type': ['null', 'string']},
                 'c': {'type': ['null', 'boolean']},
-                'dt': {'type': ['null', 'string'], 'format': 'date-time'}
+                'dt': {'type': ['null', 'string']}
             }
         }
         self.assertEqual(expected_schema, generate_schema(records))
@@ -24,11 +24,11 @@ class TestSchemaGeneration(unittest.TestCase):
         expected_schema = {
             'type': ['null', 'object'],
             'properties': {'a': {'anyOf': [{'type': ['null', 'integer']},
-                                           {'type': ['null', 'string']},
-                                           {'type': ['null', 'boolean']}]},
+                                           {'type': ['null', 'boolean']},
+                                           {'type': ['null', 'string']}]},
                            'b': {'type': ['null', 'string']},
-                           'c': {'anyOf': [{'type': ['null', 'integer']},
-                                           {'type': ['null', 'string'], 'format': 'singer.decimal'}]},
+                           'c': {'anyOf': [{'type': ['null', 'string'], 'format': 'singer.decimal'},
+                                           {'type': ['null', 'integer']}]},
                 'd': {'anyOf': [{'type': ['null', 'array'],
                                  'items': {'anyOf': [{'type': ['null', 'integer']},
                                                      {'type': ['null', 'string']}]}},

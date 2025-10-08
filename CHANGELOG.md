@@ -1,11 +1,16 @@
 # Changelog
 
+## 5.14.2
+  * Updates json schema generation to not emit dates
+  * Handle multiple schemas with anyOf and emit them in a specific order
+  * Do not emit error messages when checking multiple schemas and a subsequent schema passes
+  * [#178](https://github.com/singer-io/singer-python/pull/178)
+
 ## 5.14.1
   * Fixes json schema generation to not treat numbers as dates
   * Fixes json schema generation to handle empty arrays
   * Fixes record transformation to handle fields that could be either formatted string or nested data structure
   * [#176](https://github.com/singer-io/singer-python/pull/176)
-
 
 ## 5.14.0
   * Adds json schema generation [#174](https://github.com/singer-io/singer-python/pull/174)
