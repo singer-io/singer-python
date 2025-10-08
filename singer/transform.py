@@ -185,6 +185,8 @@ class Transformer:
             success, transformed_data = self.transform_recur(data, subschema, path)
             if success:
                 return success, transformed_data
+            else:
+                self.errors.pop()
         else: # pylint: disable=useless-else-on-loop
             # exhaused all schemas and didn't return, so we failed :-(
             self.errors.append(Error(path, data, schema, logging_level=LOGGER.level))
