@@ -10,7 +10,7 @@ class TestSchemaGeneration(unittest.TestCase):
                 'a': {'type': ['null', 'integer']},
                 'b': {'type': ['null', 'string']},
                 'c': {'type': ['null', 'boolean']},
-                'dt': {'type': ['null', 'string'], 'format': 'date-time'}
+                'dt': {'type': ['null', 'string']}
             }
         }
         self.assertEqual(expected_schema, generate_schema(records))
@@ -23,24 +23,20 @@ class TestSchemaGeneration(unittest.TestCase):
         ]
         expected_schema = {
             'type': ['null', 'object'],
-            'properties': {
-                'a': {'type': {'null', 'integer', 'string', 'boolean'}},
-                'b': {'type': ['null', 'string']},
-                'c': {'type': {'null', 'integer', 'string'}, 'format': 'singer.decimal'},
-                'd': {
-                    'type': {'null', 'array', 'object'},
-                    'items': {'type': {'null', 'integer', 'string'}},
-                    'properties': {'one': {'type': ['null', 'integer']},
-                                   'two': {'type': ['null', 'string']}}
-
-                }
-            }
+            'properties': {'a': {'anyOf': [{'type': ['null', 'integer']},
+                                           {'type': ['null', 'boolean']},
+                                           {'type': ['null', 'string']}]},
+                           'b': {'type': ['null', 'string']},
+                           'c': {'anyOf': [{'type': ['null', 'string'], 'format': 'singer.decimal'},
+                                           {'type': ['null', 'integer']}]},
+                'd': {'anyOf': [{'type': ['null', 'array'],
+                                 'items': {'anyOf': [{'type': ['null', 'integer']},
+                                                     {'type': ['null', 'string']}]}},
+                                {'type': ['null', 'object'],
+                                 'properties': {'one': {'type': ['null', 'integer']},
+                                                'two': {'type': ['null', 'string']}}}]}}
         }
         actual_schema = generate_schema(records)
-        actual_schema['properties']['a']['type'] = set(actual_schema['properties']['a']['type'])
-        actual_schema['properties']['c']['type'] = set(actual_schema['properties']['c']['type'])
-        actual_schema['properties']['d']['type'] = set(actual_schema['properties']['d']['type'])
-        actual_schema['properties']['d']['items']['type'] = set(actual_schema['properties']['d']['items']['type'])
         self.assertEqual(expected_schema, actual_schema)
 
     def test_nested_structue_schema(self):
