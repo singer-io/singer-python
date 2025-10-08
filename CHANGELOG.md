@@ -1,5 +1,11 @@
 # Changelog
 
+## 6.2.2
+  * Updates json schema generation to not emit dates
+  * Handle multiple schemas with anyOf and emit them in a specific order
+  * Do not emit error messages when checking multiple schemas and a subsequent schema passes
+  * [#179](https://github.com/singer-io/singer-python/pull/179)
+
 ## 6.2.1
   * Fixes json schema generation to not treat numbers as dates
   * Fixes json schema generation to handle empty arrays
