@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.14.3
+  * Default type for non-standard data types is string [#181](https://github.com/singer-io/singer-python/pull/181)
+
 ## 5.14.2
   * Updates json schema generation to not emit dates
   * Handle multiple schemas with anyOf and emit them in a specific order
