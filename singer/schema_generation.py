@@ -44,7 +44,7 @@ def add_observations(acc, path, data):
     elif data is None:
         add_observation(acc, path + ["null"])
     else:
-        raise Exception("Unexpected value " + repr(data) + " at path " + repr(path))
+        add_observation(acc, path + ["string"])
 
     return acc
 
