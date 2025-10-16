@@ -218,12 +218,12 @@ def parse_message(msg):
         return None
 
 
-def format_message(message, ensure_ascii=True):
-    return json.dumps(message.asdict(), use_decimal=True, ensure_ascii=ensure_ascii)
+def format_message(message, ensure_ascii=True, allow_nan=False):
+    return json.dumps(message.asdict(), use_decimal=True, ensure_ascii=ensure_ascii, allow_nan=allow_nan)
 
 
-def write_message(message, ensure_ascii=True):
-    sys.stdout.write(format_message(message, ensure_ascii=ensure_ascii) + '\n')
+def write_message(message, ensure_ascii=True, allow_nan=False):
+    sys.stdout.write(format_message(message, ensure_ascii=ensure_ascii, allow_nan=allow_nan) + '\n')
     sys.stdout.flush()
 
 
