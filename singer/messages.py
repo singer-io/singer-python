@@ -219,7 +219,12 @@ def parse_message(msg):
 
 
 def format_message(message, ensure_ascii=True, allow_nan=False):
-    return json.dumps(message.asdict(), use_decimal=True, ensure_ascii=ensure_ascii, allow_nan=allow_nan)
+    return json.dumps(
+            message.asdict(),
+            use_decimal=True,
+            ensure_ascii=ensure_ascii,
+            allow_nan=allow_nan
+        )
 
 
 def write_message(message, ensure_ascii=True, allow_nan=False):
