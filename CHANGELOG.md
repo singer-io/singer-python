@@ -1,5 +1,8 @@
 # Changelog
 
+## 6.3.0
+  * Support allow_nan in message JSON output [#183](https://github.com/singer-io/singer-python/pull/183)
+
 ## 6.2.3
   * Default type for non-standard data types is string [#182](https://github.com/singer-io/singer-python/pull/182)
 
