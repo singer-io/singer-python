@@ -18,7 +18,6 @@ STANDARD_KEYS = [
     'format',
     'type',
     'additionalProperties',
-    'anyOf',
     'patternProperties',
 ]
 
@@ -82,6 +81,9 @@ class Schema():  # pylint: disable=too-many-instance-attributes
         if self.items is not None:
             result['items'] = self.items.to_dict()  # pylint: disable=no-member
 
+        if self.anyOf is not None:
+            result['anyOf'] = [_.to_dict() for _ in self.anyOf]  # pylint: disable=no-member
+
         for key in STANDARD_KEYS:
             if self.__dict__.get(key) is not None:
                 result[key] = self.__dict__[key]
@@ -97,6 +99,7 @@ class Schema():  # pylint: disable=too-many-instance-attributes
         kwargs = schema_defaults.copy()
         properties = data.get('properties')
         items = data.get('items')
+        anyOf = data.get('anyOf')
 
         if properties is not None:
             kwargs['properties'] = {
@@ -105,6 +108,8 @@ class Schema():  # pylint: disable=too-many-instance-attributes
             }
         if items is not None:
             kwargs['items'] = Schema.from_dict(items, **schema_defaults)
+        if anyOf is not None:
+            kwargs['anyOf'] = [Schema.from_dict(_, **schema_defaults) for _ in anyOf]
         for key in STANDARD_KEYS:
             if key in data:
                 kwargs[key] = data[key]
