@@ -1,8 +1,11 @@
+import io
+import sys
 import unittest
 import decimal
+import simplejson as json
+import singer.messages as messages
 from singer import transform
 from singer.transform import *
-
 
 class TestTransform(unittest.TestCase):
     def test_integer_transform(self):
@@ -486,3 +489,58 @@ class TestPatternProperties(unittest.TestCase):
         dict_value = {"name": "chicken", "unit_cost": 1.45, "SKU": '123456'}
         expected = dict(dict_value)
         self.assertEqual(expected, transform(dict_value, schema))
+
+class DummyMessage:
+    """A dummy message object with an asdict() method."""
+    def __init__(self, value):
+        self.value = value
+
+    def asdict(self):
+        return {"value": self.value}
+
+
+class TestAllowNan(unittest.TestCase):
+    """Unit tests for allow_nan support in singer.messages."""
+
+    def test_format_message_allow_nan_true(self):
+        """Should serialize NaN successfully when allow_nan=True."""
+        msg = DummyMessage(float("nan"))
+        result = messages.format_message(msg, allow_nan=True)
+
+        # The output JSON should contain NaN literal (not quoted)
+        self.assertIn("NaN", result)
+
+        # Replace NaN with null to make it valid JSON for parsing check
+        json.loads(result.replace("NaN", "null"))
+
+    def test_format_message_allow_nan_false(self):
+        """Should raise ValueError when allow_nan=False and value is NaN."""
+        msg = DummyMessage(float("nan"))
+        with self.assertRaises(ValueError):
+            messages.format_message(msg, allow_nan=False)
+
+    def test_write_message_allow_nan_true(self):
+        """Should write to stdout successfully when allow_nan=True."""
+        msg = DummyMessage(float("nan"))
+        fake_stdout = io.StringIO()
+        original_stdout = sys.stdout
+        sys.stdout = fake_stdout
+        try:
+            messages.write_message(msg, allow_nan=True)
+            output = fake_stdout.getvalue()
+            self.assertIn("NaN", output)
+            self.assertTrue(output.endswith("\n"))
+        finally:
+            sys.stdout = original_stdout
+
+    def test_write_message_allow_nan_false(self):
+        """Should raise ValueError when allow_nan=False and message has NaN."""
+        msg = DummyMessage(float("nan"))
+        fake_stdout = io.StringIO()
+        original_stdout = sys.stdout
+        sys.stdout = fake_stdout
+        try:
+            with self.assertRaises(ValueError):
+                messages.write_message(msg, allow_nan=False)
+        finally:
+            sys.stdout = original_stdout
