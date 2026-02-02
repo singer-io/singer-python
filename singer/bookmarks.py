@@ -31,9 +31,7 @@ def set_offset(state, tap_stream_id, offset_key, offset_value):
     return state
 
 def clear_offset(state, tap_stream_id):
-    state = ensure_bookmark_path(state, ['bookmarks', tap_stream_id, "offset"])
-    state['bookmarks'][tap_stream_id]["offset"] = {}
-    return state
+    return clear_bookmark(state, tap_stream_id, "offset")
 
 def get_offset(state, tap_stream_id, default=None):
     return state.get('bookmarks', {}).get(tap_stream_id, {}).get("offset", default)
