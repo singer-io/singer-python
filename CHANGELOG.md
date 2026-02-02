@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.15.0
+  * Update clear_offset to remove offset bookmark [#184](https://github.com/singer-io/singer-python/pull/184)
+
 ## 5.14.3
   * Default type for non-standard data types is string [#181](https://github.com/singer-io/singer-python/pull/181)
 
