@@ -1,5 +1,8 @@
 # Changelog
 
+## 6.4.0
+  * Update clear_offset to remove offset key from bookmark [#185](https://github.com/singer-io/singer-python/pull/185)
+
 ## 6.3.0
   * Support allow_nan in message JSON output [#183](https://github.com/singer-io/singer-python/pull/183)
 
