@@ -4,6 +4,7 @@
 import json
 
 # These are standard keys defined in the JSON Schema spec
+# Includes Draft 4 and Draft 7 validation keys
 STANDARD_KEYS = [
     'selected',
     'inclusion',
@@ -20,6 +21,14 @@ STANDARD_KEYS = [
     'additionalProperties',
     'anyOf',
     'patternProperties',
+    # Draft 7 additional keys
+    'required',
+    'minProperties',
+    'maxProperties',
+    'propertyNames',
+    'const',
+    'contains',
+    'dependencies',
 ]
 
 
@@ -36,7 +45,9 @@ class Schema():  # pylint: disable=too-many-instance-attributes
                  selected=None, inclusion=None, description=None, minimum=None,
                  maximum=None, exclusiveMinimum=None, exclusiveMaximum=None,
                  multipleOf=None, maxLength=None, minLength=None, additionalProperties=None,
-                 anyOf=None, patternProperties=None):
+                 anyOf=None, patternProperties=None, required=None, minProperties=None,
+                 maxProperties=None, propertyNames=None, const=None, contains=None,
+                 dependencies=None):
 
         self.type = type
         self.properties = properties
@@ -55,6 +66,13 @@ class Schema():  # pylint: disable=too-many-instance-attributes
         self.format = format
         self.additionalProperties = additionalProperties
         self.patternProperties = patternProperties
+        self.required = required
+        self.minProperties = minProperties
+        self.maxProperties = maxProperties
+        self.propertyNames = propertyNames
+        self.const = const
+        self.contains = contains
+        self.dependencies = dependencies
 
     def __str__(self):
         return json.dumps(self.to_dict())
