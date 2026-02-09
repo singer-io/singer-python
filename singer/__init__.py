@@ -61,7 +61,7 @@ from singer.catalog import (
 )
 from singer.schema import Schema
 
-from singer.bookmarks import (
+from singer.state import (
     write_bookmark,
     get_bookmark,
     clear_bookmark,
@@ -71,6 +71,9 @@ from singer.bookmarks import (
     get_offset,
     set_currently_syncing,
     get_currently_syncing,
+    write_version,
+    clear_version,
+    get_version,
 )
 
 from singer.exceptions import (
