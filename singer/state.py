@@ -58,5 +58,3 @@ def clear_version(state, tap_stream_id, key):
 
 def get_version(state, tap_stream_id, key, default=None):
     return state.get('activate_versions', {}).get(tap_stream_id, {}).get(key, default)
-
-
