@@ -62,7 +62,9 @@ from singer.catalog import (
 from singer.schema import Schema
 
 from singer.state import (
-    write_bookmark,
+    set_bookmark,
+    # for backwards compatibility, use set_bookmark instead
+    set_bookmark as write_bookmark,
     get_bookmark,
     clear_bookmark,
     reset_stream,
@@ -71,7 +73,7 @@ from singer.state import (
     get_offset,
     set_currently_syncing,
     get_currently_syncing,
-    write_version,
+    set_version,
     clear_version,
     get_version,
 )
