@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.16.1
+  * Export state version functions from main module [#191](https://github.com/singer-io/singer-python/pull/191)
+
 ## 5.16.0
   * Add `activate_versions` state functions [#189](https://github.com/singer-io/singer-python/pull/189)
   * Deprecates bookmarks.py, functions are moved to state.py
