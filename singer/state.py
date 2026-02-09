@@ -7,7 +7,7 @@ def ensure_state_path(state, path):
         submap = submap[path_component]
     return state
 
-def write_bookmark(state, tap_stream_id, key, val):
+def set_bookmark(state, tap_stream_id, key, val):
     state = ensure_state_path(state, ['bookmarks', tap_stream_id])
     state['bookmarks'][tap_stream_id][key] = val
     return state
@@ -46,7 +46,7 @@ def set_currently_syncing(state, tap_stream_id):
 def get_currently_syncing(state, default=None):
     return state.get('currently_syncing', default)
 
-def write_version(state, tap_stream_id, key, val):
+def set_version(state, tap_stream_id, key, val):
     state = ensure_state_path(state, ['activate_versions', tap_stream_id])
     state['activate_versions'][tap_stream_id][key] = val
     return state
