@@ -1,44 +1,33 @@
-def ensure_bookmark_path(state, path):
-    submap = state
-    for path_component in path:
-        if submap.get(path_component) is None:
-            submap[path_component] = {}
+from singer import state as st
 
-        submap = submap[path_component]
-    return state
+## Note - This file is deprecated, use state.py functions.
+
+def ensure_bookmark_path(state, path):
+    return st.ensure_state_path(state, path)
 
 def write_bookmark(state, tap_stream_id, key, val):
-    state = ensure_bookmark_path(state, ['bookmarks', tap_stream_id])
-    state['bookmarks'][tap_stream_id][key] = val
-    return state
+    return st.write_bookmark(state, tap_stream_id, key, val)
 
 def clear_bookmark(state, tap_stream_id, key):
-    state = ensure_bookmark_path(state, ['bookmarks', tap_stream_id])
-    state['bookmarks'][tap_stream_id].pop(key, None)
-    return state
+    return st.clear_bookmark(state, tap_stream_id, key)
 
 def reset_stream(state, tap_stream_id):
-    state = ensure_bookmark_path(state, ['bookmarks', tap_stream_id])
-    state['bookmarks'][tap_stream_id] = {}
-    return state
+    return st.reset_stream(state, tap_stream_id)
 
 def get_bookmark(state, tap_stream_id, key, default=None):
-    return state.get('bookmarks', {}).get(tap_stream_id, {}).get(key, default)
+    return st.get_bookmark(state, tap_stream_id, key, default)
 
 def set_offset(state, tap_stream_id, offset_key, offset_value):
-    state = ensure_bookmark_path(state, ['bookmarks', tap_stream_id, "offset", offset_key])
-    state['bookmarks'][tap_stream_id]["offset"][offset_key] = offset_value
-    return state
+    return st.set_offset(state, tap_stream_id, offset_key, offset_value)
 
 def clear_offset(state, tap_stream_id):
-    return clear_bookmark(state, tap_stream_id, "offset")
+    return st.clear_offset(state, tap_stream_id)
 
 def get_offset(state, tap_stream_id, default=None):
-    return state.get('bookmarks', {}).get(tap_stream_id, {}).get("offset", default)
+    return st.get_offset(state, tap_stream_id, default)
 
 def set_currently_syncing(state, tap_stream_id):
-    state['currently_syncing'] = tap_stream_id
-    return state
+    return st.set_currently_syncing(state, tap_stream_id)
 
 def get_currently_syncing(state, default=None):
-    return state.get('currently_syncing', default)
+    return st.get_currently_syncing(state, default)
