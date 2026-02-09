@@ -64,6 +64,7 @@ from singer.schema import Schema
 from singer.state import (
     set_bookmark,
     # for backwards compatibility, use set_bookmark instead
+    # pylint: disable=reimported
     set_bookmark as write_bookmark,
     get_bookmark,
     clear_bookmark,
