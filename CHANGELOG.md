@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.17.0
+  * Export state version functions from main module
+  * Rename singer.state.write_bookmark to singer.state.set_bookmark
+  * [#191](https://github.com/singer-io/singer-python/pull/191)
+
 ## 5.16.0
   * Add `activate_versions` state functions [#189](https://github.com/singer-io/singer-python/pull/189)
   * Deprecates bookmarks.py, functions are moved to state.py
