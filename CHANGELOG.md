@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.16.0
+  * Add `activate_versions` state functions [#189](https://github.com/singer-io/singer-python/pull/189)
+  * Deprecates bookmarks.py, functions are moved to state.py
+
 ## 5.15.0
   * Update clear_offset to remove offset bookmark [#184](https://github.com/singer-io/singer-python/pull/184)
 
