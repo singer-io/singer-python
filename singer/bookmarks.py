@@ -6,7 +6,7 @@ def ensure_bookmark_path(state, path):
     return st.ensure_state_path(state, path)
 
 def write_bookmark(state, tap_stream_id, key, val):
-    return st.write_bookmark(state, tap_stream_id, key, val)
+    return st.set_bookmark(state, tap_stream_id, key, val)
 
 def clear_bookmark(state, tap_stream_id, key):
     return st.clear_bookmark(state, tap_stream_id, key)

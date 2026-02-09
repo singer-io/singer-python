@@ -1,6 +1,6 @@
 # Changelog
 
-## 6.5.1
+## 6.6.0
   * Export singer.state functions from singer [#190](https://github.com/singer-io/singer-python/pull/190)
 
 ## 6.5.0
