@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.18.0
+  * Remove `key` from version state functions [#193](https://github.com/singer-io/singer-python/pull/193)
+
 ## 5.17.0
   * Export state version functions from main module
   * Rename singer.state.write_bookmark to singer.state.set_bookmark

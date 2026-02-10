@@ -207,32 +207,29 @@ class TestActivateVersion(unittest.TestCase):
         empty_state = {}
 
         # Case with no value to fall back on
-        self.assertIsNone(st.get_version(empty_state, 'some_stream', 'my_key'))
+        self.assertIsNone(st.get_version(empty_state, 'some_stream'))
 
         # Case with a given default
-        self.assertEqual(st.get_version(empty_state, 'some_stream', 'my_key', 'default_value'),
+        self.assertEqual(st.get_version(empty_state, 'some_stream', 'default_value'),
                          'default_value')
 
     def test_empty_activate_versions(self):
         empty_versions = {'activate_versions':{}}
 
         # Case with no value to fall back on
-        self.assertIsNone(st.get_version(empty_versions, 'some_stream', 'my_key'))
+        self.assertIsNone(st.get_version(empty_versions, 'some_stream'))
 
         # Case with a given default
-        self.assertEqual(st.get_version(empty_versions, 'some_stream', 'my_key', 'default_value'),
+        self.assertEqual(st.get_version(empty_versions, 'some_stream', 'default_value'),
                          'default_value')
 
     def test_non_empty_state(self):
         stream_id_1 = 'customers'
-        version_key_1 = 'version'
         version_val_1 = 123456789
 
         non_empty_state = {
             'activate_versions' : {
-                stream_id_1 : {
-                    version_key_1 : version_val_1
-                }
+                stream_id_1 : version_val_1
             }
         }
 
@@ -240,48 +237,35 @@ class TestActivateVersion(unittest.TestCase):
         # Cases with no value to fall back on
         #
 
-        # Bad stream, bad key
-        self.assertIsNone(st.get_version(non_empty_state, 'some_stream', 'my_key'))
+        # Bad stream
+        self.assertIsNone(st.get_version(non_empty_state, 'some_stream'))
 
-        # Good stream, bad key
-        self.assertIsNone(st.get_version(non_empty_state, stream_id_1, 'my_key'))
-
-        # Good stream, good key
-        self.assertEqual(st.get_version(non_empty_state, stream_id_1, version_key_1),
+        # Good stream
+        self.assertEqual(st.get_version(non_empty_state, stream_id_1),
                          version_val_1)
 
         #
         # Cases with a given default
         #
 
-        # Bad stream, bad key
-        self.assertEqual(st.get_version(non_empty_state, 'some_stream', 'my_key', 'default_value'),
+        # Bad stream
+        self.assertEqual(st.get_version(non_empty_state, 'some_stream', 'default_value'),
                          'default_value')
 
-        # Bad stream, good key
-        self.assertEqual(st.get_version(non_empty_state, 'some_stream', version_key_1, 'default_value'),
-                         'default_value')
-
-        # Good stream, bad key
-        self.assertEqual(st.get_version(non_empty_state, stream_id_1, 'my_key', 'default_value'),
-                         'default_value')
-
-        # Good stream, good key
-        self.assertEqual(st.get_version(non_empty_state, stream_id_1, version_key_1, 'default_value'),
+        # Good stream
+        self.assertEqual(st.get_version(non_empty_state, stream_id_1, 'default_value'),
                          version_val_1)
 
     def test_set_version(self):
         stream_id_1 = 'customers'
-        version_key_1 = 'datetime'
         version_val_1 = 123456789
 
-        result = st.set_version({'activate_versions': {stream_id_1: {version_key_1: 'old-value'}}}, stream_id_1, version_key_1, version_val_1)
-        self.assertEqual(result, {'activate_versions': {stream_id_1: {version_key_1: version_val_1}}})
+        result = st.set_version({'activate_versions': {stream_id_1: 'old-value'}}, stream_id_1, version_val_1)
+        self.assertEqual(result, {'activate_versions': {stream_id_1: version_val_1}})
 
     def test_clear_version(self):
         stream_id_1 = 'customers'
-        version_key_1 = 'datetime'
         version_val_1 = 123456789
 
-        result = st.clear_version({'activate_versions': {stream_id_1: {version_key_1: version_val_1}}}, stream_id_1, version_key_1)
-        self.assertEqual(result, {'activate_versions': {stream_id_1: {}}})
+        result = st.clear_version({'activate_versions': {stream_id_1: version_val_1}}, stream_id_1)
+        self.assertEqual(result, {'activate_versions': {}})
