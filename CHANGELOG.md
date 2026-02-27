@@ -1,5 +1,8 @@
 # Changelog
 
+## 6.8.0
+  * Rename state key `activate_versions` to `versions` in all relevant locations [#194](https://github.com/singer-io/singer-python/pull/194)
+
 ## 6.7.0
   * Remove `key` from set_version, get_version, and clear_version state functions [#192](https://github.com/singer-io/singer-python/pull/192)
 
