@@ -202,7 +202,7 @@ class TestCurrentlySyncing(unittest.TestCase):
         self.assertEqual(result, {'currently_syncing': 'bar'})
 
 
-class TestActivateVersion(unittest.TestCase):
+class TestVersions(unittest.TestCase):
     def test_empty_state(self):
         empty_state = {}
 
@@ -213,8 +213,8 @@ class TestActivateVersion(unittest.TestCase):
         self.assertEqual(st.get_version(empty_state, 'some_stream', 'default_value'),
                          'default_value')
 
-    def test_empty_activate_versions(self):
-        empty_versions = {'activate_versions':{}}
+    def test_empty_versions(self):
+        empty_versions = {'versions':{}}
 
         # Case with no value to fall back on
         self.assertIsNone(st.get_version(empty_versions, 'some_stream'))
@@ -228,7 +228,7 @@ class TestActivateVersion(unittest.TestCase):
         version_val_1 = 123456789
 
         non_empty_state = {
-            'activate_versions' : {
+            'versions' : {
                 stream_id_1 : version_val_1
             }
         }
@@ -260,12 +260,12 @@ class TestActivateVersion(unittest.TestCase):
         stream_id_1 = 'customers'
         version_val_1 = 123456789
 
-        result = st.set_version({'activate_versions': {stream_id_1: 'old-value'}}, stream_id_1, version_val_1)
-        self.assertEqual(result, {'activate_versions': {stream_id_1: version_val_1}})
+        result = st.set_version({'versions': {stream_id_1: 'old-value'}}, stream_id_1, version_val_1)
+        self.assertEqual(result, {'versions': {stream_id_1: version_val_1}})
 
     def test_clear_version(self):
         stream_id_1 = 'customers'
         version_val_1 = 123456789
 
-        result = st.clear_version({'activate_versions': {stream_id_1: version_val_1}}, stream_id_1)
-        self.assertEqual(result, {'activate_versions': {}})
+        result = st.clear_version({'versions': {stream_id_1: version_val_1}}, stream_id_1)
+        self.assertEqual(result, {'versions': {}})
