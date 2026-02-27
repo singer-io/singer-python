@@ -20,9 +20,9 @@ def clear_bookmark(state, tap_stream_id, key):
 def reset_stream(state, tap_stream_id):
     state = ensure_state_path(state, ['bookmarks', tap_stream_id])
     state['bookmarks'][tap_stream_id] = {}
-    if 'activate_versions' in state:
-        state = ensure_state_path(state, ['activate_versions', tap_stream_id])
-        state['activate_versions'][tap_stream_id] = {}
+    if 'versions' in state:
+        state = ensure_state_path(state, ['versions', tap_stream_id])
+        state['versions'][tap_stream_id] = {}
     return state
 
 def get_bookmark(state, tap_stream_id, key, default=None):
