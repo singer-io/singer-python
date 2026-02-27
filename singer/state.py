@@ -47,14 +47,14 @@ def get_currently_syncing(state, default=None):
     return state.get('currently_syncing', default)
 
 def set_version(state, tap_stream_id, val):
-    state = ensure_state_path(state, ['activate_versions', tap_stream_id])
-    state['activate_versions'][tap_stream_id] = val
+    state = ensure_state_path(state, ['versions', tap_stream_id])
+    state['versions'][tap_stream_id] = val
     return state
 
 def clear_version(state, tap_stream_id):
-    state = ensure_state_path(state, ['activate_versions', tap_stream_id])
-    state['activate_versions'].pop(tap_stream_id, None)
+    state = ensure_state_path(state, ['versions', tap_stream_id])
+    state['versions'].pop(tap_stream_id, None)
     return state
 
 def get_version(state, tap_stream_id, default=None):
-    return state.get('activate_versions', {}).get(tap_stream_id, default)
+    return state.get('versions', {}).get(tap_stream_id, default)
