@@ -2,7 +2,7 @@ singer-python
 ===================
 
 Writes the Singer format from Python
-
+changing format with help of python3
 Use
 ---
 
