@@ -331,6 +331,12 @@ class Transformer:
                 return False, None
 
         elif typ == "boolean":
+            # None and "" must fall through to the null handler; bool(None)
+            # and bool("") both return False without raising, which would
+            # silently coerce null values to false for ["null", "boolean"] schemas.
+            if data is None or data == "":
+                return False, None
+
             if isinstance(data, str) and data.lower() == "false":
                 return True, False
 
