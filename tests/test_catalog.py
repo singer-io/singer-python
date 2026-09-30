@@ -1,5 +1,7 @@
 import unittest
+from unittest.mock import patch
 
+import singer.catalog
 from singer.schema import Schema
 from singer.catalog import Catalog, CatalogEntry, write_catalog
 
@@ -45,6 +47,14 @@ class TestGetSelectedStreams(unittest.TestCase):
         state = {'currently_syncing': 'c'}
         selected_streams = catalog.get_selected_streams(state)
         self.assertEqual([e for e in selected_streams][0],selected_entry_c)
+
+    def test_skipped_stream_logged_once(self):
+        catalog = Catalog([CatalogEntry(tap_stream_id='b',schema=Schema(),metadata=[])])
+        singer.catalog._SKIPPED_STREAMS_LOGGED.clear()
+        with patch.object(singer.catalog.LOGGER, 'info') as mock_info:
+            for _ in range(3):
+                list(catalog.get_selected_streams({}))
+            mock_info.assert_called_once_with('Skipping stream: %s', 'b')
 
 class TestToDictAndFromDict(unittest.TestCase):
 

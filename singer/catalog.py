@@ -9,6 +9,17 @@ from .schema import Schema
 
 LOGGER = get_logger()
 
+# Tracks which streams we've already logged as skipped, so repeated calls to
+# Catalog.get_selected_streams don't log the same stream over and over.
+_SKIPPED_STREAMS_LOGGED = set()
+
+
+def _log_skipped_stream(tap_stream_id):
+    if tap_stream_id in _SKIPPED_STREAMS_LOGGED:
+        return
+    _SKIPPED_STREAMS_LOGGED.add(tap_stream_id)
+    LOGGER.info('Skipping stream: %s', tap_stream_id)
+
 
 def write_catalog(catalog):
     # If the catalog has no streams, log a warning
@@ -151,7 +162,7 @@ class Catalog():
     def get_selected_streams(self, state):
         for stream in self._shuffle_streams(state):
             if not stream.is_selected():
-                LOGGER.info('Skipping stream: %s', stream.tap_stream_id)
+                _log_skipped_stream(stream.tap_stream_id)
                 continue
 
             yield stream
