@@ -1,5 +1,6 @@
 '''Provides an object model for a Singer Catalog.'''
 import json
+import os
 import sys
 
 from . import metadata as metadata_module
@@ -151,7 +152,9 @@ class Catalog():
     def get_selected_streams(self, state):
         for stream in self._shuffle_streams(state):
             if not stream.is_selected():
-                LOGGER.info('Skipping stream: %s', stream.tap_stream_id)
+                # The QTC orchestrator sets this; Stitch leaves it unset and keeps the log
+                if os.environ.get('SINGER_SUPPRESS_SKIPPED_STREAM_LOG', '').lower() != 'true':
+                    LOGGER.info('Skipping stream: %s', stream.tap_stream_id)
                 continue
 
             yield stream
