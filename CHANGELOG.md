@@ -1,5 +1,8 @@
 # Changelog
 
+## 6.9.0
+  * Suppress the `Skipping stream` log when `SINGER_SUPPRESS_SKIPPED_STREAM_LOG=true`
+
 ## 6.8.0
   * Rename state key `activate_versions` to `versions` in all relevant locations [#194](https://github.com/singer-io/singer-python/pull/194)
 
